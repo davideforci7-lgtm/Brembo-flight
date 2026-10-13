@@ -2,9 +2,9 @@ name: Verify playable demo
 
 on:
   push:
-    branches: [main, feat/first-playable-demo]
+    branches: [main, "feat/**"]
   pull_request:
-    branches: [main]
+    branches: [main, feat/first-playable-demo]
   workflow_dispatch:
 
 permissions:
@@ -26,7 +26,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
-      - run: npm run build
+      - run: npm run package:playtest
       - run: npx playwright install --with-deps chromium webkit
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
@@ -38,5 +38,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: brembo-flight-demo
-          path: dist/
+          path: playtest-package/
           retention-days: 7
