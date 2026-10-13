@@ -4,6 +4,10 @@ Un drone, otto anelli e una valle alpina da esplorare. Prima demo giocabile in *
 
 **Il terreno è interamente dimostrativo. Non rappresenta la Val Brembana reale.** Non usare questa demo per navigazione, addestramento o pianificazione di voli reali.
 
+![Screenshot della demo eseguita in Chromium: drone, valle e primo checkpoint](docs/screenshots/desktop.webp)
+
+Screenshot reali della build: [schermata iniziale](docs/screenshots/intro.webp) · [layout touch emulato](docs/screenshots/iphone-layout.webp). Il layout mobile è emulato, non fotografato su un iPhone fisico.
+
 ## Cosa contiene
 
 - Valle 3D procedurale con montagne, fiume, boschi e piazzola; tutti gli elementi sono generati dal codice.
@@ -37,17 +41,17 @@ La build è in `dist/`; anteprima in `http://localhost:4173/Brembo-flight/`. Apr
 
 ## Comandi
 
-| Azione | PC | Touch |
-| --- | --- | --- |
-| Avanti / indietro / laterale | W A S D oppure frecce | Joystick sinistro |
-| Sali / scendi | R / F | Joystick destro su / giù |
-| Ruota a sinistra / destra | Q / E | Joystick destro sinistra / destra |
-| Frena | Spazio | Tieni FRENO |
-| Boost | Shift | Tieni BOOST |
-| Telecamera | C | Pulsante telecamera |
-| Pausa / riprendi | P oppure Esc | Pulsante pausa |
-| Recupera al prossimo anello (+5 s) | X | Dopo un urto: Ritorna in volo |
-| Guida e qualità grafica | H | Pulsante ? |
+| Azione                             | PC                    | Touch                             |
+| ---------------------------------- | --------------------- | --------------------------------- |
+| Avanti / indietro / laterale       | W A S D oppure frecce | Joystick sinistro                 |
+| Sali / scendi                      | R / F                 | Joystick destro su / giù          |
+| Ruota a sinistra / destra          | Q / E                 | Joystick destro sinistra / destra |
+| Frena                              | Spazio                | Tieni FRENO                       |
+| Boost                              | Shift                 | Tieni BOOST                       |
+| Telecamera                         | C                     | Pulsante telecamera               |
+| Pausa / riprendi                   | P oppure Esc          | Pulsante pausa                    |
+| Recupera al prossimo anello (+5 s) | X                     | Dopo un urto: Ritorna in volo     |
+| Guida e qualità grafica            | H                     | Pulsante ?                        |
 
 La freccia della mappa indica il drone. Attraversa l'anello **arancione** dal lato del checkpoint precedente. Il primo è dritto davanti a te: basta avanzare. Rilascia i joystick per stabilizzare il volo. Il recupero aggiunge 5 secondi; ricominciare azzera la partita.
 
