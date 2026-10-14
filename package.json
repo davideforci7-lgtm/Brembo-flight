@@ -1,6 +1,6 @@
 {
   "name": "brembo-flight",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "Un simulatore di drone 3D gratuito e open source, con una valle alpina dimostrativa.",
@@ -17,7 +17,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "check": "npm run test && npm run build && npm run test:e2e"
+    "check": "npm run test && npm run build && npm run test:e2e",
+    "playtest": "npm run build && node scripts/playtest.mjs",
+    "package:playtest": "npm run build && node scripts/package-playtest.mjs"
   },
   "dependencies": {
     "three": "0.186.1"

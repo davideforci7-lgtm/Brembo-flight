@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
+import { DEMO_PROVENANCE } from "../geo/contracts";
 import { clamp, lerp, seededRandom, type Vec3 } from "./math";
 
 /** Replace this provider with licensed, projected elevation data for a real valley.
@@ -31,6 +32,7 @@ function elevation(x: number, z: number): number {
 }
 
 export class DemoTerrain implements TerrainProvider {
+  readonly provenance = DEMO_PROVENANCE;
   readonly size = 1600;
   readonly segments = 200;
   readonly heights: Float32Array;

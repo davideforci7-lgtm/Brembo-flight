@@ -1,8 +1,19 @@
 // SPDX-License-Identifier: AGPL-3.0-only
+import { GamepadReader } from "./core/gamepad";
+import type { Settings } from "./core/settings";
 import { clamp } from "./core/math";
 import { neutralInput, type FlightInput } from "./core/flight";
 
-export type Command = "pause" | "camera" | "respawn" | "help";
+export type Command =
+  | "pause"
+  | "camera"
+  | "respawn"
+  | "help"
+  | "confirm"
+  | "next"
+  | "previous"
+  | "left"
+  | "right";
 const flightKeys = new Set([
   "KeyW",
   "KeyA",
@@ -27,7 +38,21 @@ export class Controls {
   private touchBrake = false;
   private touchBoost = false;
   enabled = false;
-  constructor(onCommand: (command: Command) => void, onBlur: () => void) {
+  activeInput: "keyboard" | "touch" | "gamepad" = matchMedia(
+    "(pointer: coarse)",
+  ).matches
+    ? "touch"
+    : "keyboard";
+  readonly gamepad = new GamepadReader();
+  private padInput = neutralInput();
+  get controllerLabel() {
+    return this.gamepad.label;
+  }
+  constructor(
+    private onCommand: (command: Command) => void,
+    private onBlur: () => void,
+    private settings: Settings,
+  ) {
     window.addEventListener("keydown", (event) => {
       if (
         event.target instanceof HTMLElement &&
@@ -42,6 +67,7 @@ export class Controls {
       if (flightKeys.has(event.code) && this.enabled) {
         event.preventDefault();
         this.keys.add(event.code);
+        this.activeInput = "keyboard";
       }
       if (event.repeat) return;
       if (event.code === "Escape" || event.code === "KeyP") onCommand("pause");
@@ -60,21 +86,75 @@ export class Controls {
         onBlur();
       }
     });
+    window.addEventListener("resize", () => this.clear());
+    window.addEventListener("gamepadconnected", () => this.pollGamepad());
+    window.addEventListener("gamepaddisconnected", (event) => {
+      if (
+        this.gamepad.identity !== `${event.gamepad.index}:${event.gamepad.id}`
+      )
+        return;
+      this.gamepad.poll([], this.settings);
+      this.clear();
+      this.activeInput = matchMedia("(pointer: coarse)").matches
+        ? "touch"
+        : "keyboard";
+      if (this.enabled) this.onBlur();
+    });
     this.connectStick("move-stick", "move");
     this.connectStick("look-stick", "look");
     this.connectHold("brake-button", (held) => (this.touchBrake = held));
     this.connectHold("boost-button", (held) => (this.touchBoost = held));
   }
+  pollGamepad() {
+    try {
+      if (!navigator.getGamepads) {
+        this.gamepad.label =
+          "Gamepad API non disponibile (usa HTTPS o localhost)";
+        return;
+      }
+      const result = this.gamepad.poll(
+        Array.from(navigator.getGamepads()),
+        this.settings,
+      );
+      this.padInput = result.input;
+      if (result.changed && !this.gamepad.identity)
+        this.activeInput = matchMedia("(pointer: coarse)").matches
+          ? "touch"
+          : "keyboard";
+      if (result.changed && this.enabled) {
+        this.clear();
+        this.onBlur();
+      }
+      if (result.active) this.activeInput = "gamepad";
+      for (const command of result.commands) this.onCommand(command);
+    } catch {
+      const wasConnected = !!this.gamepad.identity;
+      this.padInput = neutralInput();
+      this.gamepad.poll([], this.settings);
+      if (wasConnected && this.enabled) this.onBlur();
+      this.gamepad.label =
+        "Controller non accessibile in questo browser o contesto";
+    }
+  }
   clear() {
+    this.padInput = neutralInput();
+    this.gamepad.disarm();
     this.keys.clear();
     for (const release of this.releases) release();
     this.touchBrake = this.touchBoost = false;
   }
   read(): FlightInput {
     if (!this.enabled) return neutralInput();
+    if (this.keys.size) this.activeInput = "keyboard";
+    else if (
+      this.touchBrake ||
+      this.touchBoost ||
+      Object.values(this.sticks).some((s) => s.x || s.y)
+    )
+      this.activeInput = "touch";
     const key = (...codes: string[]) =>
       codes.some((code) => this.keys.has(code)) ? 1 : 0;
-    return {
+    const input = {
       forward: clamp(
         key("KeyW", "ArrowUp") - key("KeyS", "ArrowDown") - this.sticks.move.y,
         -1,
@@ -92,6 +172,15 @@ export class Controls {
       brake: !!key("Space") || this.touchBrake,
       boost: !!key("ShiftLeft", "ShiftRight") || this.touchBoost,
     };
+    // Explicit keyboard/touch wins per axis; brake always wins in the simulation.
+    for (const axis of ["forward", "right", "up", "yaw"] as const) {
+      input[axis] = input[axis]
+        ? clamp(input[axis] * this.settings.sensitivity, -1, 1)
+        : this.padInput[axis];
+    }
+    input.brake ||= this.padInput.brake;
+    input.boost = !input.brake && (input.boost || this.padInput.boost);
+    return input;
   }
   private connectStick(id: string, axis: "move" | "look") {
     const el = document.getElementById(id)!;
@@ -125,6 +214,7 @@ export class Controls {
     el.addEventListener("pointerdown", (event) => {
       if (!this.enabled || pointer !== null) return;
       event.preventDefault();
+      this.activeInput = "touch";
       pointer = event.pointerId;
       el.setPointerCapture(pointer);
       el.classList.add("held");
@@ -151,6 +241,7 @@ export class Controls {
     el.addEventListener("pointerdown", (event) => {
       if (!this.enabled || pointer !== null) return;
       event.preventDefault();
+      this.activeInput = "touch";
       pointer = event.pointerId;
       el.setPointerCapture(pointer);
       set(true);

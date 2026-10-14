@@ -1,49 +1,81 @@
-# Verifica della demo
+# Verifica BREMBO FLIGHT 0.2
 
-Verifiche svolte il **13 ottobre 2026** sulla prima versione del ramo `feat/first-playable-demo`.
+Aggiornamento del 14 ottobre 2026. L’esito dell’ultima esecuzione completa è riportato nei controlli e nel riepilogo della [PR #2](https://github.com/davideforci7-lgtm/Brembo-flight/pull/2). Non considerare verde un’esecuzione annullata o ancora in corso.
 
-## Risultati locali confermati
+## Esito completo su GitHub Actions
 
-| Verifica                                             | Esito                                                                                              |
-| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `npm test`                                           | **17 test superati**                                                                               |
-| `npm run build`                                      | **Superato**, TypeScript rigoroso e build Vite                                                     |
-| Browser Chromium desktop, 1440 × 900 CSS px          | **3 scenari superati**: avvio/interfaccia, volo/urto/recupero, storage/WebGL                       |
-| Browser Chromium touch, 375 × 629 e 812 × 375 CSS px | **4 scenari superati**: avvio/interfaccia, multitouch nativo, layout/rilascio input, storage/WebGL |
-| Errori JavaScript non gestiti nei 7 scenari          | **Nessuno rilevato**                                                                               |
-| Controllo visivo degli screenshot desktop e mobile   | **Eseguito**                                                                                       |
-| `git diff --check`                                   | **Superato**                                                                                       |
+Commit del codice `1618465a21cd343fc7c15ece36539bd4ecc75a2d`: [esecuzione 38524920362](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38524920362), **conclusa con successo, senza retry o test intermittenti**.
 
-Il comando browser ha concluso con **7 passed, 3 skipped**: i tre casi saltati sono scenari intenzionalmente non applicabili alla piattaforma (tastiera su touch, touch su desktop). Nessun test applicabile è stato escluso per far passare la suite.
+| Controllo | Esito | Durata del job, incluso setup |
+| --- | --- | --- |
+| Installazione, unit test, typecheck, build e pacchetto | 30 test superati | 14 s |
+| Chromium desktop | 7 superati, 2 esclusioni previste | 5 min 19 s |
+| Chromium touch emulato | 6 superati, 3 esclusioni previste | 3 min 24 s |
+| WebKit iPhone emulato su Linux | 5 superati, 4 esclusioni previste | 2 min 46 s |
+| Pacchetto per il tester | Artefatto generato dopo tutti i controlli | 4 s |
 
-La simulazione è stata completata dall'inizio all'ultimo anello tramite comandi di velocità, **senza teletrasportare il drone**. Questo è un test del motore: il test browser da tastiera attraversa il primo checkpoint, frena, scende fino all'urto e recupera mantenendo il progresso. Il multitouch nativo è stato iniettato con due contatti del browser Chromium tramite CDP; la suite aggiunge una prova di eventi PointerEvent per rilascio e cancellazione.
+Totale browser: **18 superati, 0 falliti, 9 esclusioni previste**. Nessun controllo è stato tolto per ottenere il verde: gli scenari di tastiera, controller virtuale e replay girano su desktop; il multitouch nativo CDP solo su Chromium touch; gli eventi touch anche su WebKit. Le esclusioni evitano di eseguire scenari che il profilo non rappresenta. Le prove su hardware reale elencate sotto restano necessarie.
 
-Le prove usano il contenuto di `dist/` sotto `/Brembo-flight/`, lo stesso sottopercorso previsto su GitHub Pages. Nessun test richiede hook di controllo o API di debug nel gioco.
+Il replay ha attraversato gli 8 checkpoint in 58,5 s di test CI; il test controller è passato in 40,6 s. Non sono misure FPS. L’intera sequenza build → browser paralleli → pacchetto ha richiesto circa 5 min 42 s, invece di essere interrotta a 15 minuti.
 
-## Ambiente e limiti
+[Pacchetto di questa esecuzione](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38524920362/artifacts/11875880354), conservato fino al 21 ottobre 2026. Se scaduto, usa il pacchetto dell’ultima esecuzione verde o genera la build dal sorgente. La PR collega anche l’esecuzione dell’ultimo commit di documentazione, che non cambia il codice del gioco.
 
-- Node.js **24.19.0**; Vite **8.3.4**; Three.js **0.186.1**; TypeScript **5.9.3**.
-- Playwright **1.58.2** con Chromium headless **153.0.8010.0**, rendering software SwiftShader. Il browser portabile è stato usato solo nell'ambiente di verifica, non aggiunto alle dipendenze dell'applicazione.
-- Il download Chromium standard di Playwright restituiva un archivio non valido nell'ambiente locale. La configurazione permette di indicare un eseguibile già disponibile con `BREMBO_CHROMIUM_EXECUTABLE`; la CI usa i browser standard di Playwright.
-- **WebKit locale non eseguito**: il browser è stato scaricato, ma mancavano librerie GTK/GStreamer e altri componenti; l'ambiente non ha consentito l'installazione delle dipendenze di sistema. Non è un risultato positivo né un difetto dimostrato del gioco.
-- **Nessuna prova su iPhone fisico**, Safari iOS reale, schermo con notch/safe area reale, prestazioni, consumo batteria, temperatura, audio percepito o sospensione del sistema operativo. L'emulazione non sostituisce queste prove.
-- Il limite di 100 ms per fotogramma evita salti dopo sospensioni: sotto 10 fps il tempo simulato rallenta. Le prestazioni hardware non sono misurate da questi test.
-- La build segnala un chunk Three.js oltre 500 kB minificato (circa **135 kB gzip**); avviso non bloccante. Gli asset iniziali compressi ammontano a circa **155 kB**, senza asset grafici remoti.
+## Verifiche locali della correzione
 
-## GitHub Actions e pubblicazione
+- Installazione pulita `npm ci`: riuscita.
+- `npm test`: **30 test superati**, inclusi i 17 test originali della fisica e gli scenari HTTP/HTTPS del server di prova.
+- `npm run package:playtest`: compilazione TypeScript, build Vite e generazione pacchetto riuscite. Rimane l’avviso Vite per il modulo Three.js di circa 547 kB minificato / 136 kB gzip; non è stato nascosto.
+- Le prove browser locali usano Chromium 153.0.8010.0 Linux headless con SwiftShader. In CI si usano Chromium 145.0.7632.6 e WebKit 26.0 forniti da Playwright 1.58.2.
+- Dopo la correzione, replay completo e integrazione controller: **2/2 superati**, rispettivamente 42,8 s e 8,6 s in questa esecuzione locale. Sono durate dei test, non misure delle prestazioni del gioco su un telefono.
+- Pacchetto generato aperto nel browser tramite il suo server HTTP, usando il form con codice: avvio partita riuscito nei profili desktop e touch, nessun errore JavaScript o console rilevato. I launcher Windows e l’installazione Node su Windows/macOS non sono stati eseguiti su quei sistemi.
 
-Il workflow `Verify playable demo` verifica anche WebKit in un ambiente GitHub Actions. Consultare il risultato del workflow sul commit corrente: il risultato locale sopra non implica che una nuova esecuzione remota sia riuscita.
+### Screenshot della build
 
-La [prima esecuzione remota](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38400969461), sul commit `5abf2f3`, ha completato installazione, 17 test unitari, build e suite browser, compresi **tre scenari WebKit**. Il riepilogo browser è stato `9 passed, 1 flaky, 5 skipped`: il controllo del cronometro in pausa su Chromium touch è passato al secondo tentativo. Il log ha mostrato un aggiornamento tardivo di un decimo nel solo HUD. È stata quindi corretta la sincronizzazione dell'interfaccia: quando si entra in pausa, il tempo visualizzato viene aggiornato immediatamente. La PR riporta anche l'esito della successiva verifica sul commit finale.
+Immagini catturate dal browser Chromium locale, non mockup. Qualità Alto durante il volo; viewport CSS 1440×900, 812×375 e 375×629. I profili touch hanno DPR 2 e non sono fotografie di un iPhone. Non dimostrano frame rate o qualità audio.
 
-La pubblicazione GitHub Pages è **predisposta ma non eseguita** da queste prove. La build richiede l'attivazione di Pages con sorgente GitHub Actions e l'integrazione in `main`, come descritto nel README. L'URL pubblico previsto non è una prova di deployment.
+![Schermata iniziale desktop](screenshots/v02-intro.webp)
+![Volo desktop](screenshots/v02-desktop.webp)
+![Touch orizzontale](screenshots/v02-landscape.webp)
 
-## Prova manuale consigliata su iPhone 12 mini
+[Touch verticale](screenshots/v02-portrait.webp).
 
-1. Apri il link pubblicato in Safari e ruota il telefono in orizzontale.
-2. Avvia con qualità Eco. Muovi entrambi i joystick insieme: sinistro in avanti, destro verso l'alto.
-3. Rilascia entrambi: il drone deve rallentare e mantenere la quota raggiunta.
-4. Attraversa il primo anello; scendi fino al terreno e usa **Ritorna in volo**.
-5. Cambia visuale, prova il freno e il boost, apri la guida e riprendi.
-6. Cambia app e torna a Safari: il volo deve essere in pausa. Riprendi per continuare.
-7. Prova una sessione di almeno 5 minuti e valuta fluidità e temperatura. Non è stato ancora verificato su hardware reale.
+## Perché la prima CI si fermava a 15 minuti
+
+La [prima esecuzione della PR](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38443461701) è stata **annullata per timeout**, non superata. Installazione, 29 test allora presenti, build e installazione browser erano riusciti. La suite eseguiva in sequenza tre profili browser nello stesso job: il replay completo richiedeva circa 2,6 minuti per tentativo e il test controller falliva. La CI ha terminato il job prima delle ultime prove WebKit e senza pacchetto finale.
+
+Correzioni:
+
+- Il controller simulato attende stati osservabili `centering` / `ready`, non un intervallo arbitrario di 150 ms. Anche il giocatore vede quando deve rilasciare stick e tasti dopo la pausa. Non si aggira la protezione contro gli input già premuti.
+- Il replay mantiene tutti gli 8 checkpoint, gli stessi input standard e la verifica del menù finale a tre dimensioni. Esegue il volo a 800×450 / Eco per contenere il costo del rendering software; la matrice separata continua a verificare Alto e schermi fino a 4K.
+- Tre job browser indipendenti, ciascuno con un solo worker, scaricano **la stessa build**. Tutti devono riuscire. `fail-fast: false` permette di completare gli altri controlli anche se uno fallisce.
+- Limite di 11 minuti per ogni suite browser e 15 per job: rimane spazio per caricare report e tracce in caso di errore. Non è stato semplicemente aumentato il limite globale.
+- Le PR attivano una sola esecuzione, eliminando la doppia CI push + PR sullo stesso ramo. Il push su main e l’avvio manuale rimangono disponibili.
+- Il pacchetto `brembo-flight-demo` viene allegato solo dopo il successo di tutti i job browser. Nessun job distribuisce il gioco su un sito.
+
+## Provenienza
+
+Base PR #1 / `feat/first-playable-demo`, commit `f31bea5`. Prima dell’intervento sono stati verificati tutti i rami e le PR: nessun lavoro successivo. Nuovo ramo `feat/v0.2-multiplatform`; main e ramo 0.1 non modificati.
+
+Il collaudo su iPhone 12 mini comunicato da Davide riguarda **0.1**: avvio e percorso completo, volo piacevole; criticità landscape, definizione drone, touch, HUD e audio. È una testimonianza dell’utente, non un test effettuato dall’agente. [Resoconto tecnico 0.1](VERIFICATION-0.1.md).
+
+## Procedura 0.2
+
+- Unit test: fisica e percorso originale, adattatore controller, configurazioni e budget grafici, modalità libera, contratto geografico e protezione file del server locale.
+- Browser Chromium/WebKit: avvio, WebGL, JavaScript, input, controller simulato, menù, audio gestuale, download JSON, storage negato, resize e layout.
+- Matrice viewport: 320×568, 360×640, 375×629, 667×375, 812×375, 768×1024, 1024×768, 1280×720, 1920×1080, 3840×2160. Gli inset di sicurezza aggiunti nei test sono simulati.
+- Replay completo degli anelli con input Gamepad standard e orologio deterministico accelerato: valida integrazione e schermata finale, **non misura FPS reali**.
+
+## Limiti da mantenere espliciti
+
+Nessun DualSense fisico, nessun iPhone/Android/iPad/macOS/Windows reale disponibile all’agente. Chromium Linux headless con rendering software e WebKit emulato non attestano prestazioni GPU, latenza Bluetooth, audio percepito, consumi o temperature. Nessuna misura di “60 FPS garantiti”.
+
+Il test audio verifica creazione dopo gesto e mute/volumi/assenza di errori; non è un ascolto su altoparlanti o cuffie. La qualità sonora richiede il parere del tester. Le mappature non standard sono escluse; niente trigger adattivi, vibrazione o sensori DualSense.
+
+Il server locale non è un servizio internet di produzione. La procedura di certificato HTTPS su iPhone deve essere eseguita dal proprietario sui dispositivi di prova. Nessun hosting o account di terzi è stato configurato.
+
+## Difetti rilevati durante lo sviluppo
+
+- Telemetria inizialmente sopra il drone in verticale: riposizionata in alto e telecamera esterna rifinita.
+- Massima distanza dei joystick e safe area simulate restringevano lo spazio centrale: clamp alla larghezza disponibile e pulsanti allineati all’esterno.
+- Con safe area laterali la somma delle larghezze dei pannelli superava lo spazio utile: larghezze ora calcolate sull’area realmente disponibile, con test di non sovrapposizione.
+- Il download Chromium standard nell’ambiente locale restituiva un archivio non valido: usato Chromium portatile per le prove locali. In CI si usa la distribuzione Playwright standard.

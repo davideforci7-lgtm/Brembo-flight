@@ -2,9 +2,9 @@ name: Verify playable demo
 
 on:
   push:
-    branches: [main, feat/first-playable-demo]
-  pull_request:
     branches: [main]
+  pull_request:
+    branches: [main, feat/first-playable-demo]
   workflow_dispatch:
 
 permissions:
@@ -15,9 +15,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  verify:
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,17 +26,63 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
-      - run: npm run build
-      - run: npx playwright install --with-deps chromium webkit
-      - run: npm run test:e2e
+      - run: npm run package:playtest
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-build
+          path: playtest-package/
+          retention-days: 7
+
+  browser:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: chromium-desktop
+            engine: chromium
+          - project: chromium-touch
+            engine: chromium
+          - project: webkit-iphone
+            engine: webkit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: verified-build
+          path: playtest-package
+      - run: cp -R playtest-package/dist dist
+      - run: npx playwright install --with-deps ${{ matrix.engine }}
+      - run: npm run test:e2e -- --project=${{ matrix.project }}
+        timeout-minutes: 11
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: browser-test-report
-          path: playwright-report/
+          name: browser-test-report-${{ matrix.project }}
+          path: |
+            playwright-report/
+            test-results/
           retention-days: 7
+
+  playtest:
+    # Offer the identical build to testers only after all browser jobs pass.
+    needs: [build, browser]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: verified-build
+          path: playtest-package
       - uses: actions/upload-artifact@v4
         with:
           name: brembo-flight-demo
-          path: dist/
+          path: playtest-package/
           retention-days: 7

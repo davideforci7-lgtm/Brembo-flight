@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import * as THREE from "three";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { GraphicsGovernor, PRESETS, renderSize } from "./core/graphics";
+import type { Quality } from "./core/settings";
 import { type FlightSimulation } from "./core/flight";
 import {
   type TerrainProvider,
@@ -24,10 +27,16 @@ export class FlightWorld {
   private look = new THREE.Vector3();
   private shadow: THREE.Mesh;
   private water: THREE.Mesh;
+  private sun = new THREE.DirectionalLight("#ffe2b7", 2.4);
+  private waterTime = { value: 0 };
+  readonly graphics = new GraphicsGovernor(
+    "auto",
+    matchMedia("(pointer: coarse)").matches || innerWidth < 800,
+  );
   private smoothedYaw = 0;
   private time = 0;
   mode: "chase" | "fpv" = "chase";
-  quality: "eco" | "high";
+  quality: Quality = "auto";
   private snap = true;
   constructor(
     canvas: HTMLCanvasElement,
@@ -35,13 +44,9 @@ export class FlightWorld {
     trees: Obstacle[],
     checkpoints: Checkpoint[],
   ) {
-    this.quality =
-      matchMedia("(pointer: coarse)").matches || innerWidth < 800
-        ? "eco"
-        : "high";
     this.renderer = new THREE.WebGLRenderer({
       canvas,
-      antialias: false,
+      antialias: true,
       powerPreference: "high-performance",
       alpha: false,
     });
@@ -51,9 +56,19 @@ export class FlightWorld {
     this.scene.background = new THREE.Color("#b9cdd0");
     this.scene.fog = new THREE.FogExp2("#b9cdd0", 0.00165);
     this.scene.add(new THREE.HemisphereLight("#eaf6f2", "#7d8260", 1.8));
-    const sun = new THREE.DirectionalLight("#ffe2b7", 2.2);
-    sun.position.set(-240, 360, -170);
-    this.scene.add(sun);
+    this.sun.position.set(-240, 360, -170);
+    this.sun.shadow.mapSize.set(1024, 1024);
+    Object.assign(this.sun.shadow.camera, {
+      left: -18,
+      right: 18,
+      top: 18,
+      bottom: -18,
+      near: 1,
+      far: 250,
+    });
+    this.sun.shadow.bias = -0.0008;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.scene.add(this.sun, this.sun.target);
     this.addSky();
     this.addTerrain();
     this.water = this.addRiver();
@@ -74,20 +89,63 @@ export class FlightWorld {
     this.shadow.rotation.x = -Math.PI / 2;
     this.scene.add(this.shadow);
     window.addEventListener("resize", () => this.resize());
-    this.resize();
+    new ResizeObserver(() => this.resize()).observe(canvas.parentElement!);
+    window.visualViewport?.addEventListener("resize", () => this.resize());
+    this.setQuality("auto");
   }
-  setQuality(value: "eco" | "high") {
+  setQuality(value: Quality) {
     this.quality = value;
+    this.graphics.select(value);
+    this.applyPreset();
+  }
+  private applyPreset() {
+    this.renderer.shadowMap.enabled = PRESETS[this.graphics.preset].shadows;
+    this.sun.castShadow = PRESETS[this.graphics.preset].shadows;
+    this.scene.traverse((object) => {
+      if (object instanceof THREE.Mesh) {
+        const materials = Array.isArray(object.material)
+          ? object.material
+          : [object.material];
+        for (const material of materials) material.needsUpdate = true;
+      }
+    });
     this.resize();
   }
   resize() {
-    this.renderer.setPixelRatio(
-      Math.min(devicePixelRatio, this.quality === "eco" ? 1 : 1.75),
+    const { width, height } = this.renderer.domElement.getBoundingClientRect();
+    const size = renderSize(
+      width,
+      height,
+      devicePixelRatio,
+      this.graphics.preset,
     );
-    this.renderer.setSize(innerWidth, innerHeight, false);
-    this.camera.aspect = innerWidth / innerHeight;
+    // CSS owns the visible dimensions; the drawing buffer never stretches from old orientation.
+    this.renderer.setPixelRatio(1);
+    this.renderer.setSize(size.width, size.height, false);
+    this.camera.aspect = Math.max(1, width) / Math.max(1, height);
+    // Keep the drone readable on short landscape screens without changing its physical size.
+    this.camera.fov = THREE.MathUtils.radToDeg(
+      2 *
+        Math.atan(
+          Math.tan(THREE.MathUtils.degToRad(64) / 2) *
+            Math.min(1, Math.max(0.68, height / 520)),
+        ),
+    );
     this.camera.updateProjectionMatrix();
     this.snap = true;
+  }
+  diagnostics() {
+    const canvas = this.renderer.domElement;
+    return {
+      fps: Math.round(this.graphics.fps),
+      preset: this.graphics.preset,
+      width: canvas.width,
+      height: canvas.height,
+      antialias:
+        this.renderer.getContext().getContextAttributes()?.antialias ?? false,
+      calls: this.renderer.info.render.calls,
+      triangles: this.renderer.info.render.triangles,
+    };
   }
   toggleCamera() {
     this.mode = this.mode === "chase" ? "fpv" : "chase";
@@ -97,7 +155,9 @@ export class FlightWorld {
     this.snap = true;
   }
   render(flight: FlightSimulation, dt: number) {
-    this.time += dt;
+    if (this.graphics.observe(dt, flight.status === "flying"))
+      this.applyPreset();
+    this.time += Math.min(dt, 0.1);
     const p = flight.position,
       moving = flight.status === "flying";
     const a = 1 - Math.exp(-7 * dt);
@@ -142,7 +202,8 @@ export class FlightWorld {
         ? 0.7 + Math.sin(this.time * 3) * 0.15
         : 0.2;
       this.rings[i].material.opacity = passed ? 0.3 : active ? 1 : 0.42;
-      this.markers[i].visible = active;
+      this.markers[i].visible = active && flight.mode === "course";
+      this.rings[i].visible = flight.mode === "course";
     }
     if (flight.status === "ready") {
       this.targetCamera.set(
@@ -166,12 +227,12 @@ export class FlightWorld {
         ) * (this.snap ? 1 : a);
       this.targetCamera.set(
         p.x + Math.sin(this.smoothedYaw) * 11.8,
-        p.y + 4.8,
+        p.y + 3.0,
         p.z + Math.cos(this.smoothedYaw) * 11.8,
       );
       this.targetLook.set(
         p.x - Math.sin(flight.yaw) * 16,
-        p.y + 1.2,
+        p.y - 1.0,
         p.z - Math.cos(flight.yaw) * 16,
       );
     }
@@ -194,6 +255,9 @@ export class FlightWorld {
     this.snap = false;
     (this.water.material as THREE.MeshStandardMaterial).roughness =
       0.39 + Math.sin(this.time * 0.4) * 0.025;
+    this.waterTime.value = this.time;
+    this.sun.position.set(p.x - 60, p.y + 90, p.z - 40);
+    this.sun.target.position.set(p.x, p.y, p.z);
     this.renderer.render(this.scene, this.camera);
   }
   projectTarget(position: { x: number; y: number; z: number }) {
@@ -226,39 +290,35 @@ export class FlightWorld {
       new THREE.Float32BufferAttribute(verts, 3),
     );
     geometry.setIndex(indices);
-    const flat = geometry.toNonIndexed();
-    geometry.dispose();
-    flat.computeVertexNormals();
-    const pos = flat.attributes.position,
-      normals = flat.attributes.normal,
-      colors: number[] = [];
-    const rand = seededRandom(21),
-      color = new THREE.Color();
-    for (let i = 0; i < pos.count; i += 3) {
-      const h = (pos.getY(i) + pos.getY(i + 1) + pos.getY(i + 2)) / 3;
-      const slope = normals.getY(i),
-        shade = (rand() - 0.5) * 0.045;
-      if (h > 134) color.set("#d8dfd6");
-      else if (h > 88 || slope < 0.65) color.set("#717f77");
-      else if (h < 2.4) color.set("#ada785");
-      else
-        color
-          .set("#65825a")
-          .lerp(new THREE.Color("#4d7060"), Math.min(1, h / 90));
-      color.multiplyScalar(1 + shade * 2);
-      for (let j = 0; j < 3; j++) colors.push(color.r, color.g, color.b);
+    // Keep the collision triangles and elevation grid; smooth only their lighting.
+    geometry.computeVertexNormals();
+    const pos = geometry.attributes.position,
+      normals = geometry.attributes.normal;
+    const colors: number[] = [],
+      color = new THREE.Color(),
+      grass = new THREE.Color("#526a42"),
+      rock = new THREE.Color("#838681");
+    for (let i = 0; i < pos.count; i++) {
+      const h = pos.getY(i),
+        slope = normals.getY(i);
+      const variation =
+        Math.sin(pos.getX(i) * 0.031) * Math.cos(pos.getZ(i) * 0.025);
+      color
+        .copy(grass)
+        .lerp(rock, clamp((h - 60) / 95 + (0.84 - slope) * 3, 0, 1));
+      if (h > 139)
+        color.lerp(new THREE.Color("#e2e0d5"), clamp((h - 139) / 23, 0, 0.85));
+      if (h < 3.8) color.set("#9d9f7c");
+      color.multiplyScalar(0.94 + variation * 0.065);
+      colors.push(color.r, color.g, color.b);
     }
-    flat.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
-    this.scene.add(
-      new THREE.Mesh(
-        flat,
-        new THREE.MeshStandardMaterial({
-          vertexColors: true,
-          roughness: 1,
-          flatShading: true,
-        }),
-      ),
+    geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+    const mesh = new THREE.Mesh(
+      geometry,
+      new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }),
     );
+    mesh.receiveShadow = true;
+    this.scene.add(mesh);
   }
   private addRiver() {
     const vertices: number[] = [],
@@ -289,6 +349,22 @@ export class FlightWorld {
         metalness: 0.26,
       }),
     );
+    // A few sine ripples in the material, no reflection pass or texture downloads.
+    water.material.onBeforeCompile = (shader) => {
+      shader.uniforms.uWaterTime = this.waterTime;
+      shader.vertexShader =
+        "varying vec3 vRiverPosition;\n" +
+        shader.vertexShader.replace(
+          "#include <begin_vertex>",
+          "#include <begin_vertex>\nvRiverPosition = position;",
+        );
+      shader.fragmentShader =
+        "uniform float uWaterTime; varying vec3 vRiverPosition;\n" +
+        shader.fragmentShader.replace(
+          "#include <color_fragment>",
+          "#include <color_fragment>\nfloat ripple = sin(vRiverPosition.z * 1.8 + uWaterTime * 1.5 + sin(vRiverPosition.x * 0.8)) * sin(vRiverPosition.x * 2.2 - uWaterTime); diffuseColor.rgb *= 0.95 + ripple * 0.09;",
+        );
+    };
     this.scene.add(water);
     const lines: number[] = [],
       rand = seededRandom(28);
@@ -339,46 +415,60 @@ export class FlightWorld {
     this.scene.add(disk);
   }
   private addDistantMountains() {
-    const rand = seededRandom(902);
-    for (let i = 0; i < 24; i++) {
-      const h = 190 + rand() * 210,
-        radius = 155 + rand() * 150;
-      const geometry = new THREE.ConeGeometry(radius, h, 6, 1).toNonIndexed();
-      const colors: number[] = [],
-        pos = geometry.attributes.position;
-      for (let j = 0; j < pos.count; j++) {
-        const color = new THREE.Color(
-          pos.getY(j) > h * 0.22 ? "#dadbd1" : "#637f7e",
-        );
+    // Connected, irregular horizon ridges. Decorative only, outside the playable boundary.
+    const segments = 192,
+      rows = 8,
+      vertices: number[] = [],
+      indices: number[] = [],
+      colors: number[] = [];
+    const color = new THREE.Color();
+    for (let row = 0; row <= rows; row++)
+      for (let i = 0; i <= segments; i++) {
+        const angle = (i / segments) * Math.PI * 2,
+          r = 820 + row * 120;
+        const ridge =
+          220 +
+          100 * Math.sin(angle * 5.0 + row * 0.4) +
+          70 * Math.cos(angle * 11 - row * 0.7) +
+          32 * Math.sin(angle * 29);
+        const h =
+          row === 0 ? -25 : ridge * Math.sin((row / rows) * Math.PI * 0.85);
+        vertices.push(Math.sin(angle) * r, h, Math.cos(angle) * r);
+        color.set(h > 280 ? "#bbc5bf" : "#607975");
         colors.push(color.r, color.g, color.b);
+        if (row < rows && i < segments) {
+          const n = row * (segments + 1) + i;
+          indices.push(
+            n,
+            n + 1,
+            n + segments + 1,
+            n + 1,
+            n + segments + 2,
+            n + segments + 1,
+          );
+        }
       }
-      geometry.setAttribute(
-        "color",
-        new THREE.Float32BufferAttribute(colors, 3),
-      );
-      const peak = new THREE.Mesh(
-        geometry,
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+    geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+    geo.setIndex(indices);
+    geo.computeVertexNormals();
+    this.scene.add(
+      new THREE.Mesh(
+        geo,
         new THREE.MeshStandardMaterial({
           vertexColors: true,
           roughness: 1,
-          flatShading: true,
+          side: THREE.DoubleSide,
         }),
-      );
-      const theta = (i / 24) * Math.PI * 2;
-      peak.position.set(
-        Math.sin(theta) * 1080,
-        h / 2 - 20,
-        Math.cos(theta) * 1080,
-      );
-      peak.rotation.y = rand() * 3;
-      this.scene.add(peak);
-    }
+      ),
+    );
   }
   private addTrees(trees: Obstacle[]) {
     const crown = new THREE.InstancedMesh(
-      new THREE.ConeGeometry(1, 1, 5),
+      new THREE.ConeGeometry(1, 1, 7),
       new THREE.MeshStandardMaterial({
-        color: "#38654f",
+        color: "#ffffff",
         flatShading: true,
         roughness: 1,
       }),
@@ -408,7 +498,7 @@ export class FlightWorld {
         );
         matrix.updateMatrix();
         crown.setMatrixAt(i * 2 + layer, matrix.matrix);
-        color.setHSL(0.36 + rand() * 0.04, 0.21, 0.27 + rand() * 0.12);
+        color.setHSL(0.36 + rand() * 0.04, 0.21, 0.2 + rand() * 0.13);
         crown.setColorAt(i * 2 + layer, color);
       }
     });
@@ -499,8 +589,39 @@ export class FlightWorld {
       roughness: 0.42,
       metalness: 0.25,
     });
-    const body = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.26, 1.5), orange);
+    const body = new THREE.Mesh(
+      new RoundedBoxGeometry(0.85, 0.3, 1.5, 2, 0.09),
+      orange,
+    );
     this.drone.add(body);
+    const ivory = new THREE.MeshStandardMaterial({
+      color: "#f2dfba",
+      roughness: 0.45,
+      metalness: 0.15,
+    });
+    for (const side of [-1, 1]) {
+      const rail = new THREE.Mesh(
+        new THREE.CapsuleGeometry(0.045, 1.12, 3, 7),
+        charcoal,
+      );
+      rail.rotation.x = Math.PI / 2;
+      rail.position.set(side * 0.35, -0.39, 0.1);
+      this.drone.add(rail);
+      const stripe = new THREE.Mesh(
+        new THREE.BoxGeometry(0.08, 0.02, 1.02),
+        ivory,
+      );
+      stripe.position.set(side * 0.28, 0.158, 0);
+      this.drone.add(stripe);
+      for (const z of [-0.38, 0.48]) {
+        const leg = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.025, 0.025, 0.3, 6),
+          charcoal,
+        );
+        leg.position.set(side * 0.35, -0.25, z);
+        this.drone.add(leg);
+      }
+    }
     const battery = new THREE.Mesh(
       new THREE.BoxGeometry(0.5, 0.16, 0.8),
       charcoal,
@@ -560,6 +681,12 @@ export class FlightWorld {
         led.position.set(x, 0, z * 1.16);
         this.drone.add(led);
       }
+    this.drone.traverse((object) => {
+      if (object instanceof THREE.Mesh) {
+        object.castShadow = true;
+        object.receiveShadow = true;
+      }
+    });
     this.scene.add(this.drone);
   }
 }

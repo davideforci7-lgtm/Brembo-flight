@@ -151,3 +151,7 @@ vite.config.ts.timestamp-*
 # Local browser verification
 test-results/
 playwright-report/
+
+playtest-package/
+*.pem
+*.key

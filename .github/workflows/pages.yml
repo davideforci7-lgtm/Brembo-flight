@@ -1,11 +1,14 @@
 name: Publish GitHub Pages
 
-# Opt-in publishing: merging to main or manually running this workflow publishes
-# only after unit tests, compilation and browser checks succeed.
+# No deployment on push or merge. A future owner-authorized manual run is required.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      publish_publicly:
+        description: "Confermo la pubblicazione di un sito accessibile a chiunque"
+        type: boolean
+        required: true
+        default: false
 
 permissions:
   contents: read
@@ -16,6 +19,7 @@ concurrency:
 
 jobs:
   build:
+    if: ${{ inputs.publish_publicly == true }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

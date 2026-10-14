@@ -38,6 +38,7 @@ const FIXED_STEP = 1 / 120;
 export class FlightSimulation {
   position: Vec3 = { x: 28, y: 12, z: 180 };
   velocity: Vec3 = { x: 0, y: 0, z: 0 };
+  mode: "course" | "explore" = "course";
   yaw = 0;
   status: FlightStatus = "ready";
   nextCheckpoint = 0;
@@ -94,6 +95,12 @@ export class FlightSimulation {
   }
   respawn() {
     if (this.status !== "crashed" && this.status !== "flying") return;
+    if (this.mode === "explore") {
+      const crashes = this.crashes;
+      this.restart();
+      this.crashes = crashes;
+      return;
+    }
     this.penalties += 5;
     const gate = this.checkpoints[this.nextCheckpoint];
     if (!gate) return;
@@ -128,7 +135,7 @@ export class FlightSimulation {
     return event;
   }
   private step(dt: number, input: FlightInput): FlightEvent {
-    this.elapsed += dt;
+    if (this.mode === "course") this.elapsed += dt;
     const old = { ...this.position };
     const turn = clamp(input.yaw, -1, 1);
     this.yaw -= turn * 1.4 * dt;
@@ -201,7 +208,10 @@ export class FlightSimulation {
       )
         return this.collide("Contatto con un albero");
     }
-    const gate = this.checkpoints[this.nextCheckpoint];
+    const gate =
+      this.mode === "course"
+        ? this.checkpoints[this.nextCheckpoint]
+        : undefined;
     if (gate && crossesCheckpoint(old, this.position, gate)) {
       this.nextCheckpoint++;
       if (this.nextCheckpoint === this.checkpoints.length) {

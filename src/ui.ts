@@ -44,7 +44,7 @@ export function mountUI() {
     <div class="vignette" aria-hidden="true"></div>
     <header class="topbar">
       <a class="brand" href="./" aria-label="Brembo Flight, pagina iniziale">${icon("mountain")}<span>BREMBO <b>FLIGHT</b><small>ESPLORA. RESPIRA. VOLA.</small></span></a>
-      <div class="flight-tag"><i></i> <span>VALLE ALPINA</span><span class="tag-divider">/</span><span class="muted">DEMO 01</span></div>
+      <div class="flight-tag"><i></i> <span>VALLE ALPINA</span><span class="tag-divider">/</span><span class="muted">DEMO 02</span></div>
       <nav class="toolbar" aria-label="Opzioni di volo">
         <button id="camera-button" class="icon-button" aria-label="Cambia telecamera" title="Telecamera (C)">${icon("camera")}<span id="camera-mode">ESTERNA</span></button>
         <button id="sound-button" class="icon-button" aria-label="Attiva audio" title="Audio sintetizzato">${icon("muted")}</button>
@@ -54,7 +54,7 @@ export function mountUI() {
       </nav>
     </header>
     <div class="mission only-flight">
-      <span class="eyebrow">PERCORSO ESPLORAZIONE</span>
+      <span class="eyebrow"><span id="activity-label">PERCORSO · 8 ANELLI</span></span>
       <div class="mission-line"><strong id="checkpoint-count">01 <em>/ 08</em></strong><span id="checkpoint-name">Decollo</span></div>
       <div class="progress-track"><div id="progress-bar"></div></div>
       <div class="mission-meta"><span>PROSSIMO <b id="distance">68 m</b></span><span id="timer">00:00.0</span></div>
@@ -73,28 +73,29 @@ export function mountUI() {
     </div>
     <div class="desktop-hint only-flight"><kbd>W A S D</kbd> muovi <span>·</span> <kbd>R / F</kbd> quota <span>·</span> <kbd>Q / E</kbd> ruota <span>·</span> <kbd>SPAZIO</kbd> frena</div>
     <div class="touch-controls only-flight">
-      <div class="stick-group"><span class="stick-label">MUOVI</span><div id="move-stick" class="stick" role="group" aria-label="Joystick movimento"><div class="stick-cross"></div><span class="stick-up">AVANTI</span><div class="stick-thumb"></div></div></div>
-      <div class="touch-actions"><button id="boost-button" class="hold-button" aria-label="Tieni premuto per accelerare">BOOST</button><button id="brake-button" class="hold-button brake" aria-label="Tieni premuto per frenare">FRENO</button></div>
-      <div class="stick-group"><span class="stick-label">QUOTA / RUOTA</span><div id="look-stick" class="stick" role="group" aria-label="Joystick quota e rotazione"><div class="stick-cross"></div><span class="stick-up">SALI</span><div class="stick-thumb"></div></div></div>
+      <div class="stick-group"><button id="boost-button" class="hold-button" aria-label="Tieni premuto per accelerare">BOOST ↑</button><span class="stick-label">MUOVI</span><div id="move-stick" class="stick" role="group" aria-label="Joystick movimento"><div class="stick-cross"></div><span class="stick-up">AVANTI</span><div class="stick-thumb"></div></div></div>
+
+      <div class="stick-group"><button id="brake-button" class="hold-button brake" aria-label="Tieni premuto per frenare">FRENO ■</button><span class="stick-label">QUOTA / RUOTA</span><div id="look-stick" class="stick" role="group" aria-label="Joystick quota e rotazione"><div class="stick-cross"></div><span class="stick-up">SALI</span><div class="stick-thumb"></div></div></div>
     </div>
+    <div id="input-indicator" class="input-indicator">TOUCH / TASTIERA</div><output id="performance" hidden aria-label="Diagnostica grafica"></output>
     <div id="notice" role="status" aria-live="polite"></div>
     <div id="modal-layer"></div>
     <footer class="footer"><span>TERRENO DIMOSTRATIVO <span class="footer-long">· NON GEOGRAFICO</span></span><a href="https://github.com/davideforci7-lgtm/Brembo-flight" target="_blank" rel="noopener noreferrer">${icon("code")} OPEN SOURCE <span>↗</span></a></footer>
   `;
 }
-export function bestTime(): number | null {
+export function bestTime(key = "classic"): number | null {
   try {
-    const n = Number(localStorage.getItem("brembo-flight-best-v1"));
+    const n = Number(localStorage.getItem(`brembo-flight-best-v2-${key}`));
     return Number.isFinite(n) && n > 0 ? n : null;
   } catch {
     return null;
   }
 }
-export function saveBest(time: number): boolean {
-  const best = bestTime();
+export function saveBest(time: number, key = "classic"): boolean {
+  const best = bestTime(key);
   if (best === null || time < best) {
     try {
-      localStorage.setItem("brembo-flight-best-v1", time.toString());
+      localStorage.setItem(`brembo-flight-best-v2-${key}`, time.toString());
     } catch {
       /* Private mode: flight still works. */
     }
@@ -142,17 +143,29 @@ export class HUD {
   }
   update(flight: FlightSimulation) {
     const e = this.elements,
-      gate = flight.checkpoints[flight.nextCheckpoint];
+      gate =
+        flight.mode === "course"
+          ? flight.checkpoints[flight.nextCheckpoint]
+          : undefined;
     e["checkpoint-count"].innerHTML = `${Math.min(flight.nextCheckpoint + 1, 8)
       .toString()
       .padStart(2, "0")} <em>/ 08</em>`;
-    e["checkpoint-name"].textContent = gate?.label ?? "Percorso completato";
+    e["checkpoint-name"].textContent =
+      flight.mode === "explore"
+        ? "Esplorazione libera"
+        : (gate?.label ?? "Percorso completato");
+    if (flight.mode === "explore") e["checkpoint-count"].textContent = "∞";
+    document.getElementById("activity-label")!.textContent =
+      flight.mode === "explore" ? "NESSUN CRONOMETRO" : "PERCORSO · 8 ANELLI";
     e["progress-bar"].style.width =
       `${(flight.nextCheckpoint / flight.checkpoints.length) * 100}%`;
     e.distance.textContent = gate
       ? `${Math.round(distance(flight.position, gate.position))} m`
-      : "ARRIVO";
-    e.timer.textContent = formatTime(flight.scoreTime);
+      : flight.mode === "explore"
+        ? "LIBERO"
+        : "ARRIVO";
+    e.timer.textContent =
+      flight.mode === "explore" ? "ESPLORA" : formatTime(flight.scoreTime);
     const heading = ((((-flight.yaw * 180) / Math.PI) % 360) + 360) % 360;
     const cardinal = ["N", "NE", "E", "SE", "S", "SO", "O", "NO"][
       Math.round(heading / 45) % 8
@@ -218,7 +231,7 @@ export class HUD {
       ((z + 630) / 900) * 160,
     ];
     ctx.beginPath();
-    flight.checkpoints.forEach((gate, i) => {
+    (flight.mode === "course" ? flight.checkpoints : []).forEach((gate, i) => {
       const [x, y] = xy(gate.position.x, gate.position.z);
       if (!i) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
@@ -228,7 +241,7 @@ export class HUD {
     ctx.setLineDash([3, 3]);
     ctx.stroke();
     ctx.setLineDash([]);
-    flight.checkpoints.forEach((gate, i) => {
+    (flight.mode === "course" ? flight.checkpoints : []).forEach((gate, i) => {
       const [x, y] = xy(gate.position.x, gate.position.z);
       ctx.beginPath();
       ctx.arc(x, y, i === flight.nextCheckpoint ? 3.8 : 2, 0, Math.PI * 2);

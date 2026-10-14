@@ -1,110 +1,89 @@
-# BREMBO FLIGHT
+# BREMBO FLIGHT 0.2
 
-Un drone, otto anelli e una valle alpina da esplorare. Prima demo giocabile in **Three.js, TypeScript e Vite**, pensata per PC e iPhone, gratuita e open source.
+Gioco 3D di drone gratuito e open source, direttamente nel browser. **Three.js + TypeScript + Vite**, nessun servizio a pagamento o asset remoto a runtime. Licenza **AGPL-3.0-only**, mantenuta dal repository originale.
 
-**Il terreno è interamente dimostrativo. Non rappresenta la Val Brembana reale.** Non usare questa demo per navigazione, addestramento o pianificazione di voli reali.
+Questa fase parte dalla PR #1, commit `f31bea5`, sul ramo dedicato `feat/v0.2-multiplatform`. Nessun merge in `main` e nessuna pubblicazione automatica.
 
-![Screenshot della demo eseguita in Chromium: drone, valle e primo checkpoint](docs/screenshots/desktop.webp)
+## Cosa cambia
 
-Screenshot reali della build: [schermata iniziale](docs/screenshots/intro.webp) · [layout touch emulato](docs/screenshots/iphone-layout.webp). Il layout mobile è emulato, non fotografato su un iPhone fisico.
+- Interfaccia mobile-first, safe area, menù scorrevoli, joystick adattivi e regolabili. BOOST e FRENO ai lati; minimappa opzionale.
+- Gamepad API standard: DualSense e altri controller riconosciuti dal browser. Deadzone radiale, sensibilità e curva progressive, pausa su collegamento/scollegamento durante il volo e riarmo a stick centrati.
+- Eco, Bilanciato, Alto e Automatico; budget di pixel, antialiasing se disponibile, aggiornamento canvas su resize/orientamento, campo visivo adattato agli schermi bassi e FPS opzionali.
+- Drone più leggibile e rifinito, illuminazione morbida del terreno, crinali connessi, vegetazione ricolorata, acqua animata; ombra dinamica del drone solo in Alto.
+- Motori a più componenti, vento ed effetti procedurali; volumi separati e mute totale, attivazione tramite gesto.
+- Esplorazione libera oltre agli 8 checkpoint. Impostazioni persistenti, report di prova JSON scaricabile, scheda per il pilota.
 
-## Cosa contiene
+**Fisica preservata:** 21 m/s, 34 con BOOST, verticale 11 m/s, rotazione 1,4 rad/s, smorzamento 3 s⁻¹ / 10 s⁻¹ in frenata e passo fisso 1/120 s. La sensibilità predefinita è 1; nessuna modalità avanzata imposta. Il volo è assistito, non una simulazione aeronautica certificata. Cambiare sensibilità/curva modifica gli input, non le equazioni. I record sono separati per impostazioni e le prove con comandi modificati a metà giro non creano record.
 
-- Valle 3D procedurale con montagne, fiume, boschi e piazzola; tutti gli elementi sono generati dal codice.
-- Drone con volo assistito: accelerazione graduale, inerzia, arresto automatico al rilascio dei comandi, boost e freno.
-- Telecamera esterna e FPV, mappa, quota **dal suolo/acqua**, velocità, direzione e indicatore del prossimo anello.
-- Otto checkpoint sequenziali, cronometro, completamento e miglior tempo locale.
-- Collisioni con terreno, acqua, alberi (volumi semplificati) e bordo dell'anello attivo. Recupero davanti all'anello successivo con penalità di 5 secondi.
-- Due joystick touch simultanei, pausa quando si cambia scheda/finestra, preset grafico Eco/Alta.
-- Audio sintetizzato facoltativo, attivato esclusivamente da un gesto dell'utente.
-- Nessun account, pagamento, API key, analytics, pubblicità, asset remoto o backend. Il primo caricamento richiede Internet quando il gioco è ospitato online. Non è una PWA offline.
+## Provarlo
 
-## Avvio locale
-
-Richiede **Node.js 22.12+**; Node.js 24 è utilizzato dalla CI. Le versioni delle dipendenze sono bloccate in `package-lock.json`.
+La guida [PLAYTEST](docs/PLAYTEST.md) spiega pacchetto pronto, prova locale su PC, telefono nella stessa Wi-Fi, HTTPS per controller mobile e limiti di riservatezza. Il giocatore usa solo il browser. Il computer personale ospitante richiede Node.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Apri `http://localhost:5173/Brembo-flight/`.
-
-Per provare dal telefono nella stessa rete Wi-Fi, usa l'indirizzo LAN del computer mostrato da Vite, con il percorso `/Brembo-flight/`. Questo passaggio è facoltativo: la versione pubblicata funziona direttamente tramite un link HTTPS.
+Apri l’indirizzo mostrato da Vite, con percorso `/Brembo-flight/`. Per provare la build con codice di accesso:
 
 ```sh
-npm run build
-npm run preview
+npm run playtest
 ```
 
-La build è in `dist/`; anteprima in `http://localhost:4173/Brembo-flight/`. Aprire `index.html` direttamente come `file://` non avvia il gioco.
+Per preparare il pacchetto condivisibile in locale: `npm run package:playtest`. Il workflow CI allega lo stesso pacchetto come artefatto, senza creare un sito pubblico.
 
 ## Comandi
 
-| Azione                             | PC                    | Touch                             |
-| ---------------------------------- | --------------------- | --------------------------------- |
-| Avanti / indietro / laterale       | W A S D oppure frecce | Joystick sinistro                 |
-| Sali / scendi                      | R / F                 | Joystick destro su / giù          |
-| Ruota a sinistra / destra          | Q / E                 | Joystick destro sinistra / destra |
-| Frena                              | Spazio                | Tieni FRENO                       |
-| Boost                              | Shift                 | Tieni BOOST                       |
-| Telecamera                         | C                     | Pulsante telecamera               |
-| Pausa / riprendi                   | P oppure Esc          | Pulsante pausa                    |
-| Recupera al prossimo anello (+5 s) | X                     | Dopo un urto: Ritorna in volo     |
-| Guida e qualità grafica            | H                     | Pulsante ?                        |
+| Azione        | Tastiera       | Touch                    | Controller standard / DualSense              |
+| ------------- | -------------- | ------------------------ | -------------------------------------------- |
+| Movimento     | WASD / frecce  | Stick sinistro           | Stick sinistro                               |
+| Sali / scendi | R / F          | Stick destro verticale   | Stick destro verticale                       |
+| Ruota         | Q / E          | Stick destro orizzontale | Stick destro orizzontale                     |
+| Boost / freno | Shift / Spazio | Tieni BOOST / FRENO      | R2 o R1 / L2 o L1                            |
+| Telecamera    | C              | Pulsante camera          | Triangolo / Y                                |
+| Pausa         | P / Esc        | Pulsante pausa           | Options / Start                              |
+| Recupero      | X              | Menù dopo un urto        | Conferma nel menù                            |
+| Menù          | Tab, Invio     | Tocca                    | Croce: naviga/regola; Croce PS / A: conferma |
 
-La freccia della mappa indica il drone. Attraversa l'anello **arancione** dal lato del checkpoint precedente. Il primo è dritto davanti a te: basta avanzare. Rilascia i joystick per stabilizzare il volo. Il recupero aggiunge 5 secondi; ricominciare azzera la partita.
+Schema opzionale “Drone Mode 2”: gli stick si scambiano; sinistro quota/rotazione, destro movimento. È comunque un drone con quota assistita, non un throttle reale da radiocomando. Le mappature non standard vengono segnalate e ignorate. Il freno ha priorità sul boost; tastiera/touch attivi hanno priorità per asse sul controller.
 
-Su iPhone è consigliata la modalità orizzontale e la qualità **Eco** (predefinita sui dispositivi touch). È richiesto **WebGL 2**. Schermo intero viene mostrato solo dove supportato; in Safari su iPhone non è necessario. Il tempo si ferma quando il gioco va in pausa. Il record dipende dallo storage del browser e può sparire se vengono cancellati i dati del sito.
+Su iPhone 12 mini **Davide ha completato la demo 0.1** e l’ha giudicata reattiva e piacevole dopo apprendimento. Questo riscontro non è una verifica hardware della 0.2. **DualSense su Safari iOS e prestazioni sui dispositivi fisici restano da collaudare.**
 
-## Verifiche
+## Grafica
+
+| Preset     | DPR massimo |         Budget buffer | Ombra dinamica             |
+| ---------- | ----------: | --------------------: | -------------------------- |
+| Eco        |           1 | 1,25 milioni di pixel | No; ombra semplice a terra |
+| Bilanciato |         1,5 |           2,2 milioni | No; ombra semplice a terra |
+| Alto       |           2 |           4,2 milioni | Drone, mappa 1024²         |
+
+Il budget può ridurre il DPR sui monitor grandi. Automatico parte da Eco su touch/schermi piccoli, Bilanciato sugli altri; dopo almeno 8 secondi consecutivi osservati sotto 42 FPS passa a Eco. Non torna continuamente su e giù e non cambia una scelta manuale. Gli FPS misurano la cadenza del browser, non solo il tempo GPU. Obiettivo 60 FPS dove possibile, **nessuna garanzia su hardware non misurato**.
+
+La minore definizione segnalata in orizzontale aveva due fattori nel codice 0.1: antialiasing disattivato / DPR limitato e FOV verticale fisso, con meno pixel sull’oggetto quando l’altezza diminuisce. La 0.2 corregge questi fattori; il miglioramento percepito sull’iPhone va confrontato fisicamente. La telecamera esterna inquadra il drone più in alto per lasciare libera la zona dei pollici; FPV e collisioni sono invariati.
+
+## Verifiche e limiti
 
 ```sh
-npm test                          # simulazione e terreno, nessun browser richiesto
-npm run build                    # TypeScript rigoroso + build produzione
+npm test
+npm run build
 npx playwright install --with-deps chromium webkit
-npm run test:e2e                  # build già generata, browser automatizzati
-npm run check                    # tutta la sequenza
+npm run test:e2e
 ```
 
-La suite della simulazione verifica stabilità a frame rate diversi, freno, boost, limite mappa/quota, terreno coerente con la mesh, collisioni, ripartenza, attraversamenti veloci, ordine e completamento di tutti gli otto anelli con comandi di volo.
+Risultati reali e limiti in [VERIFICATION](docs/VERIFICATION.md). Le prove simulate non equivalgono a test su iPhone, Android o DualSense fisici. Scheda ripetibile: [PILOT-TEST](docs/PILOT-TEST.md).
 
-I test browser usano la **build di produzione nel sottopercorso di GitHub Pages**, verificano avvio, telecamera, pausa, tastiera, collisione/ripresa, eventi dei joystick, layout verticale/orizzontale, storage bloccato e fallback WebGL. L'emulazione WebKit non equivale a una prova su un iPhone fisico. Il resoconto delle verifiche effettivamente eseguite è in [`docs/VERIFICATION.md`](docs/VERIFICATION.md).
+Il paesaggio resta artistico. [GEOGRAPHY](docs/GEOGRAPHY.md) documenta le fondamenta tecniche, DTM Lombardia / TINITALY / OSM, licenze e media autorizzati per una prima zona reale limitata di Val Brembilla. Streaming e importazione GIS non sono ancora implementati.
 
-## Pubblicare su GitHub Pages
+## Pubblicazione
 
-La pubblicazione è predisposta, non implicita nell'esistenza di questo README.
+Il workflow Pages della 0.2 è **esclusivamente manuale**, con conferma `publish_publicly`; nessuna pubblicazione avviene con push o merge. Non è stato eseguito. GitHub Pages produrrebbe un link accessibile a chiunque, non una prova privata. Il repository e le PR sono già pubblici.
 
-1. Nel repository: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-2. Integra il ramo `feat/first-playable-demo` in `main`, per esempio tramite la pull request preparata.
-3. Il workflow **Publish GitHub Pages** esegue test, build e prove browser, quindi pubblica `dist/`.
-4. Controlla il workflow verde in **Actions** e apri l'URL riportato nel deployment.
+## Struttura
 
-URL previsto dopo una pubblicazione riuscita: **https://davideforci7-lgtm.github.io/Brembo-flight/**. Non considerarlo attivo finché il deployment non è stato verificato.
-
-Il workflow di sola verifica gira anche sul ramo della demo e allega il pacchetto `brembo-flight-demo`. I permessi di pubblicazione sono limitati al job di deploy. Per hosting sotto un altro nome, aggiorna `base` in `vite.config.ts` e l'URL base dei test.
-
-## Struttura e futura geografia reale
-
-```text
-src/core/terrain.ts   TerrainProvider, quote e ostacoli deterministici
-src/core/flight.ts    Fisica a passi fissi da 1/120 s e stati della partita
-src/core/course.ts    Percorso e attraversamento degli anelli
-src/world.ts         Scena Three.js, drone, camera, rendering
-src/input.ts         Tastiera, multitouch, rilascio/cancellazione input
-src/ui.ts            HUD, minimappa, record locale
-src/main.ts          Ciclo principale e interfaccia
-tests/               Test unitari e browser
-```
-
-`TerrainProvider` è il punto d'ingresso per sostituire il terreno sintetico con un DEM autorizzato e correttamente attribuito. Attualmente il campionamento segue **gli stessi triangoli renderizzati**, evitando scostamenti tra grafica e collisioni. Le coordinate sono locali in metri: Y verso l'alto, −Z verso nord.
-
-Per la Val Brembana serviranno: scegliere dati e licenze; trasformare coordinate geografiche in un sistema metrico locale; gestire origine e quota; usare tile/livelli di dettaglio; adattare fiume, vegetazione, percorso, collisioni e minimappa. Il renderer della demo usa una griglia regolare e non è ancora un motore GIS o streaming geografico.
-
-## Limiti della prima versione
-
-Volo arcade assistito, senza simulazione aerodinamica realistica, vento, batteria o modalità acrobatica. Alberi con collisioni conservative; anelli futuri/passati non solidi. Limite di mappa ±690 m e quota massima 270 m rispetto all'origine locale. La camera resta sopra il terreno ma può attraversare chiome. Prestazioni e gestione termica su hardware iPhone reale vanno provate. Nessun supporto controller o multiplayer in questa versione.
-
-## Licenza
-
-Il progetto mantiene la licenza **GNU AGPL v3** già presente nel repository: [`LICENSE`](LICENSE). Software senza garanzia. Three.js è MIT; le dipendenze mantengono le rispettive licenze. I modelli, il terreno, i suoni e l'interfaccia sono generati dal codice del progetto.
+- `src/core/`: simulazione, terreno, checkpoint, input gamepad e budget grafici testabili senza WebGL.
+- `src/input.ts`: tastiera/touch/Gamepad API e perdita di focus.
+- `src/world.ts`: scena e rendering; `src/audio.ts`: sintesi locale.
+- `src/ui.ts`, `src/settings-ui.ts`, `src/main.ts`: HUD, menù e ciclo applicazione.
+- `src/geo/contracts.ts`: contratti futuri di coordinate/provenienza/tessere, senza dati inventati.
+- `scripts/playtest.mjs`: server locale facoltativo con codice di accesso per sessione.
+- `tests/`: test automatici e integrazione browser; `docs/`: collaudo e decisioni.
