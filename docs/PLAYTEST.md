@@ -11,6 +11,8 @@ Non è stato creato un sito pubblico. Il repository è pubblico: codice e PR son
 
 Per scaricare l’artefatto da GitHub serve un account. In alternativa Davide può inviare lo ZIP già scaricato al pilota: il destinatario non deve avere un account GitHub né pagare un servizio.
 
+Il repository è pubblico: anche gli artefatti non sono riservati a Davide e al pilota. [GitHub consente il download a chi ha effettuato l’accesso e può leggere il repository](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/download-workflow-artifacts). La sessione sul tuo PC è locale e protetta dal codice, ma questo non rende privati sorgenti o pacchetto.
+
 - Windows: apri `AVVIA-WINDOWS.bat`.
 - macOS / Linux: apri un terminale nella cartella estratta ed esegui `sh avvia.sh`.
 - Apri `http://localhost:4173/` e inserisci il codice mostrato nel terminale.

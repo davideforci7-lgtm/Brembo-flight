@@ -1,10 +1,14 @@
 # Scheda di collaudo · BREMBO FLIGHT 0.2
 
-Versione / commit: \_**\_ Data: \_\_** Nome o pseudonimo facoltativo: \_**\_
-Dispositivo: \_\_** Sistema / browser / versione: \_**\_
-Controller e connessione USB/Bluetooth: \_\_** Orientamento: \_**\_
-Preset e risoluzione interna: \_\_** Sensibilità / deadzone / progressività: \_**\_
-FPS osservati (intervallo, dopo almeno 2 minuti): \_\_**
+| Dati della prova | Da compilare |
+| --- | --- |
+| Versione / commit e data | … |
+| Nome o pseudonimo (facoltativo) | … |
+| Dispositivo, sistema e browser con versione | … |
+| Controller e USB / Bluetooth | … |
+| Orientamento, preset e risoluzione interna | … |
+| Sensibilità, deadzone e progressività | … |
+| FPS osservati dopo almeno 2 minuti (min–max) | … |
 
 Questa è una demo di **drone multirotore con assistenza al volo**, non un aereo e non un simulatore certificato. Senza comandi rallenta e mantiene la quota; traslazione laterale e hovering sono intenzionali. Non modella portanza di un’ala, stallo, trim, propulsione reale, vento fisico o batteria. L’esperienza da pilota è preziosa per valutare leggibilità, controllo e coerenza, senza aspettarsi risposte aeronautiche equivalenti.
 
@@ -36,8 +40,8 @@ Per confrontare la risposta con la 0.1, usa lo stesso dispositivo, modalità per
 | Audio: motori, vento, effetti e fatica     | \_\_\_ | \_\_\_                           |
 | Immersione e divertimento                  | \_\_\_ | \_\_\_                           |
 
-Cosa conserveresti assolutamente? \_**\_
-Le tre cose da correggere prima: 1. \_\_** 2. \_**\_ 3. \_\_**
-Suggerimenti tecnici da pilota, distinguendo drone e aereo: \_\_\_\_
+- Cosa conserveresti assolutamente? …
+- Le tre cose da correggere prima: 1. … 2. … 3. …
+- Suggerimenti tecnici da pilota, distinguendo drone e aereo: …
 
 Per un bug: passaggi, risultato atteso, risultato osservato, eventuale screenshot/video, dati JSON scaricati dal menù. Non indicare “60 FPS” a sensazione: usa l’indicatore e specifica preset, durata e dispositivo. Una prova breve non dimostra stabilità termica.

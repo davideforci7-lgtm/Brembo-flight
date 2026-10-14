@@ -2,6 +2,24 @@
 
 Aggiornamento del 14 ottobre 2026. L’esito dell’ultima esecuzione completa è riportato nei controlli e nel riepilogo della [PR #2](https://github.com/davideforci7-lgtm/Brembo-flight/pull/2). Non considerare verde un’esecuzione annullata o ancora in corso.
 
+## Esito completo su GitHub Actions
+
+Commit del codice `1618465a21cd343fc7c15ece36539bd4ecc75a2d`: [esecuzione 38524920362](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38524920362), **conclusa con successo, senza retry o test intermittenti**.
+
+| Controllo | Esito | Durata del job, incluso setup |
+| --- | --- | --- |
+| Installazione, unit test, typecheck, build e pacchetto | 30 test superati | 14 s |
+| Chromium desktop | 7 superati, 2 esclusioni previste | 5 min 19 s |
+| Chromium touch emulato | 6 superati, 3 esclusioni previste | 3 min 24 s |
+| WebKit iPhone emulato su Linux | 5 superati, 4 esclusioni previste | 2 min 46 s |
+| Pacchetto per il tester | Artefatto generato dopo tutti i controlli | 4 s |
+
+Totale browser: **18 superati, 0 falliti, 9 esclusioni previste**. Nessun controllo è stato tolto per ottenere il verde: gli scenari di tastiera, controller virtuale e replay girano su desktop; il multitouch nativo CDP solo su Chromium touch; gli eventi touch anche su WebKit. Le esclusioni evitano di eseguire scenari che il profilo non rappresenta. Le prove su hardware reale elencate sotto restano necessarie.
+
+Il replay ha attraversato gli 8 checkpoint in 58,5 s di test CI; il test controller è passato in 40,6 s. Non sono misure FPS. L’intera sequenza build → browser paralleli → pacchetto ha richiesto circa 5 min 42 s, invece di essere interrotta a 15 minuti.
+
+[Pacchetto di questa esecuzione](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38524920362/artifacts/11875880354), conservato fino al 21 ottobre 2026. Se scaduto, usa il pacchetto dell’ultima esecuzione verde o genera la build dal sorgente. La PR collega anche l’esecuzione dell’ultimo commit di documentazione, che non cambia il codice del gioco.
+
 ## Verifiche locali della correzione
 
 - Installazione pulita `npm ci`: riuscita.
@@ -9,6 +27,17 @@ Aggiornamento del 14 ottobre 2026. L’esito dell’ultima esecuzione completa �
 - `npm run package:playtest`: compilazione TypeScript, build Vite e generazione pacchetto riuscite. Rimane l’avviso Vite per il modulo Three.js di circa 547 kB minificato / 136 kB gzip; non è stato nascosto.
 - Le prove browser locali usano Chromium 153.0.8010.0 Linux headless con SwiftShader. In CI si usano Chromium 145.0.7632.6 e WebKit 26.0 forniti da Playwright 1.58.2.
 - Dopo la correzione, replay completo e integrazione controller: **2/2 superati**, rispettivamente 42,8 s e 8,6 s in questa esecuzione locale. Sono durate dei test, non misure delle prestazioni del gioco su un telefono.
+- Pacchetto generato aperto nel browser tramite il suo server HTTP, usando il form con codice: avvio partita riuscito nei profili desktop e touch, nessun errore JavaScript o console rilevato. I launcher Windows e l’installazione Node su Windows/macOS non sono stati eseguiti su quei sistemi.
+
+### Screenshot della build
+
+Immagini catturate dal browser Chromium locale, non mockup. Qualità Alto durante il volo; viewport CSS 1440×900, 812×375 e 375×629. I profili touch hanno DPR 2 e non sono fotografie di un iPhone. Non dimostrano frame rate o qualità audio.
+
+![Schermata iniziale desktop](screenshots/v02-intro.webp)
+![Volo desktop](screenshots/v02-desktop.webp)
+![Touch orizzontale](screenshots/v02-landscape.webp)
+
+[Touch verticale](screenshots/v02-portrait.webp).
 
 ## Perché la prima CI si fermava a 15 minuti
 
