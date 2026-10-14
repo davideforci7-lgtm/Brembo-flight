@@ -5,7 +5,7 @@ test.beforeEach(async ({ page }) => {
   const errors: string[] = [];
   pageErrors.set(page, errors);
   page.on("pageerror", (error) => errors.push(error.message));
-  await page.goto("./");
+  await page.goto("./?scenario=demo");
   await expect(page.locator("#app")).toHaveAttribute("data-status", "ready");
   await expect(
     page.getByRole("button", { name: "Inizia il volo" }),

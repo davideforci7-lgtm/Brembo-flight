@@ -1,0 +1,20 @@
+This directory contains a collective database with separately licensed datasets.
+
+terrain.json: TINITALY 1.1, INGV, CC BY 4.0.
+Tarquini S., Isola I., Favalli M., Battistini A., Dotta G. (2023).
+TINITALY, a digital elevation model of Italy with a 10 meters cell size (Version 1.1).
+https://doi.org/10.13127/tinitaly/1.1
+License: https://creativecommons.org/licenses/by/4.0/legalcode
+Modifications: clipped to the documented sector, resampled to 20 m, elevations
+expressed in decimetres relative to a 400 m origin. cover field is OSM-derived.
+
+collision.json, tiles/*.json, places and cover fields: © OpenStreetMap contributors.
+The derived database is made available under the Open Database License (ODbL) 1.0.
+https://opendatacommons.org/licenses/odbl/1-0/
+https://www.openstreetmap.org/copyright
+Modifications: selective extraction, EPSG:32632 projection, clipping, simplification,
+line densification, tiled packaging, inferred display heights and widths identified
+with heightBasis/widthBasis. Downloadable source database: all listed JSON files.
+
+No endorsement by INGV, OSM contributors or local institutions is implied.
+Code and original generated art remain under the repository's AGPL-3.0-only license.

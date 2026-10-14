@@ -2,7 +2,9 @@
 import "./style.css";
 import { DemoTerrain, createTrees } from "./core/terrain";
 import { createCourse } from "./core/course";
-import { FlightSimulation } from "./core/flight";
+import { FlightSimulation, type FlightProfile } from "./core/flight";
+import { loadSector } from "./geo/sector";
+import { nearestPOI } from "./geo/poi";
 import { distance } from "./core/math";
 import { FlightWorld } from "./world";
 import { Controls } from "./input";
@@ -21,14 +23,34 @@ const app = document.querySelector<HTMLDivElement>("#app")!;
 const modal = document.getElementById("modal-layer")!;
 const canvas = document.querySelector<HTMLCanvasElement>("#world")!;
 
-function boot() {
+async function boot() {
+  app.dataset.status = "loading";
+  modal.innerHTML = `<section class="panel"><div class="panel-kicker">BREMBILLA TI ASPETTA</div><h1>Prepariamo il volo.</h1><p role="status">Caricamento del terreno e del centro abitato…</p></section>`;
+  const demo = new URLSearchParams(location.search).get("scenario") === "demo";
+  const sector = demo ? undefined : await loadSector();
   const settings = loadSettings();
   let recordEligible = true;
-  const terrain = new DemoTerrain(),
-    course = createCourse(terrain),
-    trees = createTrees(terrain);
-  const flight = new FlightSimulation(terrain, course, trees);
-  const world = new FlightWorld(canvas, terrain, trees, course);
+  const terrain = sector?.terrain ?? new DemoTerrain(),
+    course = sector?.course ?? createCourse(terrain),
+    trees = sector?.trees ?? createTrees(terrain);
+  const flight = new FlightSimulation(
+    terrain,
+    course,
+    trees,
+    sector?.environment,
+    sector?.buildings,
+  );
+  if (sector) {
+    flight.profile = "tranquil";
+    flight.mode = "explore";
+  }
+  const world = new FlightWorld(canvas, terrain, trees, course, sector);
+  app.dataset.scenario = sector ? "brembilla" : "demo";
+  document.getElementById("scenario-tag")!.textContent = sector
+    ? "VAL BREMBILLA"
+    : "VALLE DEMO";
+  document.getElementById("geo-credit")!.hidden = !sector;
+  await world.streamer?.warmup(flight.position);
   const hud = new HUD(terrain),
     sound = new FlightAudio(settings);
   world.setQuality(settings.quality);
@@ -79,6 +101,7 @@ function boot() {
         sync();
       }
       if (command === "help") showHelp();
+      if (command === "poi") showPOI();
     },
     () => {
       flight.pause();
@@ -110,21 +133,24 @@ function boot() {
         ?.focus({ preventScroll: true });
   }
   function showIntro() {
-    const best = bestTime();
     modalShell(
-      `<div class="panel-kicker"><span>02</span> IL TUO SPAZIO DI VOLO</div>
+      `<div class="panel-kicker"><span>1.0</span> ${sector ? "BREMBILLA · PRIMO SETTORE" : "LA VALLE DIMOSTRATIVA"}</div>
       <h1 id="panel-title">Prenditi<br>il <em>cielo.</em></h1>
-      <p class="intro-copy">Segui il fiume. Sfiora le cime.<br>Trova la tua linea tra le montagne.</p>
+      <p class="intro-copy">${sector ? "Il tuo paese, da un altro punto di vista.<br>Decolla dal centro e segui la valle." : "Segui il fiume. Sfiora le cime.<br>Trova la tua linea tra le montagne."}</p>
       <div class="intro-specs"><span><b>8</b> CHECKPOINT</span><span><b>∞</b> TENTATIVI</span><span><b>3D</b> LIBERTÀ</span></div>
-      <label class="activity-label" for="activity">SCEGLI IL VOLO</label><select id="activity" class="activity-select"><option value="course" ${flight.mode === "course" ? "selected" : ""}>Percorso · 8 checkpoint</option><option value="explore" ${flight.mode === "explore" ? "selected" : ""}>Esplorazione · senza cronometro</option></select>
+      <label class="activity-label" for="flight-profile">COME VUOI PILOTARE?</label><select id="flight-profile" class="activity-select"><option value="tranquil" ${flight.profile === "tranquil" ? "selected" : ""}>Volo tranquillo · facile e stabilizzato</option><option value="sport" ${flight.profile === "sport" ? "selected" : ""}>Volo Sport · feeling 0.2 e BOOST</option></select><label class="activity-label" for="activity">SCEGLI IL VOLO</label><select id="activity" class="activity-select"><option value="course" ${flight.mode === "course" ? "selected" : ""}>Percorso · 8 checkpoint</option><option value="explore" ${flight.mode === "explore" ? "selected" : ""}>Esplorazione · senza cronometro</option></select>
       <button id="start-button" class="primary">Inizia il volo ${icon("arrow")}</button>
-      <div class="intro-bottom"><button id="intro-help" class="text-button">Come si pilota? <span>↗</span></button><span>${best ? `RECORD ${formatTime(best)}` : "NESSUNA INSTALLAZIONE"}</span></div>
-      <div class="intro-note">Scenario alpino inventato. Non rappresenta ancora Val Brembilla. Volo assistito, non simulazione aeronautica.</div>`,
+      <div class="intro-bottom"><button id="intro-help" class="text-button">Come si pilota? <span>↗</span></button><span>NESSUNA INSTALLAZIONE</span></div>
+      <div class="intro-note">${sector ? "Rilievi e tracciati geografici reali. Edifici e vegetazione stilizzati, non fotogrammetria. Settore iniziale: non tutta la valle." : "Scenario alpino inventato, conservato dalla 0.2."} Volo assistito.</div>
+      <a class="scenario-switch" href="${sector ? "?scenario=demo" : "?scenario=brembilla"}">${sector ? "Visita anche la valle dimostrativa della 0.2" : "Vai al settore reale di Brembilla"}</a>`,
       "intro",
     );
     bind("start-button", () => {
       flight.mode = (document.getElementById("activity") as HTMLSelectElement)
         .value as "course" | "explore";
+      flight.profile = (
+        document.getElementById("flight-profile") as HTMLSelectElement
+      ).value as FlightProfile;
       closeModal();
       flight.start();
       world.resetCamera();
@@ -151,12 +177,12 @@ function boot() {
       `<div class="panel-kicker">IL TUO ASSETTO</div><h2 id="panel-title">Comandi e impostazioni.</h2>
       <p>Attraversa gli <b>8 anelli in ordine</b>, dal lato del precedente. Quello arancione è il prossimo: segui il segnale e la mappa.</p>
       <div class="controls-grid"><div><h3>TASTIERA</h3><dl><dt>W A S D / frecce</dt><dd>Avanti, indietro, laterale</dd><dt>R / F</dt><dd>Sali / scendi</dd><dt>Q / E</dt><dd>Ruota a sinistra / destra</dd><dt>Spazio / Shift</dt><dd>Freno / boost</dd><dt>C · P · X</dt><dd>Telecamera · pausa · recupera</dd></dl></div>
-      <div><h3>TOUCH</h3><p><b>Joystick sinistro:</b> movimento.<br><b>Joystick destro:</b> su/giù per la quota, destra/sinistra per ruotare.</p><p>Tieni premuto <b>FRENO</b> o <b>BOOST</b>. In orizzontale hai più spazio.</p></div></div>
+      <div><h3>TOUCH</h3><p><b>Joystick sinistro:</b> movimento.<br><b>Joystick destro:</b> su/giù per la quota, destra/sinistra per ruotare.</p><p>Tieni <b>FRENO</b> a sinistra. Tocca <b>BOOST</b> a destra per attivarlo, poi torna al joystick: non devi tenere un terzo dito. Si spegne rilasciando il joystick sinistro o frenando. In orizzontale hai più spazio.</p></div></div>
       <h3 class="settings-title">Controller standard · DualSense</h3><div id="controller-status" class="controller-status"></div><p class="legal">Schema Gioco: stick sinistro movimento, destro quota e rotazione. Mode 2: stick scambiati. R2 / R1 boost · L2 / L1 freno · △ / Y telecamera · Options / Start pausa · × / A conferma. Croce direzionale: su/giù naviga nei menù, sinistra/destra regola. Collega il controller e premi un tasto. Safari iOS richiede una verifica su dispositivo reale.</p>
-      <div class="help-note">Volo assistito: senza comandi il drone rallenta e mantiene la quota. Terreno, acqua, alberi e anello attivo causano urti. Recupero: +5 s al tempo.</div>
+      <div class="help-note"><b>Tranquillo:</b> velocità moderata, quota minima assistita e arresto sugli ostacoli. <b>Sport:</b> risposta della 0.2, BOOST e urti. Entrambi possono esplorare o affrontare il percorso. Volo assistito: senza comandi il drone rallenta e mantiene la quota. In Sport, terreno, acqua, alberi, edifici e anello attivo causano urti. Recupero nel percorso: +5 s al tempo.</div>
       ${settingsMarkup(settings)}
       <button id="close-help" class="primary">${flight.status === "ready" ? "Torna al decollo" : "Torna al volo"} ${icon("arrow")}</button>
-      <p class="legal">Gratuito · AGPL-3.0 · senza garanzia. <a href="https://github.com/davideforci7-lgtm/Brembo-flight/blob/feat/v0.2-multiplatform/LICENSE" target="_blank" rel="noopener noreferrer">Licenza e sorgenti ↗</a> · <a href="./THIRD-PARTY-LICENSES.txt" target="_blank" rel="noopener noreferrer">Three.js: licenza MIT</a></p>`,
+      <p class="legal">Gratuito · AGPL-3.0 · senza garanzia. <a href="https://github.com/davideforci7-lgtm/Brembo-flight/blob/feat/v1-brembilla-sector/LICENSE" target="_blank" rel="noopener noreferrer">Licenza e sorgenti ↗</a> · <a href="./THIRD-PARTY-LICENSES.txt" target="_blank" rel="noopener noreferrer">Three.js: licenza MIT</a></p>`,
       "help",
     );
     bind("close-help", closeHelp);
@@ -208,10 +234,13 @@ function boot() {
     });
     bind("export-test", () => {
       const data = {
-        version: "0.2.0",
+        version: "1.0.0-rc.1",
         date: new Date().toISOString(),
         scenario: terrain.provenance,
-        physics: "assisted-v0.1",
+        physics:
+          flight.profile === "sport"
+            ? "assisted-v0.1-unchanged"
+            : "tranquil-v1",
         userAgent: navigator.userAgent,
         viewport: {
           width: innerWidth,
@@ -249,6 +278,11 @@ function boot() {
       return;
     }
     if (flight.status === "paused") {
+      if (world.streamer && !world.streamer.readyNearPlayer) {
+        world.streamer.retry();
+        hud.notify("Caricamento del settore vicino… riprova tra un momento.");
+        return;
+      }
       closeModal();
       flight.resume();
     } else flight.pause();
@@ -268,6 +302,9 @@ function boot() {
     hud.update(flight);
     app.dataset.status = flight.status;
     app.classList.toggle("in-flight", flight.status !== "ready");
+    app.dataset.profile = flight.profile;
+    document.getElementById("boost-button")!.hidden =
+      flight.profile === "tranquil";
     controls.enabled = flight.status === "flying" && !helpOpen && !contextLost;
     if (!controls.enabled) controls.clear();
     sound.update(flight.speed, controls.enabled);
@@ -300,7 +337,7 @@ function boot() {
       });
       bind("restart-button", restart);
     } else if (flight.status === "finished") {
-      const recordKey = `${settings.sensitivity}-${settings.deadzone}-${settings.response}-${settings.gamepadLayout}`;
+      const recordKey = `${sector?.manifest.id ?? "demo"}-${flight.profile}-${settings.sensitivity}-${settings.deadzone}-${settings.response}-${settings.gamepadLayout}`;
       const record = recordEligible && saveBest(flight.scoreTime, recordKey);
       modalShell(
         `<div class="panel-kicker">PERCORSO COMPLETATO · 8 / 8</div><h2 id="panel-title">La valle è tua.</h2><div class="result-time">${formatTime(flight.scoreTime)}</div><p>${!recordEligible ? "Prova libera: impostazioni cambiate durante il percorso." : record ? "Il tuo nuovo miglior tempo con questo assetto." : `Record con questo assetto: ${formatTime(bestTime(recordKey) ?? flight.scoreTime)}`}<br>${flight.crashes} urti · ${flight.penalties} s di penalità.</p><button id="restart-button" class="primary">Un altro giro ${icon("arrow")}</button><p class="legal">Il record è salvato solo su questo browser, se disponibile.</p>`,
@@ -316,6 +353,28 @@ function boot() {
     world.resetCamera();
     sync();
   }
+  function showPOI() {
+    if (!sector || flight.status !== "flying") return;
+    const poi = nearestPOI(flight.position);
+    if (!poi) return;
+    flight.pause();
+    controls.clear();
+    controls.enabled = false;
+    helpOpen = true;
+    hud.update(flight);
+    app.dataset.status = flight.status;
+    modalShell(
+      `<div class="panel-kicker">CONOSCI IL TERRITORIO</div><h2 id="panel-title">${poi.name}</h2><p>${poi.text}</p><p class="legal">Fonte: <a href="${poi.source}" target="_blank" rel="noopener noreferrer">${poi.sourceLabel} ↗</a>. Posizione da <a href="${poi.osm}" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>. Il volume 3D è illustrativo.</p><button id="close-poi" class="primary">Torna al volo ${icon("arrow")}</button>`,
+    );
+    bind("close-poi", closeHelp);
+  }
+  bind("poi-button", showPOI);
+  bind("recover-flight", () => {
+    flight.respawn();
+    world.resetCamera();
+    controls.clear();
+    sync();
+  });
   bind("camera-button", toggleCamera);
   bind("help-button", showHelp);
   bind("pause-button", togglePause);
@@ -382,6 +441,7 @@ function boot() {
   canvas.addEventListener("webglcontextlost", (event) => {
     event.preventDefault();
     contextLost = true;
+    helpOpen = false;
     flight.pause();
     controls.enabled = false;
     controls.clear();
@@ -390,6 +450,12 @@ function boot() {
       '<div class="panel-kicker">GRAFICA INTERROTTA</div><h2 id="panel-title">Ricarica il paesaggio.</h2><p>Il browser ha interrotto la grafica 3D. Ricarica per tornare al decollo.</p><button id="reload-button" class="primary">Ricarica</button>',
     );
     bind("reload-button", () => location.reload());
+  });
+  canvas.addEventListener("webglcontextrestored", () => {
+    contextLost = false;
+    world.resetCamera();
+    sync();
+    hud.notify("Grafica ripristinata. Riprendi quando vuoi.");
   });
   let previous = performance.now(),
     lastHUD = 0;
@@ -400,7 +466,22 @@ function boot() {
     previous = now;
     if (contextLost || document.hidden) return;
     controls.pollGamepad();
+    if (
+      flight.status === "flying" &&
+      world.streamer &&
+      !world.streamer.readyNearPlayer
+    ) {
+      flight.pause();
+      controls.clear();
+      sync();
+      hud.notify(
+        world.streamer.errors
+          ? "Dati del settore non disponibili. Riprendi per riprovare."
+          : "Carico il prossimo settore. Riprendi tra un momento.",
+      );
+    }
     const input = controls.read();
+    if (flight.profile === "tranquil") input.boost = false;
     const event = flight.update(dt, input);
     if (event === "checkpoint") {
       sound.cue("checkpoint");
@@ -437,6 +518,25 @@ function boot() {
       );
       app.dataset.input = controls.activeInput;
       app.dataset.mode = flight.mode;
+      const poi =
+        sector && flight.status === "flying"
+          ? nearestPOI(flight.position)
+          : undefined;
+      const poiButton = document.getElementById("poi-button")!;
+      poiButton.hidden = !poi;
+      if (poi) poiButton.textContent = `ⓘ ${poi.name}`;
+      if (sector) {
+        const place = [...sector.manifest.places].sort(
+          (a, b) =>
+            Math.hypot(a.x - flight.position.x, a.z - flight.position.z) -
+            Math.hypot(b.x - flight.position.x, b.z - flight.position.z),
+        )[0];
+        document.getElementById("location-label")!.textContent =
+          Math.hypot(flight.position.x - 198.9, flight.position.z - 295.65) <
+          420
+            ? "Brembilla · centro"
+            : (place?.name ?? "Val Brembilla");
+      }
       const diag = world.diagnostics();
       app.dataset.preset = diag.preset;
       document.getElementById("input-indicator")!.textContent =
@@ -469,13 +569,11 @@ function boot() {
   hud.update(flight);
   requestAnimationFrame(frame);
 }
-try {
-  boot();
-} catch (error) {
+void boot().catch((error: unknown) => {
   console.error("BREMBO FLIGHT: avvio non riuscito", error);
   app.dataset.status = "error";
-  modal.innerHTML = `<section class="panel" role="alert"><div class="panel-kicker">GRAFICA 3D NON DISPONIBILE</div><h1>Impossibile decollare.</h1><p>La demo richiede WebGL 2. Prova Safari o Chrome aggiornato e verifica che l’accelerazione grafica sia attiva. Se sei nel browser interno di un’app, apri il link in Safari.</p><button class="primary" id="reload-button">Riprova</button></section>`;
+  modal.innerHTML = `<section class="panel" role="alert"><div class="panel-kicker">AVVIO NON RIUSCITO</div><h1>Impossibile decollare.</h1><p>Controlla la connessione per caricare il settore. Il gioco richiede WebGL 2: prova Safari o Chrome aggiornato e verifica che l’accelerazione grafica sia attiva. Se sei nel browser interno di un’app, apri il link in Safari.</p><button class="primary" id="reload-button">Riprova</button></section>`;
   document
     .getElementById("reload-button")!
     .addEventListener("click", () => location.reload());
-}
+});

@@ -1349,3 +1349,182 @@ kbd {
   opacity: 1;
   z-index: 9;
 }
+/* 1.0: two-thumb BOOST latch, optional local stories, compact map credit. */
+.scenario-switch {
+  display: block;
+  font-size: 11px;
+  margin-top: 12px;
+  color: #c9d8c9;
+}
+.explore-tools {
+  position: absolute;
+  top: calc(var(--safe-top) + 218px);
+  left: calc(var(--safe-left) + var(--edge));
+  gap: 6px;
+  z-index: 4;
+}
+.explore-tools button {
+  min-height: 44px;
+  border-radius: 12px;
+  padding: 8px 12px;
+  background: #113a35e8;
+  border: 1px solid #d9e3cd40;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 240px;
+}
+.location-label {
+  position: absolute;
+  top: calc(var(--safe-top) + 52px);
+  left: calc(var(--safe-left) + var(--edge));
+  font-size: 11px;
+  color: #e9dfc8;
+  pointer-events: none;
+}
+#geo-credit {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--safe-bottom) + 3px);
+  font-size: 9px;
+  line-height: 14px;
+  background: #11332bc9;
+  padding: 1px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+#geo-credit a {
+  text-decoration: none;
+}
+#app:not(.in-flight) #geo-credit {
+  right: var(--edge);
+  left: auto;
+  transform: none;
+}
+#app[data-mode="explore"] .mission {
+  width: auto;
+  max-width: 210px;
+}
+#app[data-mode="explore"] .mission-meta,
+#app[data-mode="explore"] .progress-track {
+  display: none;
+}
+#app[data-mode="explore"] .mission-line strong {
+  display: none;
+}
+@media (max-width: 599px) {
+  .panel.intro h1 {
+    font-size: 42px;
+  }
+  .panel.intro .intro-specs {
+    display: none;
+  }
+  .panel.intro .intro-copy {
+    font-size: 13px;
+    margin: 10px 0;
+  }
+  .panel.intro .panel-kicker {
+    margin-bottom: 10px;
+  }
+  .panel.intro .activity-label {
+    margin-top: 10px;
+  }
+  .panel.intro .activity-select {
+    margin-bottom: 4px;
+  }
+  .location-label {
+    display: none !important;
+  }
+  .explore-tools {
+    top: calc(var(--safe-top) + 192px);
+    flex-direction: column;
+  }
+  .explore-tools button {
+    max-width: 190px;
+    font-size: 11px;
+  }
+  .explore-tools #recover-flight {
+    width: 44px;
+    padding: 10px;
+  }
+  .explore-tools #recover-flight span {
+    display: none;
+  }
+}
+@media (orientation: landscape) and (max-height: 540px) {
+  .explore-tools {
+    left: 50%;
+    transform: translateX(-50%);
+    top: calc(var(--safe-top) + 58px);
+    max-width: 40vw;
+  }
+  .explore-tools #recover-flight {
+    display: none;
+  }
+  .explore-tools #poi-button {
+    min-height: 36px;
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+  .location-label {
+    display: none !important;
+  }
+  .panel.intro h1 {
+    font-size: 36px;
+  }
+  .panel.intro .intro-specs {
+    display: none;
+  }
+  .panel.intro .intro-copy {
+    margin: 8px 0;
+  }
+  .panel.intro .intro-note {
+    margin-top: 10px;
+  }
+}
+#app[data-scenario="brembilla"] .footer {
+  bottom: calc(var(--safe-bottom) + 23px);
+}
+@media (orientation: landscape) and (max-height: 540px) {
+  .intro label[for="flight-profile"] {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .intro #flight-profile {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .intro label[for="activity"] {
+    grid-column: 2;
+    grid-row: 3;
+  }
+  .intro #activity {
+    grid-column: 2;
+    grid-row: 4;
+  }
+  .intro #start-button {
+    grid-column: 2;
+    grid-row: 5;
+  }
+  .intro .intro-bottom {
+    grid-column: 1;
+    grid-row: 5;
+  }
+  .intro .intro-note {
+    grid-column: 1/3;
+    grid-row: 6;
+  }
+  .intro .scenario-switch {
+    grid-column: 1/3;
+    grid-row: 7;
+  }
+  .intro h1 {
+    grid-row: 2/5;
+  }
+  .in-flight .compass {
+    display: none !important;
+  }
+}

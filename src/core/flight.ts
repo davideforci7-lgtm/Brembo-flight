@@ -25,6 +25,19 @@ export const neutralInput = (): FlightInput => ({
   boost: false,
   brake: false,
 });
+export type FlightProfile = "sport" | "tranquil";
+export interface FlightEnvironment {
+  spawn: Vec3;
+  yaw: number;
+  limit: number;
+  ceiling: number;
+}
+const DEMO_ENVIRONMENT: FlightEnvironment = {
+  spawn: { x: 28, y: 12, z: 180 },
+  yaw: 0,
+  limit: WORLD_LIMIT,
+  ceiling: CEILING,
+};
 export type FlightStatus =
   | "ready"
   | "flying"
@@ -39,6 +52,7 @@ export class FlightSimulation {
   position: Vec3 = { x: 28, y: 12, z: 180 };
   velocity: Vec3 = { x: 0, y: 0, z: 0 };
   mode: "course" | "explore" = "course";
+  profile: FlightProfile = "sport";
   yaw = 0;
   status: FlightStatus = "ready";
   nextCheckpoint = 0;
@@ -46,13 +60,40 @@ export class FlightSimulation {
   penalties = 0;
   crashes = 0;
   crashReason = "";
+  private obstacleCells = new Map<string, Obstacle[]>();
   private accumulator = 0;
   private resumeStatus: "flying" | "crashed" = "flying";
   constructor(
     readonly terrain: TerrainProvider,
     readonly checkpoints: Checkpoint[],
     readonly obstacles: Obstacle[],
-  ) {}
+    readonly environment: FlightEnvironment = DEMO_ENVIRONMENT,
+    private readonly structures?: {
+      hit(position: Vec3, radius?: number): unknown;
+    },
+  ) {
+    this.position = { ...environment.spawn };
+    this.yaw = environment.yaw;
+    for (const obstacle of obstacles) {
+      const p = obstacle.position,
+        r = obstacle.radius + 1;
+      for (
+        let x = Math.floor((p.x - r) / 50);
+        x <= Math.floor((p.x + r) / 50);
+        x++
+      )
+        for (
+          let z = Math.floor((p.z - r) / 50);
+          z <= Math.floor((p.z + r) / 50);
+          z++
+        ) {
+          const key = `${x},${z}`,
+            cell = this.obstacleCells.get(key) ?? [];
+          cell.push(obstacle);
+          this.obstacleCells.set(key, cell);
+        }
+    }
+  }
   get speed() {
     return Math.hypot(this.velocity.x, this.velocity.y, this.velocity.z);
   }
@@ -60,7 +101,7 @@ export class FlightSimulation {
     return (
       this.position.y -
       Math.max(
-        WATER_LEVEL,
+        this.terrain.waterAt?.(this.position.x, this.position.z) ?? WATER_LEVEL,
         this.terrain.heightAt(this.position.x, this.position.z),
       )
     );
@@ -82,9 +123,9 @@ export class FlightSimulation {
     if (this.status === "paused") this.status = this.resumeStatus;
   }
   restart() {
-    this.position = { x: 28, y: 12, z: 180 };
+    this.position = { ...this.environment.spawn };
     this.velocity = { x: 0, y: 0, z: 0 };
-    this.yaw = 0;
+    this.yaw = this.environment.yaw;
     this.nextCheckpoint = 0;
     this.elapsed = 0;
     this.penalties = 0;
@@ -138,8 +179,9 @@ export class FlightSimulation {
     if (this.mode === "course") this.elapsed += dt;
     const old = { ...this.position };
     const turn = clamp(input.yaw, -1, 1);
-    this.yaw -= turn * 1.4 * dt;
-    const speed = input.boost ? 34 : 21;
+    this.yaw -= turn * (this.profile === "tranquil" ? 0.9 : 1.4) * dt;
+    // Sport keeps the original flight constants.
+    const speed = this.profile === "tranquil" ? 10 : input.boost ? 34 : 21;
     let forward = clamp(input.forward, -1, 1),
       right = clamp(input.right, -1, 1);
     const length = Math.hypot(forward, right);
@@ -153,7 +195,7 @@ export class FlightSimulation {
           x:
             (-Math.sin(this.yaw) * forward + Math.cos(this.yaw) * right) *
             speed,
-          y: clamp(input.up, -1, 1) * 11,
+          y: clamp(input.up, -1, 1) * (this.profile === "tranquil" ? 6 : 11),
           z:
             (-Math.cos(this.yaw) * forward - Math.sin(this.yaw) * right) *
             speed,
@@ -163,30 +205,53 @@ export class FlightSimulation {
       this.velocity[axis] += (target[axis] - this.velocity[axis]) * blend;
       this.position[axis] += this.velocity[axis] * dt;
     }
-    if (this.position.y > CEILING) {
-      this.position.y = CEILING;
+    if (this.position.y > this.environment.ceiling) {
+      this.position.y = this.environment.ceiling;
       this.velocity.y = Math.min(0, this.velocity.y);
     }
     if (
-      Math.abs(this.position.x) > WORLD_LIMIT ||
-      Math.abs(this.position.z) > WORLD_LIMIT
+      Math.abs(this.position.x) > this.environment.limit ||
+      Math.abs(this.position.z) > this.environment.limit
     ) {
-      this.position.x = clamp(this.position.x, -WORLD_LIMIT, WORLD_LIMIT);
-      this.position.z = clamp(this.position.z, -WORLD_LIMIT, WORLD_LIMIT);
+      this.position.x = clamp(
+        this.position.x,
+        -this.environment.limit,
+        this.environment.limit,
+      );
+      this.position.z = clamp(
+        this.position.z,
+        -this.environment.limit,
+        this.environment.limit,
+      );
       this.velocity.x = 0;
       this.velocity.z = 0;
     }
     const floor = Math.max(
-      WATER_LEVEL,
+      this.terrain.waterAt?.(this.position.x, this.position.z) ?? WATER_LEVEL,
       this.terrain.heightAt(this.position.x, this.position.z),
     );
+    if (this.profile === "tranquil" && this.position.y < floor + 5) {
+      // Accessibility assistance only: follow terrain at a minimum clearance.
+      this.position.y = floor + 5;
+      this.velocity.y = Math.max(0, this.velocity.y);
+    }
     if (this.position.y - BODY_RADIUS <= floor)
       return this.collide(
         floor === WATER_LEVEL
           ? "Contatto con l’acqua"
           : "Contatto con il terreno",
       );
-    for (const tree of this.obstacles) {
+    if (this.structures?.hit(this.position, BODY_RADIUS)) {
+      if (this.profile === "tranquil") {
+        this.position = old;
+        this.velocity = { x: 0, y: 0, z: 0 };
+        return null;
+      }
+      return this.collide("Contatto con un edificio");
+    }
+    for (const tree of this.obstacleCells.get(
+      `${Math.floor(this.position.x / 50)},${Math.floor(this.position.z / 50)}`,
+    ) ?? []) {
       if (
         Math.abs(this.position.x - tree.position.x) > tree.radius + 1 ||
         Math.abs(this.position.z - tree.position.z) > tree.radius + 1
@@ -205,8 +270,14 @@ export class FlightSimulation {
       if (
         segmentDistance(closest, old, this.position) <=
         tree.radius + BODY_RADIUS
-      )
+      ) {
+        if (this.profile === "tranquil") {
+          this.position = old;
+          this.velocity = { x: 0, y: 0, z: 0 };
+          return null;
+        }
         return this.collide("Contatto con un albero");
+      }
     }
     const gate =
       this.mode === "course"

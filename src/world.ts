@@ -13,6 +13,9 @@ import {
 import { type Checkpoint } from "./core/course";
 import { clamp, seededRandom } from "./core/math";
 
+import { SectorStreamer } from "./geo/streamer";
+import type { Sector } from "./geo/sector";
+
 export class FlightWorld {
   readonly renderer: THREE.WebGLRenderer;
   readonly scene = new THREE.Scene();
@@ -26,7 +29,8 @@ export class FlightWorld {
   private targetLook = new THREE.Vector3();
   private look = new THREE.Vector3();
   private shadow: THREE.Mesh;
-  private water: THREE.Mesh;
+  private water?: THREE.Mesh;
+  readonly streamer?: SectorStreamer;
   private sun = new THREE.DirectionalLight("#ffe2b7", 2.4);
   private waterTime = { value: 0 };
   readonly graphics = new GraphicsGovernor(
@@ -43,6 +47,7 @@ export class FlightWorld {
     readonly terrain: TerrainProvider,
     trees: Obstacle[],
     checkpoints: Checkpoint[],
+    readonly sector?: Sector,
   ) {
     this.renderer = new THREE.WebGLRenderer({
       canvas,
@@ -54,7 +59,11 @@ export class FlightWorld {
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.05;
     this.scene.background = new THREE.Color("#b9cdd0");
-    this.scene.fog = new THREE.FogExp2("#b9cdd0", 0.00165);
+    this.scene.fog = new THREE.FogExp2("#b9cdd0", sector ? 0.00058 : 0.00165);
+    if (sector) {
+      this.camera.far = 7000;
+      this.camera.updateProjectionMatrix();
+    }
     this.scene.add(new THREE.HemisphereLight("#eaf6f2", "#7d8260", 1.8));
     this.sun.position.set(-240, 360, -170);
     this.sun.shadow.mapSize.set(1024, 1024);
@@ -71,8 +80,11 @@ export class FlightWorld {
     this.scene.add(this.sun, this.sun.target);
     this.addSky();
     this.addTerrain();
-    this.water = this.addRiver();
-    this.addDistantMountains();
+    if (sector) this.streamer = new SectorStreamer(this.scene, sector);
+    else {
+      this.water = this.addRiver();
+      this.addDistantMountains();
+    }
     this.addTrees(trees);
     this.addLaunchPad();
     this.addCourse(checkpoints);
@@ -145,6 +157,7 @@ export class FlightWorld {
         this.renderer.getContext().getContextAttributes()?.antialias ?? false,
       calls: this.renderer.info.render.calls,
       triangles: this.renderer.info.render.triangles,
+      streaming: this.streamer?.stats,
     };
   }
   toggleCamera() {
@@ -158,6 +171,7 @@ export class FlightWorld {
     if (this.graphics.observe(dt, flight.status === "flying"))
       this.applyPreset();
     this.time += Math.min(dt, 0.1);
+    this.streamer?.update(flight.position, this.time, this.graphics.preset);
     const p = flight.position,
       moving = flight.status === "flying";
     const a = 1 - Math.exp(-7 * dt);
@@ -183,7 +197,10 @@ export class FlightWorld {
     for (let i = 0; i < this.rotors.length; i++)
       this.rotors[i].rotation.y += dt * (moving ? 65 : 10) * (i % 2 ? -1 : 1);
     this.drone.visible = this.mode !== "fpv" || flight.status === "ready";
-    const ground = Math.max(this.terrain.heightAt(p.x, p.z), WATER_LEVEL);
+    const ground = Math.max(
+      this.terrain.heightAt(p.x, p.z),
+      this.terrain.waterAt?.(p.x, p.z) ?? WATER_LEVEL,
+    );
     this.shadow.position.set(p.x, ground + 0.12, p.z);
     this.shadow.scale.setScalar(1 + (p.y - ground) * 0.02);
     (this.shadow.material as THREE.MeshBasicMaterial).opacity = clamp(
@@ -239,7 +256,8 @@ export class FlightWorld {
     this.targetCamera.y = Math.max(
       this.targetCamera.y,
       this.terrain.heightAt(this.targetCamera.x, this.targetCamera.z) + 2,
-      WATER_LEVEL + 1.5,
+      (this.terrain.waterAt?.(this.targetCamera.x, this.targetCamera.z) ??
+        WATER_LEVEL) + 1.5,
     );
     this.camera.position.lerp(
       this.targetCamera,
@@ -253,8 +271,9 @@ export class FlightWorld {
     this.look.lerp(this.targetLook, this.snap || this.mode === "fpv" ? 1 : a);
     this.camera.lookAt(this.look);
     this.snap = false;
-    (this.water.material as THREE.MeshStandardMaterial).roughness =
-      0.39 + Math.sin(this.time * 0.4) * 0.025;
+    if (this.water)
+      (this.water.material as THREE.MeshStandardMaterial).roughness =
+        0.39 + Math.sin(this.time * 0.4) * 0.025;
     this.waterTime.value = this.time;
     this.sun.position.set(p.x - 60, p.y + 90, p.z - 40);
     this.sun.target.position.set(p.x, p.y, p.z);
@@ -306,9 +325,22 @@ export class FlightWorld {
       color
         .copy(grass)
         .lerp(rock, clamp((h - 60) / 95 + (0.84 - slope) * 3, 0, 1));
-      if (h > 139)
+      if (!this.sector && h > 139)
         color.lerp(new THREE.Color("#e2e0d5"), clamp((h - 139) / 23, 0, 0.85));
-      if (h < 3.8) color.set("#9d9f7c");
+      if (!this.sector && h < 3.8) color.set("#9d9f7c");
+      if (this.sector) {
+        const cover = this.sector.terrain.coverAt(pos.getX(i), pos.getZ(i));
+        color.set(
+          cover === 1
+            ? "#486c46"
+            : cover === 2
+              ? "#809663"
+              : cover === 3
+                ? "#9b9c84"
+                : "#738364",
+        );
+        color.lerp(rock, clamp((0.7 - slope) * 2.4, 0, 0.8));
+      }
       color.multiplyScalar(0.94 + variation * 0.065);
       colors.push(color.r, color.g, color.b);
     }
@@ -396,7 +428,7 @@ export class FlightWorld {
   }
   private addSky() {
     const sky = new THREE.Mesh(
-      new THREE.SphereGeometry(1900, 24, 16),
+      new THREE.SphereGeometry(this.sector ? 6000 : 1900, 24, 16),
       new THREE.ShaderMaterial({
         side: THREE.BackSide,
         depthWrite: false,
@@ -466,7 +498,9 @@ export class FlightWorld {
   }
   private addTrees(trees: Obstacle[]) {
     const crown = new THREE.InstancedMesh(
-      new THREE.ConeGeometry(1, 1, 7),
+      this.sector
+        ? new THREE.IcosahedronGeometry(1, 0)
+        : new THREE.ConeGeometry(1, 1, 7),
       new THREE.MeshStandardMaterial({
         color: "#ffffff",
         flatShading: true,
@@ -493,7 +527,7 @@ export class FlightWorld {
         matrix.position.set(x, y + h * (layer ? 0.72 : 0.48), z);
         matrix.scale.set(
           tree.radius * (layer ? 0.75 : 1),
-          h * (layer ? 0.56 : 0.65),
+          h * (this.sector ? (layer ? 0.28 : 0.35) : layer ? 0.56 : 0.65),
           tree.radius * (layer ? 0.75 : 1),
         );
         matrix.updateMatrix();
@@ -507,19 +541,21 @@ export class FlightWorld {
     this.scene.add(crown, trunks);
   }
   private addLaunchPad() {
-    const y = this.terrain.heightAt(28, 180) + 0.1;
+    // The launch marker is a game aid, never an asserted real helipad.
+    const spawn = this.sector?.environment.spawn ?? { x: 28, z: 180 };
+    const y = this.terrain.heightAt(spawn.x, spawn.z) + 0.1;
     const pad = new THREE.Mesh(
       new THREE.CylinderGeometry(5.5, 5.5, 0.18, 48),
       new THREE.MeshStandardMaterial({ color: "#2b4846", roughness: 1 }),
     );
-    pad.position.set(28, y, 180);
+    pad.position.set(spawn.x, y, spawn.z);
     this.scene.add(pad);
     const ring = new THREE.Mesh(
       new THREE.RingGeometry(4.6, 4.8, 48),
       new THREE.MeshBasicMaterial({ color: "#e7d9a7", side: THREE.DoubleSide }),
     );
     ring.rotation.x = -Math.PI / 2;
-    ring.position.set(28, y + 0.12, 180);
+    ring.position.set(spawn.x, y + 0.12, spawn.z);
     this.scene.add(ring);
     const lineMat = new THREE.MeshBasicMaterial({ color: "#e7d9a7" });
     for (const x of [-1.2, 1.2]) {
@@ -527,14 +563,14 @@ export class FlightWorld {
         new THREE.BoxGeometry(0.32, 0.03, 3),
         lineMat,
       );
-      line.position.set(28 + x, y + 0.12, 180);
+      line.position.set(spawn.x + x, y + 0.12, spawn.z);
       this.scene.add(line);
     }
     const cross = new THREE.Mesh(
       new THREE.BoxGeometry(2.4, 0.03, 0.32),
       lineMat,
     );
-    cross.position.set(28, y + 0.12, 180);
+    cross.position.set(spawn.x, y + 0.12, spawn.z);
     this.scene.add(cross);
   }
   private addCourse(checkpoints: Checkpoint[]) {

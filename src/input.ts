@@ -9,6 +9,7 @@ export type Command =
   | "camera"
   | "respawn"
   | "help"
+  | "poi"
   | "confirm"
   | "next"
   | "previous"
@@ -73,6 +74,7 @@ export class Controls {
       if (event.code === "Escape" || event.code === "KeyP") onCommand("pause");
       if (event.code === "KeyC") onCommand("camera");
       if (event.code === "KeyX") onCommand("respawn");
+      if (event.code === "KeyI") onCommand("poi");
       if (event.code === "KeyH") onCommand("help");
     });
     window.addEventListener("keyup", (event) => this.keys.delete(event.code));
@@ -102,8 +104,21 @@ export class Controls {
     });
     this.connectStick("move-stick", "move");
     this.connectStick("look-stick", "look");
-    this.connectHold("brake-button", (held) => (this.touchBrake = held));
-    this.connectHold("boost-button", (held) => (this.touchBoost = held));
+    this.connectHold("brake-button", (held) => {
+      this.touchBrake = held;
+      if (held) this.setBoost(false);
+    });
+    const boost = document.getElementById("boost-button")!;
+    boost.addEventListener("pointerdown", (event) => {
+      if (!this.enabled) return;
+      event.preventDefault();
+      this.activeInput = "touch";
+      this.setBoost(!this.touchBoost);
+    });
+    boost.addEventListener("click", (event) => {
+      if (event.detail === 0 && this.enabled) this.setBoost(!this.touchBoost);
+    });
+    boost.addEventListener("pointercancel", () => this.setBoost(false));
   }
   pollGamepad() {
     try {
@@ -141,7 +156,8 @@ export class Controls {
     this.gamepad.disarm();
     this.keys.clear();
     for (const release of this.releases) release();
-    this.touchBrake = this.touchBoost = false;
+    this.touchBrake = false;
+    this.setBoost(false);
   }
   read(): FlightInput {
     if (!this.enabled) return neutralInput();
@@ -182,6 +198,13 @@ export class Controls {
     input.boost = !input.brake && (input.boost || this.padInput.boost);
     return input;
   }
+  private setBoost(active: boolean) {
+    this.touchBoost = active;
+    const button = document.getElementById("boost-button")!;
+    button.classList.toggle("held", active);
+    button.setAttribute("aria-pressed", String(active));
+    button.textContent = active ? "BOOST ON" : "BOOST ↑";
+  }
   private connectStick(id: string, axis: "move" | "look") {
     const el = document.getElementById(id)!;
     const thumb = el.querySelector<HTMLElement>(".stick-thumb")!;
@@ -191,6 +214,7 @@ export class Controls {
         el.releasePointerCapture(pointer);
       pointer = null;
       this.sticks[axis] = { x: 0, y: 0 };
+      if (axis === "move") this.setBoost(false);
       thumb.style.transform = "";
       el.classList.remove("held");
     };
