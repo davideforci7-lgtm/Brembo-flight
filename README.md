@@ -1,89 +1,53 @@
-# BREMBO FLIGHT 0.2
+# BREMBO FLIGHT — candidata 1.0
 
-Gioco 3D di drone gratuito e open source, direttamente nel browser. **Three.js + TypeScript + Vite**, nessun servizio a pagamento o asset remoto a runtime. Licenza **AGPL-3.0-only**, mantenuta dal repository originale.
+Gioco di drone 3D gratuito e open source, Three.js + TypeScript + Vite. Prosegue la **0.2 apprezzata da Davide su iPhone**, senza modificare quel ramo o la sua anteprima.
 
-Questa fase parte dalla PR #1, commit `f31bea5`, sul ramo dedicato `feat/v0.2-multiplatform`. Nessun merge in `main` e nessuna pubblicazione automatica.
+**È una candidata da collaudare, non la versione 1.0 definitiva.** Il primo settore geografico è giocabile; accuratezza visiva locale, prestazioni e nuovi comandi sul telefono fisico devono ancora essere validati.
 
-## Cosa cambia
+## Cosa si può fare
 
-- Interfaccia mobile-first, safe area, menù scorrevoli, joystick adattivi e regolabili. BOOST e FRENO ai lati; minimappa opzionale.
-- Gamepad API standard: DualSense e altri controller riconosciuti dal browser. Deadzone radiale, sensibilità e curva progressive, pausa su collegamento/scollegamento durante il volo e riarmo a stick centrati.
-- Eco, Bilanciato, Alto e Automatico; budget di pixel, antialiasing se disponibile, aggiornamento canvas su resize/orientamento, campo visivo adattato agli schermi bassi e FPS opzionali.
-- Drone più leggibile e rifinito, illuminazione morbida del terreno, crinali connessi, vegetazione ricolorata, acqua animata; ombra dinamica del drone solo in Alto.
-- Motori a più componenti, vento ed effetti procedurali; volumi separati e mute totale, attivazione tramite gesto.
-- Esplorazione libera oltre agli 8 checkpoint. Impostazioni persistenti, report di prova JSON scaricabile, scheda per il pilota.
+- **Volo tranquillo**, predefinito: esplorazione senza tempo, velocità moderata, arresto al rilascio, quota minima assistita e arresto sugli ostacoli. Nessun BOOST.
+- **Volo Sport**: stessi parametri e stessa risposta della 0.2. BOOST, freno, checkpoint e recupero. Nessuna simulazione aeronautica certificata.
+- Entrambi possono esplorare o affrontare gli **8 checkpoint**, nello stesso mondo. Record distinti per mondo, profilo e impostazioni.
+- **Settore reale di Brembilla**: DTM INGV e geometrie OSM, territorio 4 × 4 km / area di volo centrale 3,5 × 3,5 km. Centro, Cadelfoglia, Laxolo e parti dei versanti vicini. Non tutta la Val Brembilla.
+- **Valle dimostrativa conservata**, accessibile dal collegamento nel menù iniziale.
+- Due schede culturali facoltative, con fonti, per San Giovanni Battista e San Gottardo. Nessuna finestra che interrompe automaticamente il volo.
+- Touch, tastiera, controller standard/DualSense, telecamere esterna/FPV, audio procedurale, Eco/Bilanciato/Alto/Automatico e FPS opzionali.
 
-**Fisica preservata:** 21 m/s, 34 con BOOST, verticale 11 m/s, rotazione 1,4 rad/s, smorzamento 3 s⁻¹ / 10 s⁻¹ in frenata e passo fisso 1/120 s. La sensibilità predefinita è 1; nessuna modalità avanzata imposta. Il volo è assistito, non una simulazione aeronautica certificata. Cambiare sensibilità/curva modifica gli input, non le equazioni. I record sono separati per impostazioni e le prove con comandi modificati a metà giro non creano record.
+## Correzione touch
 
-## Provarlo
+Acceleratore e movimento a sinistra, quota/rotazione a destra. **BOOST è ora a destra e si attiva con un tocco**, quindi il pollice destro può tornare a sterzare mentre il sinistro mantiene l'acceleratore. Un altro tocco lo spegne; rilascio/cancellazione del joystick sinistro, FRENO, pausa, cambio orientamento e perdita di focus lo annullano. FRENO rimane a pressione a sinistra. La modalità Tranquillo nasconde BOOST.
 
-La guida [PLAYTEST](docs/PLAYTEST.md) spiega pacchetto pronto, prova locale su PC, telefono nella stessa Wi-Fi, HTTPS per controller mobile e limiti di riservatezza. Il giocatore usa solo il browser. Il computer personale ospitante richiede Node.
+Tastiera: WASD/frecce movimento, R/F quota, Q/E rotazione, Shift BOOST, Spazio freno, C telecamera, P/Esc pausa, X recupero, I scheda vicina. Gamepad: stick, R2/R1 BOOST, L2/L1 freno, triangolo/Y camera, Options/Start pausa. Controller fisico su Safari iOS ancora da verificare.
+
+## Dati veri e rappresentazione artistica
+
+Rilievo TINITALY 1.1 (10 m sorgenti, griglia di gioco a 20 m) e sagome/tracciati OSM. Altezze prive di rilievo, finestre, tetti, materiali e singoli alberi sono illustrativi. Non è fotogrammetria e non sostituisce cartografia tecnica. Fonti, coordinate, licenze, limiti e importatore: [GEOGRAPHY-1.0](docs/GEOGRAPHY-1.0.md), oltre al collegamento Fonti sempre disponibile nel gioco.
+
+Codice AGPL-3.0-only. Dati INGV CC BY 4.0 e derivati OSM ODbL 1.0: licenze separate nella cartella dei dati. Nessuna API a pagamento, chiave o risorsa cartografica remota durante la partita.
+
+## Collaudo
+
+Nessun nuovo hosting è attivato automaticamente. La precedente anteprima privata 0.2 rimane invariata. Per aggiornare o creare un nuovo link serve l'autorizzazione del proprietario. [Resoconto della candidata](docs/VERIFICATION-1.0.md).
+
+Per sviluppatori / CI (non richiesto al giocatore):
 
 ```sh
 npm ci
-npm run dev
-```
-
-Apri l’indirizzo mostrato da Vite, con percorso `/Brembo-flight/`. Per provare la build con codice di accesso:
-
-```sh
-npm run playtest
-```
-
-Per preparare il pacchetto condivisibile in locale: `npm run package:playtest`. Il workflow CI allega lo stesso pacchetto come artefatto, senza creare un sito pubblico.
-
-## Comandi
-
-| Azione        | Tastiera       | Touch                    | Controller standard / DualSense              |
-| ------------- | -------------- | ------------------------ | -------------------------------------------- |
-| Movimento     | WASD / frecce  | Stick sinistro           | Stick sinistro                               |
-| Sali / scendi | R / F          | Stick destro verticale   | Stick destro verticale                       |
-| Ruota         | Q / E          | Stick destro orizzontale | Stick destro orizzontale                     |
-| Boost / freno | Shift / Spazio | Tieni BOOST / FRENO      | R2 o R1 / L2 o L1                            |
-| Telecamera    | C              | Pulsante camera          | Triangolo / Y                                |
-| Pausa         | P / Esc        | Pulsante pausa           | Options / Start                              |
-| Recupero      | X              | Menù dopo un urto        | Conferma nel menù                            |
-| Menù          | Tab, Invio     | Tocca                    | Croce: naviga/regola; Croce PS / A: conferma |
-
-Schema opzionale “Drone Mode 2”: gli stick si scambiano; sinistro quota/rotazione, destro movimento. È comunque un drone con quota assistita, non un throttle reale da radiocomando. Le mappature non standard vengono segnalate e ignorate. Il freno ha priorità sul boost; tastiera/touch attivi hanno priorità per asse sul controller.
-
-Su iPhone 12 mini **Davide ha completato la demo 0.1** e l’ha giudicata reattiva e piacevole dopo apprendimento. Questo riscontro non è una verifica hardware della 0.2. **DualSense su Safari iOS e prestazioni sui dispositivi fisici restano da collaudare.**
-
-## Grafica
-
-| Preset     | DPR massimo |         Budget buffer | Ombra dinamica             |
-| ---------- | ----------: | --------------------: | -------------------------- |
-| Eco        |           1 | 1,25 milioni di pixel | No; ombra semplice a terra |
-| Bilanciato |         1,5 |           2,2 milioni | No; ombra semplice a terra |
-| Alto       |           2 |           4,2 milioni | Drone, mappa 1024²         |
-
-Il budget può ridurre il DPR sui monitor grandi. Automatico parte da Eco su touch/schermi piccoli, Bilanciato sugli altri; dopo almeno 8 secondi consecutivi osservati sotto 42 FPS passa a Eco. Non torna continuamente su e giù e non cambia una scelta manuale. Gli FPS misurano la cadenza del browser, non solo il tempo GPU. Obiettivo 60 FPS dove possibile, **nessuna garanzia su hardware non misurato**.
-
-La minore definizione segnalata in orizzontale aveva due fattori nel codice 0.1: antialiasing disattivato / DPR limitato e FOV verticale fisso, con meno pixel sull’oggetto quando l’altezza diminuisce. La 0.2 corregge questi fattori; il miglioramento percepito sull’iPhone va confrontato fisicamente. La telecamera esterna inquadra il drone più in alto per lasciare libera la zona dei pollici; FPV e collisioni sono invariati.
-
-## Verifiche e limiti
-
-```sh
 npm test
 npm run build
 npx playwright install --with-deps chromium webkit
 npm run test:e2e
 ```
 
-Risultati reali e limiti in [VERIFICATION](docs/VERIFICATION.md). Le prove simulate non equivalgono a test su iPhone, Android o DualSense fisici. Scheda ripetibile: [PILOT-TEST](docs/PILOT-TEST.md).
+`npm run dev` serve `/Brembo-flight/`; `?scenario=demo` seleziona la valle artistica conservata. `npm run package:playtest` prepara il pacchetto statico e i launcher locali già presenti nella 0.2. Le istruzioni tecniche della [prova locale](docs/PLAYTEST.md) rimangono disponibili per chi le preferisce, ma non sono necessarie con un link ospitato e autorizzato.
 
-Il paesaggio resta artistico. [GEOGRAPHY](docs/GEOGRAPHY.md) documenta le fondamenta tecniche, DTM Lombardia / TINITALY / OSM, licenze e media autorizzati per una prima zona reale limitata di Val Brembilla. Streaming e importazione GIS non sono ancora implementati.
+GitHub Actions verifica unità, build e i tre profili browser separati. Pages resta esclusivamente manuale con conferma esplicita. Nessun merge in main.
 
-## Pubblicazione
+## Stato e passi successivi
 
-Il workflow Pages della 0.2 è **esclusivamente manuale**, con conferma `publish_publicly`; nessuna pubblicazione avviene con push o merge. Non è stato eseguito. GitHub Pages produrrebbe un link accessibile a chiunque, non una prova privata. Il repository e le PR sono già pubblici.
+[Stato di avanzamento e punto di ripresa](docs/PROGRESS.md).
 
-## Struttura
+Prima di definire 1.0 finale: collaudo Safari/iPhone e PC reali, riconoscibilità del centro con Davide, controllo di ponti e landmark, revisione delle esclusioni GIS, misure FPS/temperature e regolazione del caricamento. Il settore può poi crescere per tessere, con fonti verificabili e senza appesantire l'avvio.
 
-- `src/core/`: simulazione, terreno, checkpoint, input gamepad e budget grafici testabili senza WebGL.
-- `src/input.ts`: tastiera/touch/Gamepad API e perdita di focus.
-- `src/world.ts`: scena e rendering; `src/audio.ts`: sintesi locale.
-- `src/ui.ts`, `src/settings-ui.ts`, `src/main.ts`: HUD, menù e ciclo applicazione.
-- `src/geo/contracts.ts`: contratti futuri di coordinate/provenienza/tessere, senza dati inventati.
-- `scripts/playtest.mjs`: server locale facoltativo con codice di accesso per sessione.
-- `tests/`: test automatici e integrazione browser; `docs/`: collaudo e decisioni.
+[Resoconto 0.2](docs/VERIFICATION.md) · [README storico 0.2](docs/README-0.2.md) · [Scheda pilota](docs/PILOT-TEST.md)

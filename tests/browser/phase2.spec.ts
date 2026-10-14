@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 async function open(page: Page) {
-  await page.goto("./");
+  await page.goto("./?scenario=demo");
   await expect(page.locator("#start-button")).toBeVisible();
 }
 async function range(page: Page, id: string, value: string) {
@@ -64,7 +64,7 @@ test("responsive menus, sticks, safe areas and pixel budgets across phone, table
       await bounds(page, "#boost-button");
       await bounds(page, "#brake-button");
       const boost = (await page.locator("#boost-button").boundingBox())!;
-      expect(boost.x + boost.width).toBeLessThan(width * 0.43);
+      expect(boost.x).toBeGreaterThan(width * 0.5);
       const telemetry = await bounds(page, ".telemetry");
       if (width < height && width < 600) {
         expect(telemetry.y + telemetry.height).toBeLessThan(height * 0.4);

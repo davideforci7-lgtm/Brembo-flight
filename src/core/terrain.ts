@@ -9,6 +9,8 @@ export interface TerrainProvider {
   readonly segments: number;
   readonly heights: Float32Array;
   heightAt(x: number, z: number): number;
+  waterAt?(x: number, z: number): number;
+  readonly geographic?: boolean;
 }
 export const riverX = (z: number) =>
   -26 + Math.sin(z * 0.01) * 24 + Math.sin(z * 0.022) * 7;

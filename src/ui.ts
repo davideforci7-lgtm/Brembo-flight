@@ -44,7 +44,7 @@ export function mountUI() {
     <div class="vignette" aria-hidden="true"></div>
     <header class="topbar">
       <a class="brand" href="./" aria-label="Brembo Flight, pagina iniziale">${icon("mountain")}<span>BREMBO <b>FLIGHT</b><small>ESPLORA. RESPIRA. VOLA.</small></span></a>
-      <div class="flight-tag"><i></i> <span>VALLE ALPINA</span><span class="tag-divider">/</span><span class="muted">DEMO 02</span></div>
+      <div class="flight-tag"><i></i> <span id="scenario-tag">VAL BREMBILLA</span><span class="tag-divider">/</span><span class="muted">1.0 · COLLAUDO</span></div>
       <nav class="toolbar" aria-label="Opzioni di volo">
         <button id="camera-button" class="icon-button" aria-label="Cambia telecamera" title="Telecamera (C)">${icon("camera")}<span id="camera-mode">ESTERNA</span></button>
         <button id="sound-button" class="icon-button" aria-label="Attiva audio" title="Audio sintetizzato">${icon("muted")}</button>
@@ -64,7 +64,7 @@ export function mountUI() {
     <div id="crosshair" class="only-flight" aria-hidden="true"><i></i><i></i></div>
     <aside class="map-card only-flight" aria-label="Mappa del percorso">
       <div class="map-heading"><span>LA TUA LINEA</span><span>N ↑</span></div><canvas id="minimap" width="320" height="320"></canvas>
-      <div class="map-footer"><i></i> TRACCIATO DEMO</div>
+      <div class="map-footer"><i></i> PERCORSO DI GIOCO</div>
     </aside>
     <div class="telemetry only-flight">
       <div><span class="eyebrow">VELOCITÀ</span><strong id="speed">0<small>km/h</small></strong><div class="meter"><i id="speed-meter"></i></div></div>
@@ -73,14 +73,17 @@ export function mountUI() {
     </div>
     <div class="desktop-hint only-flight"><kbd>W A S D</kbd> muovi <span>·</span> <kbd>R / F</kbd> quota <span>·</span> <kbd>Q / E</kbd> ruota <span>·</span> <kbd>SPAZIO</kbd> frena</div>
     <div class="touch-controls only-flight">
-      <div class="stick-group"><button id="boost-button" class="hold-button" aria-label="Tieni premuto per accelerare">BOOST ↑</button><span class="stick-label">MUOVI</span><div id="move-stick" class="stick" role="group" aria-label="Joystick movimento"><div class="stick-cross"></div><span class="stick-up">AVANTI</span><div class="stick-thumb"></div></div></div>
+      <div class="stick-group"><button id="brake-button" class="hold-button brake" aria-label="Tieni premuto per frenare">FRENO ■</button><span class="stick-label">MUOVI</span><div id="move-stick" class="stick" role="group" aria-label="Joystick movimento"><div class="stick-cross"></div><span class="stick-up">AVANTI</span><div class="stick-thumb"></div></div></div>
 
-      <div class="stick-group"><button id="brake-button" class="hold-button brake" aria-label="Tieni premuto per frenare">FRENO ■</button><span class="stick-label">QUOTA / RUOTA</span><div id="look-stick" class="stick" role="group" aria-label="Joystick quota e rotazione"><div class="stick-cross"></div><span class="stick-up">SALI</span><div class="stick-thumb"></div></div></div>
+      <div class="stick-group"><button id="boost-button" class="hold-button" aria-label="Attiva o disattiva BOOST" aria-pressed="false">BOOST ↑</button><span class="stick-label">QUOTA / RUOTA</span><div id="look-stick" class="stick" role="group" aria-label="Joystick quota e rotazione"><div class="stick-cross"></div><span class="stick-up">SALI</span><div class="stick-thumb"></div></div></div>
     </div>
+    <div class="explore-tools only-flight"><button id="recover-flight" aria-label="Ritorna al decollo o al checkpoint">${icon("reset")}<span>Recupera</span></button><button id="poi-button" hidden></button></div>
+    <div id="location-label" class="location-label only-flight"></div>
+    <div id="geo-credit" hidden><a href="./geo/brembilla-centro/credits.html" target="_blank" rel="noopener noreferrer">© OpenStreetMap · INGV · Fonti ↗</a></div>
     <div id="input-indicator" class="input-indicator">TOUCH / TASTIERA</div><output id="performance" hidden aria-label="Diagnostica grafica"></output>
     <div id="notice" role="status" aria-live="polite"></div>
     <div id="modal-layer"></div>
-    <footer class="footer"><span>TERRENO DIMOSTRATIVO <span class="footer-long">· NON GEOGRAFICO</span></span><a href="https://github.com/davideforci7-lgtm/Brembo-flight" target="_blank" rel="noopener noreferrer">${icon("code")} OPEN SOURCE <span>↗</span></a></footer>
+    <footer class="footer"><span>COLLAUDO 1.0 <span class="footer-long">· PRIMO SETTORE</span></span><a href="https://github.com/davideforci7-lgtm/Brembo-flight" target="_blank" rel="noopener noreferrer">${icon("code")} OPEN SOURCE <span>↗</span></a></footer>
   `;
 }
 export function bestTime(key = "classic"): number | null {
@@ -124,18 +127,22 @@ export class HUD {
     ].map((id) => [id, document.getElementById(id)!]),
   );
   private noticeTimer = 0;
-  constructor(terrain: TerrainProvider) {
+  constructor(private terrain: TerrainProvider) {
     this.mapBackground.width = 160;
     this.mapBackground.height = 160;
     const ctx = this.mapBackground.getContext("2d")!;
     for (let y = 0; y < 160; y += 2)
       for (let x = 0; x < 160; x += 2) {
         const height = terrain.heightAt(
-          (x / 160) * 800 - 400,
-          (y / 160) * 900 - 630,
+          terrain.geographic
+            ? (x / 160 - 0.5) * terrain.size
+            : (x / 160) * 800 - 400,
+          terrain.geographic
+            ? (y / 160 - 0.5) * terrain.size
+            : (y / 160) * 900 - 630,
         );
         ctx.fillStyle =
-          height < 1.8
+          !terrain.geographic && height < 1.8
             ? "#6dada3"
             : `hsl(151 12% ${18 + Math.min(height, 140) * 0.16}%)`;
         ctx.fillRect(x, y, 2, 2);
@@ -175,14 +182,17 @@ export class HUD {
     e["speed-meter"].style.width = `${(flight.speed / 36) * 100}%`;
     e.altitude.innerHTML = `${Math.round(Math.max(0, flight.altitude))}<small>m</small>`;
     const atEdge =
-      Math.abs(flight.position.x) > 660 || Math.abs(flight.position.z) > 660;
+      Math.abs(flight.position.x) > flight.environment.limit - 30 ||
+      Math.abs(flight.position.z) > flight.environment.limit - 30;
     e["flight-state"].textContent = atEdge
       ? "LIMITE DELLA MAPPA"
-      : flight.position.y > 260
-        ? "QUOTA MASSIMA 270 m"
+      : flight.position.y > flight.environment.ceiling - 10
+        ? "LIMITE DI QUOTA"
         : flight.altitude < 4
           ? "TERRENO VICINO"
-          : "VOLO ASSISTITO";
+          : flight.profile === "tranquil"
+            ? "VOLO TRANQUILLO"
+            : "VOLO SPORT";
     e["flight-state"].classList.toggle(
       "warning",
       flight.altitude < 4 || atEdge,
@@ -227,8 +237,12 @@ export class HUD {
     ctx.clearRect(0, 0, 160, 160);
     ctx.drawImage(this.mapBackground, 0, 0);
     const xy = (x: number, z: number) => [
-      ((x + 400) / 800) * 160,
-      ((z + 630) / 900) * 160,
+      this.terrain.geographic
+        ? (x / this.terrain.size + 0.5) * 160
+        : ((x + 400) / 800) * 160,
+      this.terrain.geographic
+        ? (z / this.terrain.size + 0.5) * 160
+        : ((z + 630) / 900) * 160,
     ];
     ctx.beginPath();
     (flight.mode === "course" ? flight.checkpoints : []).forEach((gate, i) => {

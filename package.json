@@ -1,9 +1,9 @@
 {
   "name": "brembo-flight",
-  "version": "0.2.0",
+  "version": "1.0.0-rc.1",
   "private": true,
   "type": "module",
-  "description": "Un simulatore di drone 3D gratuito e open source, con una valle alpina dimostrativa.",
+  "description": "Drone 3D con un primo settore geografico di Val Brembilla, volo tranquillo e Sport.",
   "license": "AGPL-3.0-only",
   "repository": "github:davideforci7-lgtm/Brembo-flight",
   "engines": {
