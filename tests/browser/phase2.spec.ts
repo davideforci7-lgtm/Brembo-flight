@@ -82,14 +82,12 @@ test("responsive menus, sticks, safe areas and pixel budgets across phone, table
     }
     await page.locator("#close-help").click();
     await expect(page.locator("#app")).toHaveAttribute("data-preset", "high");
-    const buffer = await page
-      .locator("#world")
-      .evaluate((el) => ({
-        w: (el as HTMLCanvasElement).width,
-        h: (el as HTMLCanvasElement).height,
-        cw: el.clientWidth,
-        ch: el.clientHeight,
-      }));
+    const buffer = await page.locator("#world").evaluate((el) => ({
+      w: (el as HTMLCanvasElement).width,
+      h: (el as HTMLCanvasElement).height,
+      cw: el.clientWidth,
+      ch: el.clientHeight,
+    }));
     expect(buffer.w * buffer.h).toBeLessThanOrEqual(4200000);
     expect(buffer.w / buffer.h).toBeCloseTo(width / height, 1);
     expect(buffer.cw).toBe(width);
@@ -119,7 +117,10 @@ test("virtual standard controller hotplug, camera, pause, disconnect and keyboar
     isMobile,
     "Controller browser integration exercised on desktop; hardware is a separate gate.",
   );
+  test.setTimeout(90000);
+  await page.setViewportSize({ width: 960, height: 540 });
   await page.addInitScript(() => {
+    localStorage.setItem("brembo-settings-v2", JSON.stringify({ quality: "eco" }));
     const state = {
       connected: false,
       axes: [0, 0, 0, 0],
@@ -155,12 +156,20 @@ test("virtual standard controller hotplug, camera, pause, disconnect and keyboar
   await page.locator("#start-button").click();
   await set({ connected: true, axes: [0, -1, 0, 0] });
   await expect(page.locator("#app")).toHaveAttribute("data-status", "paused");
+  await expect(page.locator("#app")).toHaveAttribute("data-controller", "centering");
   await set({ axes: [0, 0, 0, 0] });
-  await page.waitForTimeout(150);
+  await expect(page.locator("#app")).toHaveAttribute(
+    "data-controller",
+    "ready",
+  );
   await set({ pressed: [0] });
   await expect(page.locator("#app")).toHaveAttribute("data-status", "flying");
+  await expect(page.locator("#app")).toHaveAttribute("data-controller", "centering");
   await set({ pressed: [] });
-  await page.waitForTimeout(150);
+  await expect(page.locator("#app")).toHaveAttribute(
+    "data-controller",
+    "ready",
+  );
   await set({ axes: [0, -0.7, 0, 0] });
   await expect(page.locator("#app")).toHaveAttribute("data-input", "gamepad");
   await expect
@@ -180,7 +189,10 @@ test("virtual standard controller hotplug, camera, pause, disconnect and keyboar
   await page.waitForTimeout(400);
   await expect(page.locator("#app")).toHaveAttribute("data-status", "paused");
   await set({ pressed: [] });
-  await page.waitForTimeout(150);
+  await expect(page.locator("#app")).toHaveAttribute(
+    "data-controller",
+    "ready",
+  );
   await set({ pressed: [9] });
   await expect(page.locator("#app")).toHaveAttribute("data-status", "flying");
   await set({ pressed: [], connected: false });

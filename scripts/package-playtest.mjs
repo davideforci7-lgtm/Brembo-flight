@@ -15,6 +15,14 @@ await writeFile(
   "playtest-package/avvia.sh",
   '#!/bin/sh\ncd -- "$(dirname -- "$0")"\nnode scripts/playtest.mjs\n',
 );
+await writeFile(
+  "playtest-package/AVVIA-WIFI-WINDOWS.bat",
+  '@echo off\r\ncd /d "%~dp0"\r\nnode scripts/playtest.mjs --host 0.0.0.0\r\npause\r\n',
+);
+await writeFile(
+  "playtest-package/avvia-wifi.sh",
+  '#!/bin/sh\ncd -- "$(dirname -- "$0")"\nnode scripts/playtest.mjs --host 0.0.0.0\n',
+);
 console.log(
   "Pacchetto in playtest-package. Il computer ospitante richiede Node; i giocatori solo il browser.",
 );

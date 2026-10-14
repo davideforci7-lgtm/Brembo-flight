@@ -1301,3 +1301,51 @@ kbd {
 .stick-group:last-child .hold-button {
   align-self: flex-end;
 }
+/* Prevent Safari form zoom and keep compact toolbars inside the safe area. */
+.brand {
+  min-width: 0;
+}
+.brand span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.toolbar {
+  flex-shrink: 0;
+}
+@media (any-pointer: coarse) {
+  .setting select,
+  .quality-label select,
+  .activity-select {
+    font-size: 16px;
+  }
+  .icon-button {
+    min-width: 44px;
+    width: 44px;
+    height: 44px;
+  }
+  .hold-button {
+    min-height: 44px;
+  }
+  .touch-controls {
+    -webkit-touch-callout: none;
+  }
+}
+
+.needs-center .input-indicator {
+  display: block;
+  position: absolute;
+  top: calc(var(--safe-top) + 166px);
+  bottom: auto;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  padding: 8px 12px;
+  width: max-content;
+  max-width: 90%;
+  border-radius: 8px;
+  background: #173c3bee;
+  color: #ffd29f;
+  font-size: 11px;
+  opacity: 1;
+  z-index: 9;
+}

@@ -227,12 +227,12 @@ export class FlightWorld {
         ) * (this.snap ? 1 : a);
       this.targetCamera.set(
         p.x + Math.sin(this.smoothedYaw) * 11.8,
-        p.y + 4.8,
+        p.y + 3.0,
         p.z + Math.cos(this.smoothedYaw) * 11.8,
       );
       this.targetLook.set(
         p.x - Math.sin(flight.yaw) * 16,
-        p.y - 3.0,
+        p.y - 1.0,
         p.z - Math.cos(flight.yaw) * 16,
       );
     }

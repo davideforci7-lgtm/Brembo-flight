@@ -87,6 +87,19 @@ export class Controls {
       }
     });
     window.addEventListener("resize", () => this.clear());
+    window.addEventListener("gamepadconnected", () => this.pollGamepad());
+    window.addEventListener("gamepaddisconnected", (event) => {
+      if (
+        this.gamepad.identity !== `${event.gamepad.index}:${event.gamepad.id}`
+      )
+        return;
+      this.gamepad.poll([], this.settings);
+      this.clear();
+      this.activeInput = matchMedia("(pointer: coarse)").matches
+        ? "touch"
+        : "keyboard";
+      if (this.enabled) this.onBlur();
+    });
     this.connectStick("move-stick", "move");
     this.connectStick("look-stick", "look");
     this.connectHold("brake-button", (held) => (this.touchBrake = held));

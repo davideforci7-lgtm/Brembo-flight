@@ -4,7 +4,12 @@ Non è stato creato un sito pubblico. Il repository è pubblico: codice e PR son
 
 ## Sul tuo PC o sul PC del pilota
 
-Opzione più semplice dopo che la CI è verde: apri il run GitHub Actions della PR 0.2, scarica l’artefatto **brembo-flight-demo**, estrailo. Richiede un account GitHub per scaricare l’artefatto e Node.js 24 sul computer ospitante, non sul telefono.
+1. Sul computer personale installa gratuitamente [Node.js 24](https://nodejs.org/en/download), se non lo hai già. Serve solo al PC ospitante; sul telefono basta il browser.
+2. Apri la [PR #2](https://github.com/davideforci7-lgtm/Brembo-flight/pull/2), entra nel controllo **Verify playable demo** concluso con successo e apri il riepilogo della sua esecuzione.
+3. In fondo, nella sezione **Artifacts**, scarica **brembo-flight-demo** ed estrai tutto lo ZIP. Questo pacchetto viene reso disponibile solo se build e tutti e tre i gruppi di prove browser sono superati.
+4. Avvia come indicato sotto. Non aprire direttamente `dist/index.html`.
+
+Per scaricare l’artefatto da GitHub serve un account. In alternativa Davide può inviare lo ZIP già scaricato al pilota: il destinatario non deve avere un account GitHub né pagare un servizio.
 
 - Windows: apri `AVVIA-WINDOWS.bat`.
 - macOS / Linux: apri un terminale nella cartella estratta ed esegui `sh avvia.sh`.
@@ -20,16 +25,20 @@ npm ci
 npm run playtest
 ```
 
+Gli artefatti CI sono conservati 7 giorni; se scaduti, ricrea il pacchetto dal sorgente.
+
 Non serve installare il gioco. Non ci sono account nel gioco, telemetria o acquisti.
 
 ## iPhone, Android o tablet sulla stessa Wi-Fi
 
-1. Sul computer personale, avvia dalla cartella estratta `node scripts/playtest.mjs --host 0.0.0.0`. Dal sorgente: `npm run playtest -- --host 0.0.0.0`.
+1. Chiudi l’eventuale sessione precedente con Ctrl+C. Sul PC personale apri **AVVIA-WIFI-WINDOWS.bat**; su macOS/Linux esegui `sh avvia-wifi.sh` nella cartella estratta. Dal sorgente: `npm run playtest -- --host 0.0.0.0`.
 2. Il terminale mostra l’indirizzo locale del computer, ad esempio `http://192.168.1.50:4173/` (esempio, non indirizzo assegnato al tuo PC).
 3. Aprilo in Safari / Chrome sul telefono e inserisci il codice. Usa una rete privata; il firewall del PC deve consentire il collegamento dalla rete locale.
 4. Ruota il telefono. Apri `?` per joystick, grafica e audio. Il controller potrebbe non essere disponibile su HTTP: per il collaudo mobile del gamepad usa HTTPS.
 
 Per il solo touch HTTP su rete fidata è la via più semplice. Il codice limita l’accesso ma **HTTP non cifra il traffico**. Nessuna porta del router va aperta: non è un server pubblico di produzione.
+
+Il computer deve restare acceso e il terminale aperto. Se il telefono non si collega, verifica stessa Wi-Fi, indirizzo mostrato e permesso del firewall per la rete privata; una rete ospiti può isolare i dispositivi. Se la porta 4173 risulta occupata, chiudi la vecchia sessione prima di riprovare.
 
 ## HTTPS locale per collaudare il DualSense su iPhone
 
@@ -52,6 +61,8 @@ Il supporto del sistema operativo al DualSense non prova automaticamente il funz
 ## Amico a distanza e link
 
 Senza pubblicare nulla, il pilota può scaricare il pacchetto e aprirlo sul proprio PC. Per una prova dal suo telefono serve un computer ospitante nella sua rete, oppure un hosting HTTPS con controllo accessi da scegliere e autorizzare separatamente.
+
+L’indirizzo locale del tuo PC non funziona dalla casa del pilota. Per ora non esiste un link internet della 0.2 pronto da aprire su qualunque telefono: il metodo qui preparato evita hosting e abbonamenti usando un PC personale. Non è stata verificata la 0.2 su dispositivi fisici.
 
 **Un link GitHub Pages non sarebbe privato**: chiunque conosca o trovi l’URL può aprirlo, anche senza promozione. Nessun servizio cloud, tunnel o Codespace è stato attivato. Eventuali quote gratuite di questi servizi non sono considerate una garanzia di costo zero.
 

@@ -15,6 +15,7 @@ const mime = {
   ".webp": "image/webp",
   ".png": "image/png",
   ".json": "application/json",
+  ".txt": "text/plain; charset=utf-8",
 };
 const login = `<!doctype html><html lang="it"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Brembo Flight · Prova</title><style>body{background:#123b39;color:#f4eddb;font:18px system-ui;max-width:440px;margin:10vh auto;padding:24px}input,button{box-sizing:border-box;width:100%;font:inherit;padding:14px;margin:12px 0;border-radius:8px}button{background:#ffc08a;border:0}small{line-height:1.5;display:block}</style><h1>BREMBO FLIGHT</h1><p>Sessione di prova</p><form method="post" action="/unlock"><label for="code">Codice mostrato sul computer che ospita la prova</label><input id="code" name="code" autocomplete="off" required maxlength="128"><button>Entra e vola</button></form><small>La sessione termina quando viene chiuso il server. Nessun dato viene inviato a servizi esterni.</small></html>`;
 function same(a, b) {
@@ -92,7 +93,11 @@ export async function createPlaytestServer({
         decodeURIComponent(url.pathname.slice("/Brembo-flight/".length)) ||
         "index.html";
       const file = await realpath(resolve(base, relative));
-      if (!file.startsWith(base + sep) || !(await stat(file)).isFile()) {
+      if (
+        !mime[extname(file)] ||
+        !file.startsWith(base + sep) ||
+        !(await stat(file)).isFile()
+      ) {
         send(404, "Non trovato");
         return;
       }

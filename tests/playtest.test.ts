@@ -14,6 +14,7 @@ it("protects build files, rejects wrong codes and traversal, and serves authenti
   await writeFile(join(root, "secret.txt"), "outside");
   await writeFile(join(root, "dist/index.html"), "<h1>flight</h1>");
   await writeFile(join(root, "dist/game.js"), "const game = true;");
+  await writeFile(join(root, "dist/private.key"), "fixture-not-a-real-key");
   await symlink(join(root, "secret.txt"), join(root, "dist/escape.txt"));
   const { server } = await createPlaytestServer({
     root: join(root, "dist"),
@@ -46,6 +47,9 @@ it("protects build files, rejects wrong codes and traversal, and serves authenti
   const asset = await fetch(`${base}/Brembo-flight/game.js`, { headers });
   expect(asset.status).toBe(200);
   expect(asset.headers.get("content-type")).toContain("javascript");
+  expect(
+    (await fetch(`${base}/Brembo-flight/private.key`, { headers })).status,
+  ).toBe(404);
   expect(
     (await fetch(`${base}/Brembo-flight/escape.txt`, { headers })).status,
   ).toBe(404);

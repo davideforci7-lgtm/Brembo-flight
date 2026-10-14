@@ -134,3 +134,10 @@ it("exploration keeps the original flight response but has no gates, clock or pe
   expect(flight.penalties).toBe(0);
   expect(flight.position).toEqual({ x: 28, y: 12, z: 180 });
 });
+
+it("still downgrades auto when render cadence is slower than four FPS", () => {
+  const auto = new GraphicsGovernor("auto", false);
+  for (let i = 0; i < 20; i++) auto.observe(0.5, true);
+  expect(auto.preset).toBe("eco");
+  expect(auto.fps).toBe(2);
+});

@@ -46,7 +46,7 @@ export class GraphicsGovernor {
     this.seconds = this.frames = this.slowSeconds = 0;
   }
   observe(dt: number, active: boolean) {
-    if (!active || !Number.isFinite(dt) || dt <= 0 || dt > 0.25) {
+    if (!active || !Number.isFinite(dt) || dt <= 0 || dt > 2) {
       this.seconds = this.frames = this.slowSeconds = 0;
       return false;
     }

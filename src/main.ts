@@ -426,16 +426,27 @@ function boot() {
     if (now - lastHUD > 100) {
       hud.update(flight);
       lastHUD = now;
+      app.dataset.controller = controls.gamepad.identity
+        ? controls.gamepad.armed
+          ? "ready"
+          : "centering"
+        : "none";
+      app.classList.toggle(
+        "needs-center",
+        app.dataset.controller === "centering",
+      );
       app.dataset.input = controls.activeInput;
       app.dataset.mode = flight.mode;
       const diag = world.diagnostics();
       app.dataset.preset = diag.preset;
       document.getElementById("input-indicator")!.textContent =
-        controls.activeInput === "gamepad"
-          ? "CONTROLLER"
-          : controls.activeInput === "touch"
-            ? "TOUCH"
-            : "TASTIERA";
+        app.dataset.controller === "centering"
+          ? "RILASCIA STICK E TASTI"
+          : controls.activeInput === "gamepad"
+            ? "CONTROLLER"
+            : controls.activeInput === "touch"
+              ? "TOUCH"
+              : "TASTIERA";
       document.getElementById("performance")!.textContent =
         `${diag.fps || "—"} FPS · ${diag.preset.toUpperCase()} · ${diag.width}×${diag.height} · ${diag.calls} draw`;
       const controllerStatus = document.getElementById("controller-status");

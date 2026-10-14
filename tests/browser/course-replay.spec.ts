@@ -16,6 +16,9 @@ test("flies the full course with standard-controller inputs and keeps the finish
     "One deterministic integration replay; layout matrix covers other viewports.",
   );
   test.setTimeout(180000);
+  // This test covers the complete flight, not high-resolution GPU throughput.
+  // Resolution coverage remains in the separate responsive/pixel-budget test.
+  await page.setViewportSize({ width: 800, height: 450 });
   const terrain = new DemoTerrain(),
     course = createCourse(terrain),
     simulation = new FlightSimulation(terrain, course, createTrees(terrain));
@@ -100,7 +103,7 @@ test("flies the full course with standard-controller inputs and keeps the finish
   await page.goto("./");
   await expect(page.locator("#start-button")).toBeVisible();
   // Allow the neutral initial sample to arm the controller before takeoff.
-  await page.waitForTimeout(300);
+  await expect(page.locator("#app")).toHaveAttribute("data-controller", "ready");
   await page.locator("#start-button").click();
   await expect(page.locator("#app")).toHaveAttribute(
     "data-status",
