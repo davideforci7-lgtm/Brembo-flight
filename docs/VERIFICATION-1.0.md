@@ -26,7 +26,22 @@ Ambiente: Linux, Node 24.19.0, Playwright 1.58.2, Chromium headless 153 disponib
 
 I replay completano tutti gli 8 checkpoint tramite input standard, senza teletrasportare il drone; usano un clock accelerato che non misura prestazioni hardware. Le esclusioni separano i controlli desktop e quelli touch: non sono fallimenti nascosti.
 
-GitHub Actions deve ancora verificare installazione pulita e l’intera matrice, inclusa WebKit. I risultati verranno aggiornati dopo il completamento; gli stati non conclusi non sono considerati superati.
+## GitHub Actions: superata sul codice `fd71bf5`
+
+[Run 38618313323](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38618313323), conclusione `success`, verificata nei job e nei log. Installazione pulita con `npm ci`, **39/39 test automatici**, typecheck, build e confezionamento riusciti.
+
+| Profilo CI | Prove superate | Esclusioni previste | Durata job |
+| --- | ---: | ---: | ---: |
+| Chromium desktop | 11 | 3 | 8 min 37 s |
+| Chromium touch | 10 | 4 | 4 min 28 s |
+| WebKit iPhone emulato | 7 | 7 | 3 min 47 s |
+| **Totale** | **28** | **14** | — |
+
+Nessun fallimento, nessun retry. Il BOOST multitouch nativo passa anche sul runner GitHub. Il percorso geografico completo passa in 2,3 minuti e quello demo in 1,2 minuti nel test accelerato: sono durate del test su GPU software, non tempi del giocatore o misure FPS.
+
+Il job desktop dura 8 min 37 s, sotto i 15 minuti disponibili; la fase test dura 8,0 minuti, sotto il limite di step di 11 minuti. Non è stato necessario alzare i limiti o eliminare controlli. Pacchetto di prova e report allegati alla CI; nessun sito distribuito.
+
+Questi risultati si riferiscono al commit di codice `fd71bf5d8fe1cd8884dab32ed0029a972d7604b9`. Un eventuale commit successivo limitato a questi documenti non cambia il codice collaudato.
 
 CI conserva tutti i controlli della 0.2: un job build e tre job browser indipendenti. Limite 15 minuti per job, 11 per i test; un worker per profilo e nessun fail-fast fra browser. Il pacchetto finale viene allegato solo dopo il successo dei tre profili. Nessun workflow Pages viene avviato.
 

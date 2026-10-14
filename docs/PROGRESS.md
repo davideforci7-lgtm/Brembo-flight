@@ -5,9 +5,9 @@ Aggiornato il 14 ottobre 2026. **Incremento giocabile in revisione, non versione
 ## Ramo e protezione della 0.2
 
 - Ramo di lavoro: `feat/v1-brembilla-sector`, derivato dal commit 0.2 `f7f384d0f981bd6446e57d80b34b31afc11d4cf6`.
-- PR nuova e separata, con base `feat/v0.2-multiplatform`. La PR #2 rimane aperta e il suo ramo non viene modificato.
+- [PR #3](https://github.com/davideforci7-lgtm/Brembo-flight/pull/3), nuova e separata, con base `feat/v0.2-multiplatform`. La PR #2 rimane aperta e il suo ramo non viene modificato.
 - Nessun merge in `main`, nessun nuovo deploy, nessuna sostituzione dell'anteprima privata 0.2, nessun servizio a pagamento.
-- I dati e il codice di questo incremento sono salvati nel ramo GitHub; non occorre recuperare file da un Codespace personale.
+- I dati e il codice di questo incremento sono salvati nel commit `fd71bf5d8fe1cd8884dab32ed0029a972d7604b9` del ramo GitHub; non occorre recuperare file da un Codespace personale.
 
 ## Completato in questo incremento
 
@@ -26,7 +26,9 @@ Aggiornato il 14 ottobre 2026. **Incremento giocabile in revisione, non versione
 - **TypeScript, build Vite e confezionamento della prova locale superati.** Rimane l'avviso sul modulo Three.js di circa 575 kB minificati / 145 kB gzip.
 - **Test multitouch nativo Chromium passato** a 812 × 375: contatto sinistro mantenuto, tocco BOOST, ritorno del secondo dito al joystick destro, movimento oltre la velocità normale, reset con cancellazione, freno e blur.
 - **Suite browser locale completa Chromium desktop/touch: 21 prove superate, 7 esclusioni previste, zero fallimenti e zero retry.** Comprende tutti gli 8 checkpoint sia nel mondo demo sia nel settore reale, layout, controller simulato, audio, errori dati e recupero WebGL.
-- Matrice GitHub Actions, inclusa WebKit e installazione pulita: da completare dopo il push. Consultare [VERIFICATION-1.0.md](VERIFICATION-1.0.md) e gli stati della PR; non è ancora dichiarata superata.
+- **GitHub Actions del codice `fd71bf5`: tutta verde** — [esecuzione 38618313323](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38618313323). Installazione pulita, 39 test automatici, build e **28 prove browser superati**: Chromium desktop 11, Chromium touch 10, WebKit 7. 14 esclusioni previste per profilo, nessun fallimento o retry.
+- Job più lungo **8 min 37 s**, inferiore al limite 15 minuti; i test desktop richiedono 8,0 minuti, inferiori al limite di step 11 minuti. Nessun controllo rimosso e nessun aumento arbitrario dei timeout.
+- L’ultimo aggiornamento di questa documentazione aggiunge risultati e collegamenti; il codice verificato rimane esattamente quello del commit `fd71bf5`. Dettagli in [VERIFICATION-1.0.md](VERIFICATION-1.0.md).
 - I test locali usano Chromium headless su Linux con rendering software. Non sono prove fisiche di iPhone, DualSense o prestazioni del giocatore.
 
 ## Cosa manca alla 1.0 finale
