@@ -1,3 +1,38 @@
+# Aggiornamento: preparazione fotografica e fusione geospaziale — 15 ottobre 2026
+
+Ramo nuovo `feat/photographic-pipeline`, base esatta PR #3 `2a06c243f497436e9f7846f174f9fe1dbce940d9`. I resoconti precedenti sono conservati più sotto come storico. Davide ha ora collaudato il settore e conferma che le posizioni delle case sono una buona base; la criticità prioritaria è l'aspetto artificiale.
+
+## Preparato concretamente
+
+- Analisi del renderer e dei dati esistenti; nessuna modifica alla fisica, ai checkpoint o ai file del settore distribuito.
+- [Ricerca fonti e licenze](PHOTO-SOURCES.md), con [risposte delle query sul settore reale](research/brembilla-source-probe-2026-10-15.json). DBGT: 3.710 unità volumetriche con altezze, 1.639 rappresentazioni edificio, nessun elemento nel livello coperture. Sette livelli del catalogo LiDAR: zero intersezioni con il settore; non implica assenza di qualsiasi altro rilievo.
+- [Strategia di fusione](PHOTOREALISM.md): ortofoto/OSM/DBGT/DTM/DSM/foto, riferimento metrico comune, assi, datum, date, precisione, conflitti e provenienza per elemento. Operazione EPSG:7791→32632 con accuratezza dichiarata 1 m, non centimetri. Quote sconosciute non accettate per fusione 3D.
+- [Pipeline offline](../scripts/photo/README.md): inventario privato JPG/DNG e duplicati, controlli indipendenti XY/Z, rapporti con hash, export GeoTIFF→tessere WebP con LOD e attribuzioni dopo verifica diritti/privacy. Originali e rapporti privati esclusi dal repository.
+- Caricatore Three.js opzionale per ortofoto: 512/1024, massimo due richieste, budget 8/12/16 tessere, verifica hash/dimensioni, fallback sul terreno, rilascio risorse. Attribuzione e diagnostica. **Non attivato nel settore esistente.**
+- [Specifiche semplici per Bruno](BRUNO-CAPTURE.md), esempi di controllo e rilascio, percorso ODM/COLMAP→GLB documentato.
+- CI estesa con i test Python e controllo sugli asset pubblici; mantiene le suite precedenti. Aggiunta la base PR #3 al filtro dei rami per verificare la nuova PR separata.
+
+## Verifiche eseguite durante l'incremento
+
+- 44 test TypeScript passati, inclusi coordinate/UV, diagonali della griglia, budget/LOD, crediti e manifest non validi.
+- 12 test Python passati: inventario/duplicati, riservatezza dei percorsi, proiezione lon/lat, scarti non corretti di nascosto, blocco datum sconosciuto, checkpoint degeneri, permessi/hash, export riproducibile, EXIF rimossi, nodata non inventato.
+- Typecheck e build Vite passati; Three.js resta il chunk principale (~575 kB minificati, ~145 kB gzip), senza nuove dipendenze browser.
+- Suite browser locale mirata: **11 passati, 1 esclusione prevista**, Chromium desktop e touch su Linux/SwiftShader. Strato fotografico con pattern diagnostico (non foto reali), errore 404 con volo ancora utilizzabile, settore geografico, orientamenti, BOOST multitouch e recupero WebGL. Screenshot del pattern ispezionato. Queste non sono prove su iPhone fisico.
+- Primo avvio locale dei browser bloccato da un vecchio eseguibile incompleto; ripristinato Chromium 153 da pacchetto disponibile e ripetuti i test con successo. Il download Playwright standard locale ha restituito archivi incompleti. Nessun errore dell'app mascherato come test passato.
+- I risultati della verifica **GitHub Actions del commit finale** sono riportati nella descrizione/Checks della nuova PR, distinguendoli da questa verifica locale. Nessun deploy è parte di questo lavoro.
+
+## Limiti ancora reali
+
+Non è stata creata una Brembilla fotorealistica: non sono arrivati gli originali di Bruno e non sono stati ottenuti diritti di redistribuzione per ortofoto recenti AGEA/MASAF. Ortofoto 1975 non rappresentano il paesaggio contemporaneo. Nessuna falsa texture fotografica è distribuita.
+
+Restano: audit del datum verticale, importazione/confronto geometrico DBGT e DTM5, fusione per elemento e maschere terreno/strade/mesh, ricostruzione SfM/MVS, conversione e LOD GLB reali, prova prestazioni/memoria/temperatura su iPhone 12 mini e PC. I budget GPU documentati sono stime delle texture, non FPS o memoria totale misurata.
+
+**Prossimo passo:** ricevere privatamente una selezione coerente di Bruno con diritti e metadati, inventariarla, scegliere un piccolo sito e verificare copertura/allineamento prima della ricostruzione pilota. Non occorrono operazioni tecniche da Davide. Nessun merge, nessun servizio a pagamento, nessuna modifica a PR #3, main o anteprime.
+
+---
+
+# Storico dell'incremento PR #3
+
 # BREMBO FLIGHT — avanzamento verso la 1.0
 
 Aggiornato il 14 ottobre 2026. **Incremento giocabile in revisione, non versione finale.** Questo documento è il punto di ripresa per altre sessioni di sviluppo e revisione.

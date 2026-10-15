@@ -1,0 +1,16 @@
+{
+  "_note": "SYNTHETIC EXAMPLE. Replace all coordinates, datum declarations, asset hash and limits after survey review. Save the real file OUTSIDE this repository.",
+  "assetSHA256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "sourceCRS": "EPSG:32632",
+  "targetCRS": "EPSG:32632",
+  "sourceVerticalDatum": "unknown",
+  "targetVerticalDatum": "unknown",
+  "verticalDatumVerified": false,
+  "minimumCheckAreaM2": 100,
+  "limits": {"horizontalRMSE": 1, "horizontalMax": 2, "verticalRMSE": 1, "verticalMax": 2},
+  "points": [
+    {"id": "synthetic-A", "role": "check", "source": [546280,5074440,400], "reference": [546280,5074440,400]},
+    {"id": "synthetic-B", "role": "check", "source": [546380,5074440,400], "reference": [546380,5074440,400]},
+    {"id": "synthetic-C", "role": "check", "source": [546280,5074540,400], "reference": [546280,5074540,400]}
+  ]
+}

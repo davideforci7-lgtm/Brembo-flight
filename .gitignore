@@ -155,3 +155,13 @@ playwright-report/
 playtest-package/
 *.pem
 *.key
+
+# Private photographic/GIS processing: never stage originals or intake reports.
+private-photos/
+photo-work/
+*.dng
+*.DNG
+*.las
+*.laz
+__pycache__/
+.venv*/

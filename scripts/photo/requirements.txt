@@ -1,0 +1,5 @@
+# Offline processing only; no Python dependency in the browser.
+Pillow==12.3.0
+numpy==2.3.5
+pyproj==3.7.2
+rasterio==1.4.3

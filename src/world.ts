@@ -13,6 +13,7 @@ import {
 import { type Checkpoint } from "./core/course";
 import { clamp, seededRandom } from "./core/math";
 
+import { PhotoTerrain } from "./geo/photography";
 import { SectorStreamer } from "./geo/streamer";
 import type { Sector } from "./geo/sector";
 
@@ -31,6 +32,7 @@ export class FlightWorld {
   private shadow: THREE.Mesh;
   private water?: THREE.Mesh;
   readonly streamer?: SectorStreamer;
+  readonly photography?: PhotoTerrain;
   private sun = new THREE.DirectionalLight("#ffe2b7", 2.4);
   private waterTime = { value: 0 };
   readonly graphics = new GraphicsGovernor(
@@ -80,7 +82,10 @@ export class FlightWorld {
     this.scene.add(this.sun, this.sun.target);
     this.addSky();
     this.addTerrain();
-    if (sector) this.streamer = new SectorStreamer(this.scene, sector);
+    if (sector) {
+      this.streamer = new SectorStreamer(this.scene, sector);
+      this.photography = new PhotoTerrain(this.scene, this.terrain, sector.manifest);
+    }
     else {
       this.water = this.addRiver();
       this.addDistantMountains();
@@ -158,6 +163,7 @@ export class FlightWorld {
       calls: this.renderer.info.render.calls,
       triangles: this.renderer.info.render.triangles,
       streaming: this.streamer?.stats,
+      photography: this.photography?.stats,
     };
   }
   toggleCamera() {
@@ -172,6 +178,7 @@ export class FlightWorld {
       this.applyPreset();
     this.time += Math.min(dt, 0.1);
     this.streamer?.update(flight.position, this.time, this.graphics.preset);
+    this.photography?.update(flight.position, this.time, this.graphics.preset);
     const p = flight.position,
       moving = flight.status === "flying";
     const a = 1 - Math.exp(-7 * dt);

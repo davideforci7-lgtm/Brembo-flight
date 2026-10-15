@@ -44,6 +44,8 @@ export interface SectorManifest {
   size: number;
   limit: number;
   terrainURL: string;
+  /** Optional approved orthophoto release; absent in the shipped sector. */
+  photoManifestURL?: string;
   tiles: TileEntry[];
   places: { id: string; name: string; x: number; z: number }[];
   reference: {
