@@ -47,6 +47,36 @@ def write_json(path, data):
         stream.write('\n')
 
 
+def pillow_gps(exif):
+    """Numeric EXIF coordinates when ExifTool is unavailable; never infer DJI XMP
+    or a verified vertical datum from these tags."""
+    from PIL import ExifTags
+    gps = exif.get_ifd(ExifTags.IFD.GPSInfo)
+    result = {}
+    def coordinate(value, ref, positive, negative, limit):
+        if isinstance(ref, bytes): ref = ref.decode('ascii').strip('\x00')
+        if ref not in (positive, negative) or len(value) != 3: raise ValueError('Invalid GPS reference')
+        d,m,s = map(float, value)
+        if not all(math.isfinite(v) for v in (d,m,s)) or d < 0 or not 0 <= m < 60 or not 0 <= s < 60:
+            raise ValueError('Invalid DMS coordinate')
+        value = d + m/60 + s/3600
+        if value > limit: raise ValueError('GPS out of range')
+        return value if ref == positive else -value
+    if 2 in gps and 4 in gps:
+        result['GPSLatitude'] = coordinate(gps[2], gps.get(1), 'N', 'S', 90)
+        result['GPSLongitude'] = coordinate(gps[4], gps.get(3), 'E', 'W', 180)
+    if 6 in gps:
+        ref = gps.get(5, 0)
+        if isinstance(ref, bytes): ref = ref[0] if ref else -1
+        altitude = float(gps[6])
+        if ref in (0,1) and math.isfinite(altitude):
+            result.update(GPSAltitude=altitude * (-1 if ref == 1 else 1), GPSAltitudeRef=ref)
+    if 31 in gps:
+        error = float(gps[31])
+        if math.isfinite(error) and error >= 0: result['GPSHPositioningError'] = error
+    return result
+
+
 def inventory(source, output):
     from PIL import Image, ExifTags
     source, output = outside_repo(source), outside_repo(output)
@@ -95,7 +125,8 @@ def inventory(source, output):
                     entry['width'], entry['height'] = im.size
                     entry['metadata'] = {ExifTags.TAGS.get(k, str(k)): str(v)
                         for k, v in details.items() if k in {271, 272, 274, 306, 33434, 34855, 36867, 37386}}
-                    entry['hasGPS'] = bool(exif.get(34853))
+                    entry['metadata'].update(pillow_gps(exif))
+                    entry['hasGPS'] = all(k in entry['metadata'] for k in ('GPSLatitude','GPSLongitude'))
                     if path.suffix.lower() != '.dng':
                         im.verify()
             except Exception as exc:

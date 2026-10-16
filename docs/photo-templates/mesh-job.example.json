@@ -1,0 +1,19 @@
+{
+  "_note": "TEMPLATE ONLY. Copy outside checkout. Input must be a genuinely reconstructed, already registered textured GLB; no raw originals or permissions in git. Output stays private even if alignment passes.",
+  "schemaVersion": 1,
+  "processingApproved": false,
+  "permissionReference": "PRIVATE authorization evidence identifier",
+  "input": "registered-source.glb",
+  "sourceSHA256": "REPLACE_WITH_SOURCE_SHA256",
+  "coordinateFrame": "local-east-up-south-metres",
+  "lighting": "baked-photographic",
+  "reference": {
+    "projectedCRS": "EPSG:32632",
+    "verticalDatum": "unknown",
+    "originEasting": 546280,
+    "originNorthing": 5074440,
+    "originElevation": 400
+  },
+  "alignmentReport": null,
+  "alignmentSHA256": null
+}

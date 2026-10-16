@@ -20,7 +20,7 @@ Le versioni di PROJ/GDAL e l'operazione sono registrate nei rapporti; binari/gri
 python scripts/photo/pipeline.py inventory /private/brembo/originals /private/brembo/inventory.json
 ```
 
-Non modifica né copia gli originali. JPG/DNG: hash, duplicati, metadati, controlli elementari. ExifTool opzionale aumenta i metadati leggibili; senza, Pillow è una lettura parziale e DNG non viene sviluppato. `readyForReconstruction` resta falso: copertura e qualità non sono deducibili dal conteggio. Il rapporto può contenere posizione e orari: privato. Sono rifiutati percorsi originali/report interni al repository, compresi symlink risolti.
+Non modifica né copia gli originali. JPG/DNG: hash, duplicati, metadati, controlli elementari. ExifTool opzionale aumenta i metadati leggibili; senza, Pillow legge camera e coordinate GPS EXIF ma resta parziale per DJI XMP e DNG non viene sviluppato. `readyForReconstruction` resta falso: copertura e qualità non sono deducibili dal conteggio. Il rapporto può contenere posizione e orari: privato. Sono rifiutati percorsi originali/report interni al repository, compresi symlink risolti.
 
 Prima valutazione automatica privata:
 
@@ -69,4 +69,17 @@ npm run test:e2e
 
 Il controllo usa i file **tracciati da git**: eseguirlo anche dopo lo staging. Blocca RAW e raster sorgente pubblici, ma non certifica diritti, anonimizzazione visiva o qualità geografica. Nessun originale o dato privato nei test; pattern artificiali sono solo fixture diagnostiche generate in memoria. Il caricatore mantiene il terreno esistente se manifest, hash o immagini falliscono.
 
-Il runtime implementa ortofoto con LOD e budget. Non implementa ancora una fusione automatica DBGT/OSM, ricostruzione SfM/MVS, LOD di mesh GLB o streaming 3D Tiles: serviranno un primo lotto reale e relativi test. Non usare questa pipeline come prova che il fotorealismo sia già realizzato.
+Il runtime implementa ortofoto con LOD e budget. Implementa inoltre altezze DBGT conservative e preparazione GLB/LOD offline privata (vedi sotto). Non implementa ancora fusione di sottovolumi, ricostruzione SfM/MVS, caricamento runtime GLB o streaming 3D Tiles: serviranno un primo lotto reale e relativi test. Non usare questa pipeline come prova che il fotorealismo sia già realizzato.
+
+## Missione 2: matching e preparazione GLB realmente implementati
+
+[Metodi, budget e limiti verificati](../../docs/PHOTO-TOOLS.md). Comandi esclusivamente per lo sviluppo:
+
+```sh
+python scripts/photo/match.py /private/brembo/originals /private/brembo/inventory.json /private/brembo/pairs.json
+node scripts/photo/prepare-mesh.mjs /private/brembo/mesh-job.json /private/brembo/mesh-review-001
+```
+
+`match.py` include OpenCV headless nelle dipendenze Python fissate; legge soltanto i JPG con hash coincidente all'inventario, massimo 30. `prepare-mesh.mjs` usa le devDependencies del lockfile npm; copiare il template `docs/photo-templates/mesh-job.example.json` fuori dal checkout e compilare dati reali. Il GLB sorgente deve essere già ricostruito e riferito al sistema locale; il comando non avvia ODM, COLMAP, Blender né servizi esterni. Output privato obbligatorio, nessun upload, nessuna attivazione automatica. Validazione e budget falliscono esplicitamente se incompatibili.
+
+La preparazione GLB non sostituisce le verifiche SfM/metriche, la revisione visuale della privacy, i permessi di redistribuzione o il futuro caricatore runtime. Un esito positivo non significa che la mesh sia fedele a Brembilla. I file sorgenti devono restare privati; nel gioco entreranno soltanto derivati autorizzati e verificati in una revisione successiva.

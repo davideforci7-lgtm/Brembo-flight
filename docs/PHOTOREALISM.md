@@ -63,7 +63,7 @@ Due caricamenti in corso, immagini decodificate CPU, framebuffer, geometrie e dr
 
 Il settore intero 4×4 km a 20 cm avrebbe 400 milioni di pixel: circa 2 GiB GPU con mipmap, prima del resto. Serve streaming. Con tessere 200 m, 512/1024 pixel corrispondono a circa 39/20 cm per pixel, solo se la fonte contiene quel dettaglio. La griglia altimetrica resta 20 m: una foto nitida non migliora automaticamente scarpate o muri.
 
-Budget iniziali **proposti, non implementati né misurati**, per un luogo fotogrammetrico: LOD vicino 50–100 mila triangoli, medio 15–30 mila, lontano 2–5 mila; atlanti 1K mobile, fino a 2K PC, poche superfici/materiali. Rivedere con silhouette, errore a schermo e collaudo. KTX2/Basis e Meshopt valutabili dopo un primo GLB reale; il runtime attuale non include ancora questi decoder. Collisioni semplificate separate. Compressione del file e riduzione dei triangoli sono interventi distinti.
+Budget inizialmente proposti per un luogo fotogrammetrico (ora implementati nel preparatore offline, vedi [strumenti Missione 2](PHOTO-TOOLS.md)): LOD vicino 50–100 mila triangoli, medio 15–30 mila, lontano 2–5 mila; atlanti 1K mobile, fino a 2K PC, poche superfici/materiali. Rivedere con silhouette, errore a schermo e collaudo. KTX2/Basis e Meshopt valutabili dopo un primo GLB reale; il runtime attuale non include ancora questi decoder. Collisioni semplificate separate. Compressione del file e riduzione dei triangoli sono interventi distinti.
 
 ## Pipeline fotogrammetrica prevista
 
@@ -79,3 +79,7 @@ OpenDroneMap per il primo piccolo lotto aereo, COLMAP come alternativa per facci
 L'elaborazione densa può richiedere ore e molta RAM; dipende da immagini, risoluzione e geometria. Prima misurare un lotto piccolo sul calcolo disponibile, senza attivare servizi cloud o promettere che il piano ChatGPT includa una workstation fotogrammetrica.
 
 Riferimenti tecnici primari: [PROJ/pyproj](https://pyproj4.github.io/pyproj/stable/api/transformer.html), [ODM precisione](https://docs.opendronemap.org/map-accuracy/), [ODM output](https://docs.opendronemap.org/outputs/), [ODM parametri](https://docs.opendronemap.org/arguments/), [glTF Transform](https://gltf-transform.dev/cli), [3D Tiles 1.1](https://docs.ogc.org/cs/22-025r4/22-025r4.html), [Three.js texture](https://threejs.org/docs/pages/Texture.html).
+
+## Incremento Missione 2
+
+Il matching privato delle immagini e l’export GLB/LOD da mesh già ricostruite sono ora implementati e testati con fixture numeriche. [Stato preciso, misure e limiti](PHOTO-TOOLS.md). Nessuna fotografia reale, ricostruzione SfM o caricatore runtime di mesh è stato aggiunto. Rimangono necessari originali di Bruno, registrazione metrica e autorizzazione ai derivati. Le superfici OSM sono ora conformi alle triangolazioni del terreno; nessuna quota topografica aggiuntiva è inventata.

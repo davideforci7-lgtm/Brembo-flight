@@ -1,3 +1,15 @@
+# Missione 2 — terzo incremento: primo lotto e mesh private
+
+Implementati e verificati [matching fotografico e preparatore GLB/LOD](PHOTO-TOOLS.md): tutte le coppie di un massimo di 30 JPG, ORB/RANSAC e componenti candidate; mesh già ricostruita → tre GLB con texture ridotte dai pixel originali e candidato collisioni separato. Lettura GPS numerica da EXIF JPEG anche senza ExifTool (testata con emisferi sud/ovest e quota negativa); DJI XMP/RAW richiedono ancora un lettore adatto. Hash, percorsi privati, limiti di triangoli/byte/texture, validazione Khronos, pulizia metadata, blocco della redistribuzione automatica. Nessuna nuova dipendenza nel bundle browser.
+
+**Verificato localmente:** 53 test TypeScript, 23 Python, typecheck/build. Fixture numeriche soltanto: matching con immagine trasformata e rifiuto delle immagini uniformi; GLB di prova 20.000 triangoli, riduzione LOD, bounds preservati, EXIF ed extras privati rimossi, sorgente immutata. Non sono foto o ricostruzioni di Brembilla. Preparazione dei derivati privata anche quando il datum è irrisolto; accettazione GIS e attivazione runtime rimangono bloccate.
+
+Incrementi precedenti già salvati: `360f72b` (strumenti ripresi/campioni DTM/prove visive, CI tutta verde) e `bb15596` (superfici aderenti e audit DBGT, CI tutta verde). Le prove sulle superfici sono incluse nei test; 5 browser touch del settore passati localmente. [CI `bb15596`](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38902841797): 51 TypeScript + 20 Python + 37 browser passati, 14 esclusioni previste, nessun retry. Job più lungo 425,8 s. [Tempi dai log](research/ci-bb15596.json). La CI di questo terzo incremento va controllata sul nuovo SHA.
+
+**Prossimo passo concreto:** ricevere privatamente 15–30 originali coerenti di Bruno e l'autorizzazione a elaborarli; eseguire inventario → assess → matching e revisione delle viste di un isolato, prima di avviare SfM/MVS. Nessuna superficie fotografica autentica aggiunta oggi. Nessun merge/deploy o cambiamento alle anteprime.
+
+---
+
 # Missione 2 — secondo incremento: superfici e audit DBGT
 
 - Audit riproducibile di tutti i 475 volumi, con classificazione esclusiva e riesame di 83 gruppi: 14 unioni compatibili in pianta ma nessuna altezza uniforme. [Dati e decisione](research/dbgt/README.md). **Le 36 altezze già integrate restano invariate**, nessuna estensione o volume inventato.

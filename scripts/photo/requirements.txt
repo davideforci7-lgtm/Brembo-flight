@@ -5,3 +5,5 @@ pyproj==3.7.2
 rasterio==1.4.3
 # Offline GIS association only.
 shapely==2.1.2
+# Private image-pair diagnostics only; never included in browser bundles.
+opencv-python-headless==4.13.0.92

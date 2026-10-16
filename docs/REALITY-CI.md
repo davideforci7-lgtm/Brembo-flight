@@ -1,3 +1,9 @@
+# Missione 2 — CI dopo la correzione delle superfici
+
+Commit `bb15596`: [run 38902841797](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38902841797), tutti i job superati. 51 TypeScript, 20 Python, 37 browser; 14 esclusioni previste, nessun retry/fallimento nei risultati. Durate dai log: build 16,3 s, replay 170,7 s, desktop UI 425,8 s, WebKit 142,3 s, touch 173,3 s. [Rapporto completo](research/ci-bb15596.json). Il costo geometrico aggiunto non ha provocato timeout in questa esecuzione; non è un benchmark hardware.
+
+---
+
 # Aggiornamento Missione 2
 
 L’ultimo commit salvato all’avvio della missione è `ff83f0f`, non `722f674`. [Run 38866727073](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38866727073): tutti i job superati, 48 TypeScript + 16 Python + 37 prove browser, 14 esclusioni previste per progetto. [Rapporto con timestamp e risultati](research/ci-ff83f0f.json). Job più lungo desktop UI 351,6 secondi; replay 193,6 secondi. Il problema descritto sotto non è ricomparso e non è stato riaperto.

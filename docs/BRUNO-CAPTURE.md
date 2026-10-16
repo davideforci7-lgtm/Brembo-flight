@@ -35,3 +35,5 @@ Il consenso e i dettagli personali restano fuori dal repository. Nei pacchetti p
 5. Verifica browser e poi iPhone fisico, confronto visivo con Bruno. Nuova PR verificabile; pubblicazione/anteprima solo su autorizzazione.
 
 Queste operazioni saranno eseguite dallo sviluppo, non richiedono a Davide terminali, Codespaces o software da installare.
+
+La strumentazione di inventario, gruppi di camera, matching e preparazione GLB è descritta in [PHOTO-TOOLS.md](PHOTO-TOOLS.md). È pronta per il primo esame privato; non dimostra una ricostruzione in assenza delle fotografie.

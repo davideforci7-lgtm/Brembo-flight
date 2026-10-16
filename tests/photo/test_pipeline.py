@@ -179,6 +179,21 @@ class AssessmentTest(unittest.TestCase):
             self.assertGreater(a['laplacianVariance'],b['laplacianVariance'])
             self.assertEqual((p/'sharp.jpg').read_bytes(),before)
             self.assertEqual(a['originalPixels'],[128,128])
+    def test_numeric_gps_fallback_from_real_jpeg_exif_without_exiftool(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as d:
+            path=Path(d);originals=path/'originals';originals.mkdir()
+            exif=Image.Exif();exif[271]='DJI';exif[272]='synthetic-test-camera'
+            exif[34853]={1:'S',2:(45.,49.,12.),3:'W',4:(9.,36.,0.),5:b'\x01',6:12.,31:5.}
+            image=originals/'gps.jpg';Image.new('RGB',(32,32)).save(image,exif=exif)
+            before=image.read_bytes()
+            with patch.object(pipeline.shutil,'which',return_value=None):
+                result=pipeline.inventory(originals,path/'inventory.json')
+            meta=result['files'][0]['metadata']
+            self.assertAlmostEqual(meta['GPSLatitude'],-45.82);self.assertAlmostEqual(meta['GPSLongitude'],-9.6)
+            self.assertEqual(meta['GPSAltitude'],-12);self.assertEqual(meta['GPSHPositioningError'],5)
+            self.assertEqual(image.read_bytes(),before);self.assertFalse(result['readyForReconstruction'])
+
     def test_camera_grouping_does_not_invent_overlap_or_gps_accuracy(self):
         with tempfile.TemporaryDirectory() as d:
             p=Path(d);source=p/'inventory.json'
