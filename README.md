@@ -51,3 +51,7 @@ GitHub Actions verifica unità, build e i tre profili browser separati. Pages re
 Prima di definire 1.0 finale: collaudo Safari/iPhone e PC reali, riconoscibilità del centro con Davide, controllo di ponti e landmark, revisione delle esclusioni GIS, misure FPS/temperature e regolazione del caricamento. Il settore può poi crescere per tessere, con fonti verificabili e senza appesantire l'avvio.
 
 [Resoconto 0.2](docs/VERIFICATION.md) · [README storico 0.2](docs/README-0.2.md) · [Scheda pilota](docs/PILOT-TEST.md)
+
+## Preparazione fotografica (ramo separato)
+
+[Fonti e licenze](docs/PHOTO-SOURCES.md), [architettura e fusione geospaziale](docs/PHOTOREALISM.md), [prima consegna di Bruno](docs/BRUNO-CAPTURE.md) e [pipeline offline](scripts/photo/README.md). La PR #3 resta la base giocabile: nessuna nuova fotografia è attivata e nessuna anteprima viene sostituita da questo lavoro.

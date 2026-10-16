@@ -1,0 +1,14 @@
+{
+  "url": "https://api.openaerialmap.org/meta?bbox=9.56%2C45.79%2C9.64%2C45.85&limit=100",
+  "result": {
+    "meta": {
+      "provided_by": "OpenAerialMap",
+      "license": "CC-BY 4.0",
+      "website": "http://beta.openaerialmap.org",
+      "page": 1,
+      "limit": 99999,
+      "found": 0
+    },
+    "results": []
+  }
+}

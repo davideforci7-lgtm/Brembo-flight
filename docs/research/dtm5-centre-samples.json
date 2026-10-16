@@ -1,0 +1,752 @@
+{
+  "sampleCount": 81,
+  "retrievedAt": "2026-10-16",
+  "sourceURL": "https://www.cartografia.servizirl.it/arcgis/rest/services/wms/DTM5_RL_wms/MapServer/identify",
+  "license": "CC-BY-4.0",
+  "gridSpacingMeters": 100,
+  "method": "ArcGIS identify raw Stretch.Pixel Value, not hillshade colour. Compare exact 20 m game vertices; no vertical transform or bias correction.",
+  "limitations": [
+    "81 sparse samples, not complete DTM acquisition or independent ground truth.",
+    "Vertical datums not resolved; differences are diagnostic, not accuracy estimates.",
+    "DTM native cell 5 m; game samples TINITALY at 20 m."
+  ],
+  "differenceMeters": {
+    "bias": -3.979161975308642,
+    "rmse": 7.957481735527768,
+    "min": -27.96301299999999,
+    "max": 8.188171000000011,
+    "median": -4.0176759999999945,
+    "p95Absolute": 15.049481000000014
+  },
+  "samples": [
+    {
+      "x": -400,
+      "z": -400,
+      "easting": 545880,
+      "northing": 5074840,
+      "dtm5": 441.899567,
+      "tinitalyGame": 437.3,
+      "difference": 4.599566999999979
+    },
+    {
+      "x": -300,
+      "z": -400,
+      "easting": 545980,
+      "northing": 5074840,
+      "dtm5": 422.062103,
+      "tinitalyGame": 435.3,
+      "difference": -13.237897000000032
+    },
+    {
+      "x": -200,
+      "z": -400,
+      "easting": 546080,
+      "northing": 5074840,
+      "dtm5": 437.587494,
+      "tinitalyGame": 442.1,
+      "difference": -4.51250600000003
+    },
+    {
+      "x": -100,
+      "z": -400,
+      "easting": 546180,
+      "northing": 5074840,
+      "dtm5": 462.028412,
+      "tinitalyGame": 470.0,
+      "difference": -7.971587999999997
+    },
+    {
+      "x": 0,
+      "z": -400,
+      "easting": 546280,
+      "northing": 5074840,
+      "dtm5": 502.956421,
+      "tinitalyGame": 501.8,
+      "difference": 1.1564209999999662
+    },
+    {
+      "x": 100,
+      "z": -400,
+      "easting": 546380,
+      "northing": 5074840,
+      "dtm5": 518.195129,
+      "tinitalyGame": 520.0,
+      "difference": -1.8048710000000483
+    },
+    {
+      "x": 200,
+      "z": -400,
+      "easting": 546480,
+      "northing": 5074840,
+      "dtm5": 511.793335,
+      "tinitalyGame": 507.5,
+      "difference": 4.293335000000013
+    },
+    {
+      "x": 300,
+      "z": -400,
+      "easting": 546580,
+      "northing": 5074840,
+      "dtm5": 493.643372,
+      "tinitalyGame": 492.3,
+      "difference": 1.343371999999988
+    },
+    {
+      "x": 400,
+      "z": -400,
+      "easting": 546680,
+      "northing": 5074840,
+      "dtm5": 474.870789,
+      "tinitalyGame": 483.7,
+      "difference": -8.829210999999987
+    },
+    {
+      "x": -400,
+      "z": -300,
+      "easting": 545880,
+      "northing": 5074740,
+      "dtm5": 454.658325,
+      "tinitalyGame": 449.4,
+      "difference": 5.2583250000000135
+    },
+    {
+      "x": -300,
+      "z": -300,
+      "easting": 545980,
+      "northing": 5074740,
+      "dtm5": 421.135834,
+      "tinitalyGame": 431.4,
+      "difference": -10.264165999999989
+    },
+    {
+      "x": -200,
+      "z": -300,
+      "easting": 546080,
+      "northing": 5074740,
+      "dtm5": 428.533447,
+      "tinitalyGame": 440.3,
+      "difference": -11.766552999999988
+    },
+    {
+      "x": -100,
+      "z": -300,
+      "easting": 546180,
+      "northing": 5074740,
+      "dtm5": 457.899902,
+      "tinitalyGame": 461.3,
+      "difference": -3.400098000000014
+    },
+    {
+      "x": 0,
+      "z": -300,
+      "easting": 546280,
+      "northing": 5074740,
+      "dtm5": 475.652374,
+      "tinitalyGame": 478.2,
+      "difference": -2.5476259999999797
+    },
+    {
+      "x": 100,
+      "z": -300,
+      "easting": 546380,
+      "northing": 5074740,
+      "dtm5": 496.429321,
+      "tinitalyGame": 498.2,
+      "difference": -1.7706789999999728
+    },
+    {
+      "x": 200,
+      "z": -300,
+      "easting": 546480,
+      "northing": 5074740,
+      "dtm5": 490.547943,
+      "tinitalyGame": 483.0,
+      "difference": 7.547942999999975
+    },
+    {
+      "x": 300,
+      "z": -300,
+      "easting": 546580,
+      "northing": 5074740,
+      "dtm5": 452.78537,
+      "tinitalyGame": 457.2,
+      "difference": -4.414629999999988
+    },
+    {
+      "x": 400,
+      "z": -300,
+      "easting": 546680,
+      "northing": 5074740,
+      "dtm5": 515.46582,
+      "tinitalyGame": 521.7,
+      "difference": -6.234180000000038
+    },
+    {
+      "x": -400,
+      "z": -200,
+      "easting": 545880,
+      "northing": 5074640,
+      "dtm5": 468.2789,
+      "tinitalyGame": 465.9,
+      "difference": 2.378900000000044
+    },
+    {
+      "x": -300,
+      "z": -200,
+      "easting": 545980,
+      "northing": 5074640,
+      "dtm5": 438.892029,
+      "tinitalyGame": 442.3,
+      "difference": -3.407971000000032
+    },
+    {
+      "x": -200,
+      "z": -200,
+      "easting": 546080,
+      "northing": 5074640,
+      "dtm5": 422.028168,
+      "tinitalyGame": 428.2,
+      "difference": -6.171831999999995
+    },
+    {
+      "x": -100,
+      "z": -200,
+      "easting": 546180,
+      "northing": 5074640,
+      "dtm5": 431.716858,
+      "tinitalyGame": 439.1,
+      "difference": -7.383142000000021
+    },
+    {
+      "x": 0,
+      "z": -200,
+      "easting": 546280,
+      "northing": 5074640,
+      "dtm5": 457.017029,
+      "tinitalyGame": 464.2,
+      "difference": -7.182971000000009
+    },
+    {
+      "x": 100,
+      "z": -200,
+      "easting": 546380,
+      "northing": 5074640,
+      "dtm5": 489.394775,
+      "tinitalyGame": 491.8,
+      "difference": -2.40522500000003
+    },
+    {
+      "x": 200,
+      "z": -200,
+      "easting": 546480,
+      "northing": 5074640,
+      "dtm5": 480.94986,
+      "tinitalyGame": 473.0,
+      "difference": 7.949860000000001
+    },
+    {
+      "x": 300,
+      "z": -200,
+      "easting": 546580,
+      "northing": 5074640,
+      "dtm5": 438.704651,
+      "tinitalyGame": 449.2,
+      "difference": -10.495348999999976
+    },
+    {
+      "x": 400,
+      "z": -200,
+      "easting": 546680,
+      "northing": 5074640,
+      "dtm5": 496.322632,
+      "tinitalyGame": 503.5,
+      "difference": -7.177368000000001
+    },
+    {
+      "x": -400,
+      "z": -100,
+      "easting": 545880,
+      "northing": 5074540,
+      "dtm5": 472.188171,
+      "tinitalyGame": 464.0,
+      "difference": 8.188171000000011
+    },
+    {
+      "x": -300,
+      "z": -100,
+      "easting": 545980,
+      "northing": 5074540,
+      "dtm5": 444.382324,
+      "tinitalyGame": 448.4,
+      "difference": -4.0176759999999945
+    },
+    {
+      "x": -200,
+      "z": -100,
+      "easting": 546080,
+      "northing": 5074540,
+      "dtm5": 427.590302,
+      "tinitalyGame": 436.0,
+      "difference": -8.409697999999992
+    },
+    {
+      "x": -100,
+      "z": -100,
+      "easting": 546180,
+      "northing": 5074540,
+      "dtm5": 418.132996,
+      "tinitalyGame": 427.3,
+      "difference": -9.16700400000002
+    },
+    {
+      "x": 0,
+      "z": -100,
+      "easting": 546280,
+      "northing": 5074540,
+      "dtm5": 435.090027,
+      "tinitalyGame": 445.0,
+      "difference": -9.90997299999998
+    },
+    {
+      "x": 100,
+      "z": -100,
+      "easting": 546380,
+      "northing": 5074540,
+      "dtm5": 472.610565,
+      "tinitalyGame": 470.4,
+      "difference": 2.210565000000031
+    },
+    {
+      "x": 200,
+      "z": -100,
+      "easting": 546480,
+      "northing": 5074540,
+      "dtm5": 454.291016,
+      "tinitalyGame": 450.2,
+      "difference": 4.091016000000025
+    },
+    {
+      "x": 300,
+      "z": -100,
+      "easting": 546580,
+      "northing": 5074540,
+      "dtm5": 440.373932,
+      "tinitalyGame": 449.0,
+      "difference": -8.626067999999975
+    },
+    {
+      "x": 400,
+      "z": -100,
+      "easting": 546680,
+      "northing": 5074540,
+      "dtm5": 496.788818,
+      "tinitalyGame": 501.5,
+      "difference": -4.711182000000008
+    },
+    {
+      "x": -400,
+      "z": 0,
+      "easting": 545880,
+      "northing": 5074440,
+      "dtm5": 498.207336,
+      "tinitalyGame": 497.2,
+      "difference": 1.0073360000000093
+    },
+    {
+      "x": -300,
+      "z": 0,
+      "easting": 545980,
+      "northing": 5074440,
+      "dtm5": 470.699829,
+      "tinitalyGame": 468.1,
+      "difference": 2.5998289999999997
+    },
+    {
+      "x": -200,
+      "z": 0,
+      "easting": 546080,
+      "northing": 5074440,
+      "dtm5": 431.751526,
+      "tinitalyGame": 439.7,
+      "difference": -7.948473999999976
+    },
+    {
+      "x": -100,
+      "z": 0,
+      "easting": 546180,
+      "northing": 5074440,
+      "dtm5": 422.30069,
+      "tinitalyGame": 422.2,
+      "difference": 0.10068999999998596
+    },
+    {
+      "x": 0,
+      "z": 0,
+      "easting": 546280,
+      "northing": 5074440,
+      "dtm5": 417.477509,
+      "tinitalyGame": 435.8,
+      "difference": -18.322491000000014
+    },
+    {
+      "x": 100,
+      "z": 0,
+      "easting": 546380,
+      "northing": 5074440,
+      "dtm5": 431.250519,
+      "tinitalyGame": 446.3,
+      "difference": -15.049481000000014
+    },
+    {
+      "x": 200,
+      "z": 0,
+      "easting": 546480,
+      "northing": 5074440,
+      "dtm5": 426.716339,
+      "tinitalyGame": 446.1,
+      "difference": -19.383661000000018
+    },
+    {
+      "x": 300,
+      "z": 0,
+      "easting": 546580,
+      "northing": 5074440,
+      "dtm5": 472.400757,
+      "tinitalyGame": 477.2,
+      "difference": -4.79924299999999
+    },
+    {
+      "x": 400,
+      "z": 0,
+      "easting": 546680,
+      "northing": 5074440,
+      "dtm5": 538.160767,
+      "tinitalyGame": 540.4,
+      "difference": -2.239233000000013
+    },
+    {
+      "x": -400,
+      "z": 100,
+      "easting": 545880,
+      "northing": 5074340,
+      "dtm5": 489.735382,
+      "tinitalyGame": 498.0,
+      "difference": -8.264617999999984
+    },
+    {
+      "x": -300,
+      "z": 100,
+      "easting": 545980,
+      "northing": 5074340,
+      "dtm5": 459.11322,
+      "tinitalyGame": 454.3,
+      "difference": 4.813220000000001
+    },
+    {
+      "x": -200,
+      "z": 100,
+      "easting": 546080,
+      "northing": 5074340,
+      "dtm5": 432.189514,
+      "tinitalyGame": 439.8,
+      "difference": -7.610486000000037
+    },
+    {
+      "x": -100,
+      "z": 100,
+      "easting": 546180,
+      "northing": 5074340,
+      "dtm5": 430.358948,
+      "tinitalyGame": 425.9,
+      "difference": 4.458948000000021
+    },
+    {
+      "x": 0,
+      "z": 100,
+      "easting": 546280,
+      "northing": 5074340,
+      "dtm5": 416.547028,
+      "tinitalyGame": 427.9,
+      "difference": -11.352971999999966
+    },
+    {
+      "x": 100,
+      "z": 100,
+      "easting": 546380,
+      "northing": 5074340,
+      "dtm5": 410.036987,
+      "tinitalyGame": 438.0,
+      "difference": -27.96301299999999
+    },
+    {
+      "x": 200,
+      "z": 100,
+      "easting": 546480,
+      "northing": 5074340,
+      "dtm5": 450.445496,
+      "tinitalyGame": 454.3,
+      "difference": -3.85450400000002
+    },
+    {
+      "x": 300,
+      "z": 100,
+      "easting": 546580,
+      "northing": 5074340,
+      "dtm5": 484.761017,
+      "tinitalyGame": 491.0,
+      "difference": -6.238983000000019
+    },
+    {
+      "x": 400,
+      "z": 100,
+      "easting": 546680,
+      "northing": 5074340,
+      "dtm5": 499.766876,
+      "tinitalyGame": 505.4,
+      "difference": -5.6331239999999525
+    },
+    {
+      "x": -400,
+      "z": 200,
+      "easting": 545880,
+      "northing": 5074240,
+      "dtm5": 501.125183,
+      "tinitalyGame": 499.2,
+      "difference": 1.925183000000004
+    },
+    {
+      "x": -300,
+      "z": 200,
+      "easting": 545980,
+      "northing": 5074240,
+      "dtm5": 484.003448,
+      "tinitalyGame": 481.2,
+      "difference": 2.803448000000003
+    },
+    {
+      "x": -200,
+      "z": 200,
+      "easting": 546080,
+      "northing": 5074240,
+      "dtm5": 455.626587,
+      "tinitalyGame": 449.9,
+      "difference": 5.726586999999995
+    },
+    {
+      "x": -100,
+      "z": 200,
+      "easting": 546180,
+      "northing": 5074240,
+      "dtm5": 430.207184,
+      "tinitalyGame": 436.0,
+      "difference": -5.792816000000016
+    },
+    {
+      "x": 0,
+      "z": 200,
+      "easting": 546280,
+      "northing": 5074240,
+      "dtm5": 420.333649,
+      "tinitalyGame": 421.5,
+      "difference": -1.1663510000000201
+    },
+    {
+      "x": 100,
+      "z": 200,
+      "easting": 546380,
+      "northing": 5074240,
+      "dtm5": 412.119812,
+      "tinitalyGame": 422.7,
+      "difference": -10.580187999999964
+    },
+    {
+      "x": 200,
+      "z": 200,
+      "easting": 546480,
+      "northing": 5074240,
+      "dtm5": 413.011322,
+      "tinitalyGame": 432.1,
+      "difference": -19.088678000000016
+    },
+    {
+      "x": 300,
+      "z": 200,
+      "easting": 546580,
+      "northing": 5074240,
+      "dtm5": 441.424927,
+      "tinitalyGame": 448.9,
+      "difference": -7.475072999999952
+    },
+    {
+      "x": 400,
+      "z": 200,
+      "easting": 546680,
+      "northing": 5074240,
+      "dtm5": 478.861084,
+      "tinitalyGame": 479.2,
+      "difference": -0.33891599999998334
+    },
+    {
+      "x": -400,
+      "z": 300,
+      "easting": 545880,
+      "northing": 5074140,
+      "dtm5": 540.590027,
+      "tinitalyGame": 538.4,
+      "difference": 2.1900269999999864
+    },
+    {
+      "x": -300,
+      "z": 300,
+      "easting": 545980,
+      "northing": 5074140,
+      "dtm5": 499.379333,
+      "tinitalyGame": 496.0,
+      "difference": 3.379332999999974
+    },
+    {
+      "x": -200,
+      "z": 300,
+      "easting": 546080,
+      "northing": 5074140,
+      "dtm5": 473.995605,
+      "tinitalyGame": 470.5,
+      "difference": 3.495605000000012
+    },
+    {
+      "x": -100,
+      "z": 300,
+      "easting": 546180,
+      "northing": 5074140,
+      "dtm5": 443.207611,
+      "tinitalyGame": 444.6,
+      "difference": -1.392389000000037
+    },
+    {
+      "x": 0,
+      "z": 300,
+      "easting": 546280,
+      "northing": 5074140,
+      "dtm5": 431.343536,
+      "tinitalyGame": 432.4,
+      "difference": -1.0564640000000054
+    },
+    {
+      "x": 100,
+      "z": 300,
+      "easting": 546380,
+      "northing": 5074140,
+      "dtm5": 416.981598,
+      "tinitalyGame": 422.3,
+      "difference": -5.318401999999992
+    },
+    {
+      "x": 200,
+      "z": 300,
+      "easting": 546480,
+      "northing": 5074140,
+      "dtm5": 412.993042,
+      "tinitalyGame": 416.0,
+      "difference": -3.0069579999999974
+    },
+    {
+      "x": 300,
+      "z": 300,
+      "easting": 546580,
+      "northing": 5074140,
+      "dtm5": 410.067841,
+      "tinitalyGame": 422.2,
+      "difference": -12.132159000000001
+    },
+    {
+      "x": 400,
+      "z": 300,
+      "easting": 546680,
+      "northing": 5074140,
+      "dtm5": 453.23941,
+      "tinitalyGame": 453.6,
+      "difference": -0.36059000000000196
+    },
+    {
+      "x": -400,
+      "z": 400,
+      "easting": 545880,
+      "northing": 5074040,
+      "dtm5": 545.490601,
+      "tinitalyGame": 539.9,
+      "difference": 5.590600999999992
+    },
+    {
+      "x": -300,
+      "z": 400,
+      "easting": 545980,
+      "northing": 5074040,
+      "dtm5": 511.940399,
+      "tinitalyGame": 511.4,
+      "difference": 0.5403990000000363
+    },
+    {
+      "x": -200,
+      "z": 400,
+      "easting": 546080,
+      "northing": 5074040,
+      "dtm5": 497.922272,
+      "tinitalyGame": 495.1,
+      "difference": 2.822271999999998
+    },
+    {
+      "x": -100,
+      "z": 400,
+      "easting": 546180,
+      "northing": 5074040,
+      "dtm5": 466.336273,
+      "tinitalyGame": 463.6,
+      "difference": 2.736272999999983
+    },
+    {
+      "x": 0,
+      "z": 400,
+      "easting": 546280,
+      "northing": 5074040,
+      "dtm5": 438.342438,
+      "tinitalyGame": 443.0,
+      "difference": -4.657561999999984
+    },
+    {
+      "x": 100,
+      "z": 400,
+      "easting": 546380,
+      "northing": 5074040,
+      "dtm5": 425.447113,
+      "tinitalyGame": 433.0,
+      "difference": -7.552886999999998
+    },
+    {
+      "x": 200,
+      "z": 400,
+      "easting": 546480,
+      "northing": 5074040,
+      "dtm5": 412.769287,
+      "tinitalyGame": 422.4,
+      "difference": -9.630712999999957
+    },
+    {
+      "x": 300,
+      "z": 400,
+      "easting": 546580,
+      "northing": 5074040,
+      "dtm5": 409.923584,
+      "tinitalyGame": 423.1,
+      "difference": -13.176416000000017
+    },
+    {
+      "x": 400,
+      "z": 400,
+      "easting": 546680,
+      "northing": 5074040,
+      "dtm5": 427.886963,
+      "tinitalyGame": 436.2,
+      "difference": -8.313037000000008
+    }
+  ]
+}

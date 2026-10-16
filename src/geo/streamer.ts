@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
+import { surfaceGeometry } from "./surfaces";
+import { withSurveyedHeight } from "./building-heights";
 import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import {
@@ -6,7 +8,6 @@ import {
   SECTOR_URL,
   type Sector,
   type SectorTile,
-  type MapLine,
   type TileEntry,
   type Point,
 } from "./sector";
@@ -18,37 +19,6 @@ function distanceToTile(t: TileEntry, p: Vec3) {
     Math.max(b.minX - p.x, 0, p.x - b.maxX),
     Math.max(b.minZ - p.z, 0, p.z - b.maxZ),
   );
-}
-function ribbons(lines: MapLine[], sector: Sector) {
-  const positions: number[] = [],
-    indices: number[] = [];
-  for (const line of lines) {
-    const start = positions.length / 3;
-    for (let i = 0; i < line.points.length; i++) {
-      const [x, z] = line.points[i],
-        a = line.points[Math.max(0, i - 1)],
-        b = line.points[Math.min(line.points.length - 1, i + 1)];
-      const dx = b[0] - a[0],
-        dz = b[1] - a[1],
-        len = Math.hypot(dx, dz) || 1;
-      const half = line.width / 2;
-      for (const side of [-1, 1]) {
-        const vx = x + (dz / len) * half * side,
-          vz = z - (dx / len) * half * side;
-        const offset = line.kind === "water" ? 0.36 : line.bridge ? 2 : 0.24;
-        positions.push(vx, sector.terrain.heightAt(vx, vz) + offset, vz);
-      }
-      if (i > 0) {
-        const n = start + i * 2;
-        indices.push(n - 2, n, n - 1, n - 1, n, n + 1);
-      }
-    }
-  }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-  geo.setIndex(indices);
-  geo.computeVertexNormals();
-  return geo;
 }
 function shapeOf(points: Point[], holes: Point[][]) {
   const shape = new THREE.Shape(
@@ -130,6 +100,8 @@ export class SectorStreamer {
       tiles: this.loaded.size,
       pending: this.pending.size,
       errors: this.errors,
+      dbgtHeights: this.sector.heightRecords.size,
+      dbgtStatus: this.sector.heightStatus,
     };
   }
   retry() {
@@ -198,7 +170,8 @@ export class SectorStreamer {
     const walls: THREE.BufferGeometry[] = [],
       roofs: THREE.BufferGeometry[] = [],
       church: THREE.BufferGeometry[] = [];
-    for (const b of data.buildings) {
+    for (const original of data.buildings) {
+      const b = withSurveyedHeight(original, this.sector.heightRecords);
       const roof = new THREE.ShapeGeometry(shapeOf(b.points, b.holes));
       roof.rotateX(-Math.PI / 2);
       roof.translate(0, b.base + b.height, 0);
@@ -257,7 +230,7 @@ export class SectorStreamer {
       const lines = data.lines.filter((l) => l.kind === kind);
       if (lines.length)
         group.add(
-          new THREE.Mesh(ribbons(lines, this.sector), this.materials[kind]),
+          new THREE.Mesh(surfaceGeometry(lines, this.sector.terrain), this.materials[kind]),
         );
     }
     return group;

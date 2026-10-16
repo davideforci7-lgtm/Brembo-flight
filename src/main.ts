@@ -539,6 +539,21 @@ async function boot() {
       }
       const diag = world.diagnostics();
       app.dataset.preset = diag.preset;
+      app.dataset.dbgtHeights = String(diag.streaming?.dbgtHeights ?? 0);
+      app.dataset.dbgtStatus = diag.streaming?.dbgtStatus ?? "disabled";
+      app.dataset.photoStatus = diag.photography?.status ?? "disabled";
+      app.dataset.photoTiles = String(diag.photography?.resident ?? 0);
+      app.dataset.photoErrors = String(diag.photography?.errors ?? 0);
+      if (diag.photography?.creditURL && !document.getElementById("photo-credit")) {
+        const credit = document.createElement("a");
+        credit.id = "photo-credit";
+        credit.href = diag.photography.creditURL;
+        credit.textContent = " · Foto ↗";
+        credit.title = diag.photography.attribution ?? "Fonti fotografiche";
+        credit.target = "_blank";
+        credit.rel = "noopener noreferrer";
+        document.getElementById("geo-credit")!.append(credit);
+      }
       document.getElementById("input-indicator")!.textContent =
         app.dataset.controller === "centering"
           ? "RILASCIA STICK E TASTI"

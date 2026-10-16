@@ -1,0 +1,15 @@
+{
+  "_note": "TEMPLATE ONLY. Approval is false. Keep signed permission and actual review outside the public repository; only sanitized credits go into the export.",
+  "redistributionApproved": false,
+  "privacyReviewed": false,
+  "permissionReference": "PRIVATE evidence identifier, never the person's contact details",
+  "sourceURL": "https://example.invalid/approved-public-source-description",
+  "license": "TO BE AGREED WITH AUTHOR",
+  "licenseURL": "https://example.invalid/license",
+  "attribution": "TO BE AGREED WITH AUTHOR",
+  "captureDate": "YYYY-MM-DD",
+  "sourceSHA256": "REPLACE WITH HASH OF ORTHORECTIFIED EPSG32632 GEOTIFF",
+  "alignmentReport": "alignment.json",
+  "alignmentSHA256": "REPLACE WITH HASH OF ACCEPTED ALIGNMENT REPORT",
+  "tileMeters": 200
+}

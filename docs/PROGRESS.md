@@ -1,3 +1,118 @@
+# Missione 2 — chiusura verificata e anteprima separata
+
+16 ottobre 2026. **Codice verificato: `204983410ff6bb911690cc6c79de625140f1f5f2`.** [GitHub Actions](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38904148835) conclusa con tutti i sei job verdi; nessuna correzione di codice necessaria e nessun test rimosso. Le sezioni successive conservano lo storico degli incrementi, comprese le verifiche allora ancora in corso.
+
+| Job del commit `2049834` | Esito | Risultati | Durata dai log |
+| --- | --- | --- | ---: |
+| Build | Superato | 53 TypeScript, 23 Python, asset guard, typecheck/build | 30,8 s |
+| Chromium desktop — replay | Superato | 2 passati, percorso demo e Brembilla | 126,0 s |
+| Chromium desktop — UI | Superato | 12 passati, 3 esclusioni previste per profilo | 432,7 s |
+| Chromium touch | Superato | 13 passati, 4 esclusioni previste per profilo | 285,4 s |
+| WebKit iPhone simulato | Superato | 10 passati, 7 esclusioni previste per profilo | 205,2 s |
+| Pacchetto playtest | Superato | Artefatto pronto | 2,3 s |
+
+[Stato e tempi ricavati dai log](research/ci-2049834.json): 37 prove browser passate, 14 esclusioni previste; nessun fallimento o retry. WebKit/Linux non è un test fisico su iPhone 12 mini. [Rapporto conclusivo e punto di ripresa](REALITY-MISSION2.md).
+
+Verificati nello SHA salvato: inventario e GPS, matching privato, preparazione GLB/LOD, specifiche Bruno e documentazione GIS. Confronto con PR #3 conferma immutati fisica, input/BOOST, corso/checkpoint, preset, terreno e indice collisioni originali; le 36 altezze DBGT condivise tra rendering/collisioni mantengono il fallback. Nessun nuovo sviluppo avviato per chiudere la missione.
+
+Su successiva richiesta esplicita di Davide è stata attivata **un'anteprima Sites privata separata, accessibile al solo proprietario**, dal codice `2049834`. I 76 file del gioco (2.512.213 byte) sono identici alla build del commit; confezione verificata, dati geografici e attribuzioni inclusi. Nessuna fotografia privata o superficie fotografica nuova. L'anteprima non cambia il contenuto del gioco né i link precedenti; il suo indirizzo è consegnato nella conversazione, non pubblicato qui. Build/typecheck e controllo asset ripetuti per il confezionamento. Nessuna nuova prova browser sul sito ospitato: valgono le prove del commit sopra, non una verifica fisica di Safari.
+
+Main, PR #2/#3, anteprime precedenti e link di Bruno intatti; nessun merge o servizio a pagamento. Questo aggiornamento di chiusura modifica soltanto documentazione, non il codice della build giocabile.
+
+**Missione 3 — prossimo passo unico:** ricevere privatamente 15–30 JPG originali sovrapposti di un piccolo isolato, eventuali DNG associati, data/zona e autorizzazione all'elaborazione. Inventario → assess → matching → revisione delle viste, prima di decidere se il lotto consente SfM/MVS. Originali/derivati non pubblicabili senza autorizzazione; nessun risultato fotogrammetrico ancora ottenuto.
+
+---
+
+# Missione 2 — terzo incremento: primo lotto e mesh private
+
+Implementati e verificati [matching fotografico e preparatore GLB/LOD](PHOTO-TOOLS.md): tutte le coppie di un massimo di 30 JPG, ORB/RANSAC e componenti candidate; mesh già ricostruita → tre GLB con texture ridotte dai pixel originali e candidato collisioni separato. Lettura GPS numerica da EXIF JPEG anche senza ExifTool (testata con emisferi sud/ovest e quota negativa); DJI XMP/RAW richiedono ancora un lettore adatto. Hash, percorsi privati, limiti di triangoli/byte/texture, validazione Khronos, pulizia metadata, blocco della redistribuzione automatica. Nessuna nuova dipendenza nel bundle browser.
+
+**Verificato localmente:** 53 test TypeScript, 23 Python, typecheck/build. Fixture numeriche soltanto: matching con immagine trasformata e rifiuto delle immagini uniformi; GLB di prova 20.000 triangoli, riduzione LOD, bounds preservati, EXIF ed extras privati rimossi, sorgente immutata. Non sono foto o ricostruzioni di Brembilla. Preparazione dei derivati privata anche quando il datum è irrisolto; accettazione GIS e attivazione runtime rimangono bloccate.
+
+Incrementi precedenti già salvati: `360f72b` (strumenti ripresi/campioni DTM/prove visive, CI tutta verde) e `bb15596` (superfici aderenti e audit DBGT, CI tutta verde). Le prove sulle superfici sono incluse nei test; 5 browser touch del settore passati localmente. [CI `bb15596`](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38902841797): 51 TypeScript + 20 Python + 37 browser passati, 14 esclusioni previste, nessun retry. Job più lungo 425,8 s. [Tempi dai log](research/ci-bb15596.json). La CI di questo terzo incremento va controllata sul nuovo SHA.
+
+**Prossimo passo concreto:** ricevere privatamente 15–30 originali coerenti di Bruno e l'autorizzazione a elaborarli; eseguire inventario → assess → matching e revisione delle viste di un isolato, prima di avviare SfM/MVS. Nessuna superficie fotografica autentica aggiunta oggi. Nessun merge/deploy o cambiamento alle anteprime.
+
+---
+
+# Missione 2 — secondo incremento: superfici e audit DBGT
+
+- Audit riproducibile di tutti i 475 volumi, con classificazione esclusiva e riesame di 83 gruppi: 14 unioni compatibili in pianta ma nessuna altezza uniforme. [Dati e decisione](research/dbgt/README.md). **Le 36 altezze già integrate restano invariate**, nessuna estensione o volume inventato.
+- Corretto un difetto del renderer: strade e corsi d’acqua vengono suddivisi secondo celle e diagonali del terreno. Scarto massimo nei punti interni testati 4,1994 m → 0,000140 m rispetto alla griglia del gioco; non è accuratezza del rilievo. Ponti, linee in pianta, larghezze, terreno e collisioni conservati.
+- [Confronto visivo autentico](reality-captures/mission2/README.md), stessa camera: 209.686 → 252.416 triangoli, 122 draw call in entrambi. Aspetto ancora illustrativo e miglioramento visivo generale modesto.
+- Controlli locali: 51 test TypeScript, 20 Python, typecheck/build passati. Cinque prove Chromium touch del settore passate in 36,7 s: orientamento, BOOST multitouch, errore terreno, recupero WebGL e fallback DBGT. CI del nuovo incremento da verificare. Nessuna pubblicazione.
+
+Il primo incremento della ripresa è già salvato nel commit `360f72b`. Prossimo lavoro indipendente: matching privato del lotto fotografico e preparazione GLB/LOD, senza originali reali ancora disponibili.
+
+---
+
+# Missione 2 — ripresa e consolidamento, 16 ottobre 2026
+
+Verificati i commit già salvati sulla PR #4: `6151770` (pipeline), `722f674` (replay CI), `ff83f0f` (36 altezze DBGT). **CI dell’ultimo commit `ff83f0f` tutta verde**, non soltanto quella precedente: [run 38866727073](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38866727073), 48 test TypeScript, 16 Python, 37 prove browser passate e 14 esclusioni per profilo. [Tempi reali dai log](research/ci-ff83f0f.json): build 21,3 s, replay 193,6 s, desktop UI 351,6 s, WebKit 202,1 s, touch 288,6 s. Nessuna nuova regressione del timeout.
+
+Salvato il lavoro locale rimasto dalla sessione precedente, dopo nuove verifiche:
+
+- Inventario privato arricchito con metadati DJI, diagnostica relativa nitidezza/esposizione e comando `assess` per gruppi camera/focale/data/dimensioni. GPS non usato per dichiarare sovrapposizione o accuratezza; nessuna foto ricevuta.
+- Filtro anisotropico fotografico limitato alle capacità GPU e al preset (2/4/8), mipmap esplicite, cancellazione della decodifica quando la tessera non serve. Strato foto ancora disattivato.
+- [81 campioni DTM5 e decisione sul datum](research/DTM-COMPARISON.md): scarto medio −3,979 m, RMSE differenze 7,957 m; terreno preservato. TINITALY documentato MSL, realizzazione verticale locale non ancora dimostrata compatibile.
+- [Screenshot autentici e misure](reality-captures/README.md), stessa camera PR #3 / DBGT: 122 draw call e 209.686 triangoli in entrambi; cambiamento modesto alle altezze, nessuna superficie fotografica nuova.
+- [Roadmap separata dei suggerimenti di Bruno](BRUNO-ROADMAP.md), nessuna modifica al gameplay.
+
+Verifica locale ripetuta: **49 test TypeScript, 18 Python, typecheck e build superati; 2 test touch del caricatore fotografico passati in 19,2 s**. Chromium 153/Linux/SwiftShader; pattern diagnostici nei test, non fotografie. WebKit/iPhone fisico non eseguiti localmente. La CI di questo incremento sarà riportata separatamente.
+
+Punto di ripresa: classificare analiticamente i 439 volumi DBGT non importati, correggere eventuali difetti dimostrabili di aderenza delle strade al terreno e completare gli strumenti privati per il primo lotto di Bruno. Nessuna estensione geografica o sostituzione del DTM approvata dai dati finora raccolti. Main, PR #2/#3, fisica e anteprime intatti.
+
+---
+
+# Reality Engine — 16 ottobre 2026
+
+Primo incremento sulla PR #4: [diagnosi CI e verifiche](REALITY-CI.md). Artifact e log esaminati: il replay avanzava verso l’ottavo checkpoint ma il rendering software con screencast superava il budget. Ottimizzato esclusivamente il test, separati i replay dai controlli desktop UI senza eliminare verifiche o aumentare timeout. Due replay locali passati, 13 test Python e typecheck passati. Correzione della quarta banda GeoTIFF salvata insieme.
+
+In corso: campione pubblico DBGT di 475 unità nel centro (800×800 m), confronto con OSM; acquisizione/confronto DTM5; nessuna fotografia di Bruno ricevuta e nessuna nuova anteprima pubblicata. Le sezioni sottostanti descrivono gli incrementi precedenti, non il risultato finale della missione.
+
+
+Secondo incremento: [campione DBGT e confronto riproducibile](research/dbgt/README.md). 475 volumi pubblici acquisiti, 391 con sovrapposizione OSM, 36 associazioni conservative integrate usando soltanto l’altezza relativa UN_VOL_AV. Sagome e basi originali conservate; stesso aggiornamento per rendering/collisioni; fallback completo se dati mancanti o incompatibili. Nessuna nuova fotografia o quota assoluta importata. 48 test TypeScript, 16 Python, build e due prove browser mirate superati localmente. Un primo test aggiunto sulle collisioni era troppo vicino al tetto (entro il raggio del drone di 0,65 m); corretto il punto di verifica senza cambiare le collisioni.
+
+**CI del commit `722f674` tutta verde:** [run 38865666638](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38865666638). 44 unit test + 13 Python di quel commit; 34 prove browser passate, 14 esclusioni previste. Job replay 183,4 s, desktop UI 260,7 s, WebKit 255,0 s, touch 285,4 s. [Tempi dai log](research/ci-722f674.json). Il nuovo incremento DBGT deve ancora completare la propria CI.
+
+---
+
+# Aggiornamento: preparazione fotografica e fusione geospaziale — 15 ottobre 2026
+
+[PR #4](https://github.com/davideforci7-lgtm/Brembo-flight/pull/4), ramo nuovo `feat/photographic-pipeline`, base esatta PR #3 `2a06c243f497436e9f7846f174f9fe1dbce940d9`. I resoconti precedenti sono conservati più sotto come storico. Davide ha ora collaudato il settore e conferma che le posizioni delle case sono una buona base; la criticità prioritaria è l'aspetto artificiale.
+
+## Preparato concretamente
+
+- Analisi del renderer e dei dati esistenti; nessuna modifica alla fisica, ai checkpoint o ai file del settore distribuito.
+- [Ricerca fonti e licenze](PHOTO-SOURCES.md), con [risposte delle query sul settore reale](research/brembilla-source-probe-2026-10-15.json). DBGT: 3.710 unità volumetriche con altezze, 1.639 rappresentazioni edificio, nessun elemento nel livello coperture. Sette livelli del catalogo LiDAR: zero intersezioni con il settore; non implica assenza di qualsiasi altro rilievo.
+- [Strategia di fusione](PHOTOREALISM.md): ortofoto/OSM/DBGT/DTM/DSM/foto, riferimento metrico comune, assi, datum, date, precisione, conflitti e provenienza per elemento. Operazione EPSG:7791→32632 con accuratezza dichiarata 1 m, non centimetri. Quote sconosciute non accettate per fusione 3D.
+- [Pipeline offline](../scripts/photo/README.md): inventario privato JPG/DNG e duplicati, controlli indipendenti XY/Z, rapporti con hash, export GeoTIFF→tessere WebP con LOD e attribuzioni dopo verifica diritti/privacy. Originali e rapporti privati esclusi dal repository.
+- Caricatore Three.js opzionale per ortofoto: 512/1024, massimo due richieste, budget 8/12/16 tessere, verifica hash/dimensioni, fallback sul terreno, rilascio risorse. Attribuzione e diagnostica. **Non attivato nel settore esistente.**
+- [Specifiche semplici per Bruno](BRUNO-CAPTURE.md), esempi di controllo e rilascio, percorso ODM/COLMAP→GLB documentato.
+- CI estesa con i test Python e controllo sugli asset pubblici; mantiene le suite precedenti. Aggiunta la base PR #3 al filtro dei rami per verificare la nuova PR separata.
+
+## Verifiche eseguite durante l'incremento
+
+- 44 test TypeScript passati, inclusi coordinate/UV, diagonali della griglia, budget/LOD, crediti e manifest non validi.
+- 13 test Python passati: inventario/duplicati, riservatezza dei percorsi, proiezione lon/lat, scarti non corretti di nascosto, blocco datum sconosciuto, checkpoint degeneri, permessi/hash, export riproducibile, EXIF rimossi, nodata non inventato, rifiuto di una quarta banda infrarossa scambiata per alpha.
+- Typecheck e build Vite passati; Three.js resta il chunk principale (~575 kB minificati, ~145 kB gzip), senza nuove dipendenze browser.
+- Suite browser locale mirata: **11 passati, 1 esclusione prevista**, Chromium desktop e touch su Linux/SwiftShader. Strato fotografico con pattern diagnostico (non foto reali), errore 404 con volo ancora utilizzabile, settore geografico, orientamenti, BOOST multitouch e recupero WebGL. Screenshot del pattern ispezionato. Queste non sono prove su iPhone fisico.
+- Primo avvio locale dei browser bloccato da un vecchio eseguibile incompleto; ripristinato Chromium 153 da pacchetto disponibile e ripetuti i test con successo. Il download Playwright standard locale ha restituito archivi incompleti. Nessun errore dell'app mascherato come test passato.
+- Dopo l’ultimo affinamento al download: 4 prove fotografiche locali ripetute e superate, incluso il cambio Eco/Alto. La successiva correzione della quarta banda riguarda soltanto la pipeline Python; i file browser rimangono identici.
+- I risultati della verifica **GitHub Actions del commit finale** sono riportati nella descrizione/Checks della nuova PR, distinguendoli da questa verifica locale. Nessun deploy è parte di questo lavoro.
+
+## Limiti ancora reali
+
+Non è stata creata una Brembilla fotorealistica: non sono arrivati gli originali di Bruno e non sono stati ottenuti diritti di redistribuzione per ortofoto recenti AGEA/MASAF. Ortofoto 1975 non rappresentano il paesaggio contemporaneo. Nessuna falsa texture fotografica è distribuita.
+
+Restano: audit del datum verticale, importazione/confronto geometrico DBGT e DTM5, fusione per elemento e maschere terreno/strade/mesh, ricostruzione SfM/MVS, conversione e LOD GLB reali, prova prestazioni/memoria/temperatura su iPhone 12 mini e PC. I budget GPU documentati sono stime delle texture, non FPS o memoria totale misurata.
+
+**Prossimo passo:** ricevere privatamente una selezione coerente di Bruno con diritti e metadati, inventariarla, scegliere un piccolo sito e verificare copertura/allineamento prima della ricostruzione pilota. Non occorrono operazioni tecniche da Davide. Nessun merge, nessun servizio a pagamento, nessuna modifica a PR #3, main o anteprime.
+
+---
+
+# Storico dell'incremento PR #3
+
 # BREMBO FLIGHT — avanzamento verso la 1.0
 
 Aggiornato il 14 ottobre 2026. **Incremento giocabile in revisione, non versione finale.** Questo documento è il punto di ripresa per altre sessioni di sviluppo e revisione.

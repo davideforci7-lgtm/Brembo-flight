@@ -1,0 +1,159 @@
+{
+  "checkedAt": "2026-10-15",
+  "sectorBoundsEPSG32632": [
+    544280,
+    5072440,
+    548280,
+    5076440
+  ],
+  "method": "ArcGIS REST spatialRel=esriSpatialRelIntersects; counts are records intersecting the rectangle, not deduplicated buildings or complete coverage.",
+  "dbgt": {
+    "service": "https://www.cartografia.servizirl.it/arcgis5/rest/services/BaseMap/DBGT_Tema0201_Edificato/MapServer",
+    "crs": "EPSG:7791",
+    "counts": {
+      "0": {
+        "count": 3710
+      },
+      "3": {
+        "count": 1639
+      },
+      "5": {
+        "count": 1639
+      },
+      "12": {
+        "count": 0
+      },
+      "15": {
+        "count": 27
+      }
+    },
+    "note": "Layers 3 and 5 are representations of the same class; do not add their counts. No geometry was imported.",
+    "heightCount": {
+      "url": "https://www.cartografia.servizirl.it/arcgis5/rest/services/BaseMap/DBGT_Tema0201_Edificato/MapServer/0/query?geometry=544280%2C5072440%2C548280%2C5076440&geometryType=esriGeometryEnvelope&inSR=32632&spatialRel=esriSpatialRelIntersects&returnCountOnly=true&f=json&where=UN_VOL_AV+%3E+0+AND+UN_VOL_AV+%3C+200",
+      "result": {
+        "count": 3710
+      }
+    },
+    "sample": {
+      "url": "https://www.cartografia.servizirl.it/arcgis5/rest/services/BaseMap/DBGT_Tema0201_Edificato/MapServer/0/query?geometry=544280%2C5072440%2C548280%2C5076440&geometryType=esriGeometryEnvelope&inSR=32632&spatialRel=esriSpatialRelIntersects&returnCountOnly=false&f=json&returnGeometry=false&outFields=UN_VOL_AV%2CUN_VOL_QE%2CUN_VOL_EX%2CSCALA%2CDATA_INI&resultRecordCount=3&orderByFields=OBJECTID",
+      "result": {
+        "displayFieldName": "CLASSID",
+        "fieldAliases": {
+          "UN_VOL_AV": "altezza volume",
+          "UN_VOL_QE": "quota estrusione",
+          "UN_VOL_EX": "tipo estrusione",
+          "SCALA": "scala",
+          "DATA_INI": "inizio validita dato"
+        },
+        "fields": [
+          {
+            "name": "UN_VOL_AV",
+            "type": "esriFieldTypeDouble",
+            "alias": "altezza volume"
+          },
+          {
+            "name": "UN_VOL_QE",
+            "type": "esriFieldTypeDouble",
+            "alias": "quota estrusione"
+          },
+          {
+            "name": "UN_VOL_EX",
+            "type": "esriFieldTypeString",
+            "alias": "tipo estrusione",
+            "length": 80
+          },
+          {
+            "name": "SCALA",
+            "type": "esriFieldTypeString",
+            "alias": "scala",
+            "length": 80
+          },
+          {
+            "name": "DATA_INI",
+            "type": "esriFieldTypeDate",
+            "alias": "inizio validita dato",
+            "length": 8
+          }
+        ],
+        "features": [
+          {
+            "attributes": {
+              "UN_VOL_AV": 5.5760000000000005,
+              "UN_VOL_QE": 5.5760000000000005,
+              "UN_VOL_EX": "02",
+              "SCALA": "04",
+              "DATA_INI": 1298937600000
+            }
+          },
+          {
+            "attributes": {
+              "UN_VOL_AV": 7.195,
+              "UN_VOL_QE": 7.195,
+              "UN_VOL_EX": "02",
+              "SCALA": "04",
+              "DATA_INI": 1298937600000
+            }
+          },
+          {
+            "attributes": {
+              "UN_VOL_AV": 4.053,
+              "UN_VOL_QE": 4.053,
+              "UN_VOL_EX": "02",
+              "SCALA": "04",
+              "DATA_INI": 1298937600000
+            }
+          }
+        ],
+        "exceededTransferLimit": true
+      }
+    }
+  },
+  "lidar": {
+    "service": "https://www.cartografia.servizirl.it/arcgis1/rest/services/territorio/copertura_lidar/MapServer",
+    "counts": {
+      "1": {
+        "url": "https://www.cartografia.servizirl.it/arcgis1/rest/services/territorio/copertura_lidar/MapServer/1/query?geometry=544280%2C5072440%2C548280%2C5076440&geometryType=esriGeometryEnvelope&inSR=32632&spatialRel=esriSpatialRelIntersects&returnCountOnly=true&f=json",
+        "result": {
+          "count": 0
+        }
+      },
+      "2": {
+        "url": "https://www.cartografia.servizirl.it/arcgis1/rest/services/territorio/copertura_lidar/MapServer/2/query?geometry=544280%2C5072440%2C548280%2C5076440&geometryType=esriGeometryEnvelope&inSR=32632&spatialRel=esriSpatialRelIntersects&returnCountOnly=true&f=json",
+        "result": {
+          "count": 0
+        }
+      },
+      "3": {
+        "url": "https://www.cartografia.servizirl.it/arcgis1/rest/services/territorio/copertura_lidar/MapServer/3/query?geometry=544280%2C5072440%2C548280%2C5076440&geometryType=esriGeometryEnvelope&inSR=32632&spatialRel=esriSpatialRelIntersects&returnCountOnly=true&f=json",
+        "result": {
+          "count": 0
+        }
+      },
+      "4": {
+        "url": "https://www.cartografia.servizirl.it/arcgis1/rest/services/territorio/copertura_lidar/MapServer/4/query?geometry=544280%2C5072440%2C548280%2C5076440&geometryType=esriGeometryEnvelope&inSR=32632&spatialRel=esriSpatialRelIntersects&returnCountOnly=true&f=json",
+        "result": {
+          "count": 0
+        }
+      },
+      "5": {
+        "url": "https://www.cartografia.servizirl.it/arcgis1/rest/services/territorio/copertura_lidar/MapServer/5/query?geometry=544280%2C5072440%2C548280%2C5076440&geometryType=esriGeometryEnvelope&inSR=32632&spatialRel=esriSpatialRelIntersects&returnCountOnly=true&f=json",
+        "result": {
+          "count": 0
+        }
+      },
+      "6": {
+        "url": "https://www.cartografia.servizirl.it/arcgis1/rest/services/territorio/copertura_lidar/MapServer/6/query?geometry=544280%2C5072440%2C548280%2C5076440&geometryType=esriGeometryEnvelope&inSR=32632&spatialRel=esriSpatialRelIntersects&returnCountOnly=true&f=json",
+        "result": {
+          "count": 0
+        }
+      },
+      "7": {
+        "url": "https://www.cartografia.servizirl.it/arcgis1/rest/services/territorio/copertura_lidar/MapServer/7/query?geometry=544280%2C5072440%2C548280%2C5076440&geometryType=esriGeometryEnvelope&inSR=32632&spatialRel=esriSpatialRelIntersects&returnCountOnly=true&f=json",
+        "result": {
+          "count": 0
+        }
+      }
+    },
+    "note": "Zero intersections in this catalogue only; not proof that no other survey exists."
+  }
+}

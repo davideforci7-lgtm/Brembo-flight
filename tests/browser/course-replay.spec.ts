@@ -16,6 +16,10 @@ import { GamepadReader } from "../../src/core/gamepad";
 import { defaults } from "../../src/core/settings";
 import { clamp } from "../../src/core/math";
 
+// The trace still keeps DOM snapshots/actions and a failure screenshot. Recording a
+// screencast of every software-rendered frame makes this long replay GPU-bound.
+test.use({ trace: { mode: "retain-on-failure", screenshots: false, snapshots: true } });
+
 for (const real of [false, true])
   test(`flies the full ${real ? "Brembilla" : "demo"} course with standard-controller inputs and keeps the finish menu usable after rotation`, async ({
     page,
@@ -29,7 +33,7 @@ for (const real of [false, true])
     test.setTimeout(180000);
     // This test covers the complete flight, not high-resolution GPU throughput.
     // Resolution coverage remains in the separate responsive/pixel-budget test.
-    await page.setViewportSize({ width: 800, height: 450 });
+    await page.setViewportSize({ width: 480, height: 270 });
     const terrain = real
         ? new GeographicTerrain(
             JSON.parse(
