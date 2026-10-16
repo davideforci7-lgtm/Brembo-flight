@@ -1,3 +1,28 @@
+# Missione 2 — chiusura verificata e anteprima separata
+
+16 ottobre 2026. **Codice verificato: `204983410ff6bb911690cc6c79de625140f1f5f2`.** [GitHub Actions](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38904148835) conclusa con tutti i sei job verdi; nessuna correzione di codice necessaria e nessun test rimosso. Le sezioni successive conservano lo storico degli incrementi, comprese le verifiche allora ancora in corso.
+
+| Job del commit `2049834` | Esito | Risultati | Durata dai log |
+| --- | --- | --- | ---: |
+| Build | Superato | 53 TypeScript, 23 Python, asset guard, typecheck/build | 30,8 s |
+| Chromium desktop — replay | Superato | 2 passati, percorso demo e Brembilla | 126,0 s |
+| Chromium desktop — UI | Superato | 12 passati, 3 esclusioni previste per profilo | 432,7 s |
+| Chromium touch | Superato | 13 passati, 4 esclusioni previste per profilo | 285,4 s |
+| WebKit iPhone simulato | Superato | 10 passati, 7 esclusioni previste per profilo | 205,2 s |
+| Pacchetto playtest | Superato | Artefatto pronto | 2,3 s |
+
+[Stato e tempi ricavati dai log](research/ci-2049834.json): 37 prove browser passate, 14 esclusioni previste; nessun fallimento o retry. WebKit/Linux non è un test fisico su iPhone 12 mini. [Rapporto conclusivo e punto di ripresa](REALITY-MISSION2.md).
+
+Verificati nello SHA salvato: inventario e GPS, matching privato, preparazione GLB/LOD, specifiche Bruno e documentazione GIS. Confronto con PR #3 conferma immutati fisica, input/BOOST, corso/checkpoint, preset, terreno e indice collisioni originali; le 36 altezze DBGT condivise tra rendering/collisioni mantengono il fallback. Nessun nuovo sviluppo avviato per chiudere la missione.
+
+Su successiva richiesta esplicita di Davide è stata attivata **un'anteprima Sites privata separata, accessibile al solo proprietario**, dal codice `2049834`. I 76 file del gioco (2.512.213 byte) sono identici alla build del commit; confezione verificata, dati geografici e attribuzioni inclusi. Nessuna fotografia privata o superficie fotografica nuova. L'anteprima non cambia il contenuto del gioco né i link precedenti; il suo indirizzo è consegnato nella conversazione, non pubblicato qui. Build/typecheck e controllo asset ripetuti per il confezionamento. Nessuna nuova prova browser sul sito ospitato: valgono le prove del commit sopra, non una verifica fisica di Safari.
+
+Main, PR #2/#3, anteprime precedenti e link di Bruno intatti; nessun merge o servizio a pagamento. Questo aggiornamento di chiusura modifica soltanto documentazione, non il codice della build giocabile.
+
+**Missione 3 — prossimo passo unico:** ricevere privatamente 15–30 JPG originali sovrapposti di un piccolo isolato, eventuali DNG associati, data/zona e autorizzazione all'elaborazione. Inventario → assess → matching → revisione delle viste, prima di decidere se il lotto consente SfM/MVS. Originali/derivati non pubblicabili senza autorizzazione; nessun risultato fotogrammetrico ancora ottenuto.
+
+---
+
 # Missione 2 — terzo incremento: primo lotto e mesh private
 
 Implementati e verificati [matching fotografico e preparatore GLB/LOD](PHOTO-TOOLS.md): tutte le coppie di un massimo di 30 JPG, ORB/RANSAC e componenti candidate; mesh già ricostruita → tre GLB con texture ridotte dai pixel originali e candidato collisioni separato. Lettura GPS numerica da EXIF JPEG anche senza ExifTool (testata con emisferi sud/ovest e quota negativa); DJI XMP/RAW richiedono ancora un lettore adatto. Hash, percorsi privati, limiti di triangoli/byte/texture, validazione Khronos, pulizia metadata, blocco della redistribuzione automatica. Nessuna nuova dipendenza nel bundle browser.

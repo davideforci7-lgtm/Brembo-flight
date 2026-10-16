@@ -1,0 +1,85 @@
+{
+  "commit": "204983410ff6bb911690cc6c79de625140f1f5f2",
+  "run_id": 38904148835,
+  "url": "https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38904148835",
+  "status": "completed",
+  "conclusion": "success",
+  "duration_basis": "Difference between first and last timestamp in each downloaded GitHub job log; not runner wall-clock scheduling time.",
+  "jobs": [
+    {
+      "id": 116983410214,
+      "name": "build",
+      "status": "completed",
+      "conclusion": "success",
+      "start": "2026-10-16T12:56:59.5138690Z",
+      "end": "2026-10-16T12:57:30.3369518Z",
+      "durationSeconds": 30.823,
+      "summary": [
+        "2026-10-16T12:57:10.9090899Z  Test Files  9 passed (9)",
+        "2026-10-16T12:57:10.9091908Z       Tests  53 passed (53)",
+        "2026-10-16T12:57:21.3914360Z Ran 23 tests in 1.245s"
+      ]
+    },
+    {
+      "id": 116983643691,
+      "name": "browser (chromium-desktop, chromium, desktop-replays, tests/browser/course-replay.spec.ts)",
+      "status": "completed",
+      "conclusion": "success",
+      "start": "2026-10-16T12:57:34.7585032Z",
+      "end": "2026-10-16T12:59:40.7904383Z",
+      "durationSeconds": 126.032,
+      "summary": [
+        "2026-10-16T12:59:39.1957689Z   2 passed (1.7m)"
+      ]
+    },
+    {
+      "id": 116983643698,
+      "name": "browser (chromium-touch, chromium, chromium-touch)",
+      "status": "completed",
+      "conclusion": "success",
+      "start": "2026-10-16T12:57:34.5664352Z",
+      "end": "2026-10-16T13:02:19.9528486Z",
+      "durationSeconds": 285.386,
+      "summary": [
+        "2026-10-16T13:02:18.1960590Z   4 skipped",
+        "2026-10-16T13:02:18.1961022Z   13 passed (4.1m)"
+      ]
+    },
+    {
+      "id": 116983643734,
+      "name": "browser (chromium-desktop, chromium, desktop-ui, --grep-invert=flies.the.full)",
+      "status": "completed",
+      "conclusion": "success",
+      "start": "2026-10-16T12:57:34.8066888Z",
+      "end": "2026-10-16T13:04:47.4682022Z",
+      "durationSeconds": 432.662,
+      "summary": [
+        "2026-10-16T13:04:45.5926400Z   3 skipped",
+        "2026-10-16T13:04:45.5926908Z   12 passed (6.7m)"
+      ]
+    },
+    {
+      "id": 116983643784,
+      "name": "browser (webkit-iphone, webkit, webkit-iphone)",
+      "status": "completed",
+      "conclusion": "success",
+      "start": "2026-10-16T12:57:34.9489732Z",
+      "end": "2026-10-16T13:01:00.1052827Z",
+      "durationSeconds": 205.157,
+      "summary": [
+        "2026-10-16T13:00:58.5883855Z   7 skipped",
+        "2026-10-16T13:00:58.5884364Z   10 passed (2.6m)"
+      ]
+    },
+    {
+      "id": 116986639815,
+      "name": "playtest",
+      "status": "completed",
+      "conclusion": "success",
+      "start": "2026-10-16T13:04:51.9744736Z",
+      "end": "2026-10-16T13:04:54.2506532Z",
+      "durationSeconds": 2.276,
+      "summary": []
+    }
+  ]
+}
