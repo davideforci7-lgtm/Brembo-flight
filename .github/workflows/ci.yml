@@ -51,10 +51,18 @@ jobs:
         include:
           - project: chromium-desktop
             engine: chromium
+            suite: desktop-ui
+            tests: --grep-invert=flies.the.full
+          - project: chromium-desktop
+            engine: chromium
+            suite: desktop-replays
+            tests: tests/browser/course-replay.spec.ts
           - project: chromium-touch
             engine: chromium
+            suite: chromium-touch
           - project: webkit-iphone
             engine: webkit
+            suite: webkit-iphone
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -68,12 +76,14 @@ jobs:
           path: playtest-package
       - run: cp -R playtest-package/dist dist
       - run: npx playwright install --with-deps ${{ matrix.engine }}
-      - run: npm run test:e2e -- --project=${{ matrix.project }}
+      # Isolate the two full-course replays from layout/input tests. A replay
+      # retry must not consume the time available for unrelated checks.
+      - run: npm run test:e2e -- --project=${{ matrix.project }} ${{ matrix.tests }}
         timeout-minutes: 11
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: browser-test-report-${{ matrix.project }}
+          name: browser-test-report-${{ matrix.suite }}
           path: |
             playwright-report/
             test-results/

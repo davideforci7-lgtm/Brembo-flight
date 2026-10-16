@@ -142,6 +142,22 @@ class PipelineTest(unittest.TestCase):
         with self.assertRaises(ValueError):p.tiles(raster,f,self.dir/'out',self.sector)
         self.assertFalse((self.dir/'out').exists())
 
+    def test_fourth_spectral_band_is_not_used_as_alpha(self):
+        raster,f=self.prepare_raster()
+        with rasterio.open(raster) as src:
+            profile=src.profile; image=src.read()
+        profile['count']=4
+        with rasterio.open(raster,'w',**profile) as dst:
+            dst.write(np.concatenate([image,np.full((1,100,100),255,dtype='uint8')]))
+            dst.colorinterp=(ColorInterp.red,ColorInterp.green,ColorInterp.blue,ColorInterp.nir)
+        release=p.read_json(f); release['sourceSHA256']=p.sha256(raster)
+        checks=self.config(assetSHA256=p.sha256(raster)); (self.dir/'alignment.json').unlink()
+        p.alignment(checks,self.dir/'alignment.json');release['alignmentSHA256']=p.sha256(self.dir/'alignment.json')
+        f.write_text(json.dumps(release))
+        with self.assertRaisesRegex(ValueError,'Fourth band'):
+            p.tiles(raster,f,self.dir/'out',self.sector)
+        self.assertFalse((self.dir/'out').exists())
+
     def test_nonfinite_numbers_rejected(self):
         f=self.dir/'bad.json';f.write_text('{"x":NaN}')
         with self.assertRaises(ValueError):p.read_json(f)

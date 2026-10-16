@@ -1,6 +1,14 @@
+# Reality Engine — 16 ottobre 2026
+
+Primo incremento sulla PR #4: [diagnosi CI e verifiche](REALITY-CI.md). Artifact e log esaminati: il replay avanzava verso l’ottavo checkpoint ma il rendering software con screencast superava il budget. Ottimizzato esclusivamente il test, separati i replay dai controlli desktop UI senza eliminare verifiche o aumentare timeout. Due replay locali passati, 13 test Python e typecheck passati. Correzione della quarta banda GeoTIFF salvata insieme.
+
+In corso: campione pubblico DBGT di 475 unità nel centro (800×800 m), confronto con OSM; acquisizione/confronto DTM5; nessuna fotografia di Bruno ricevuta e nessuna nuova anteprima pubblicata. Le sezioni sottostanti descrivono gli incrementi precedenti, non il risultato finale della missione.
+
+---
+
 # Aggiornamento: preparazione fotografica e fusione geospaziale — 15 ottobre 2026
 
-Ramo nuovo `feat/photographic-pipeline`, base esatta PR #3 `2a06c243f497436e9f7846f174f9fe1dbce940d9`. I resoconti precedenti sono conservati più sotto come storico. Davide ha ora collaudato il settore e conferma che le posizioni delle case sono una buona base; la criticità prioritaria è l'aspetto artificiale.
+[PR #4](https://github.com/davideforci7-lgtm/Brembo-flight/pull/4), ramo nuovo `feat/photographic-pipeline`, base esatta PR #3 `2a06c243f497436e9f7846f174f9fe1dbce940d9`. I resoconti precedenti sono conservati più sotto come storico. Davide ha ora collaudato il settore e conferma che le posizioni delle case sono una buona base; la criticità prioritaria è l'aspetto artificiale.
 
 ## Preparato concretamente
 
@@ -15,10 +23,11 @@ Ramo nuovo `feat/photographic-pipeline`, base esatta PR #3 `2a06c243f497436e9f78
 ## Verifiche eseguite durante l'incremento
 
 - 44 test TypeScript passati, inclusi coordinate/UV, diagonali della griglia, budget/LOD, crediti e manifest non validi.
-- 12 test Python passati: inventario/duplicati, riservatezza dei percorsi, proiezione lon/lat, scarti non corretti di nascosto, blocco datum sconosciuto, checkpoint degeneri, permessi/hash, export riproducibile, EXIF rimossi, nodata non inventato.
+- 13 test Python passati: inventario/duplicati, riservatezza dei percorsi, proiezione lon/lat, scarti non corretti di nascosto, blocco datum sconosciuto, checkpoint degeneri, permessi/hash, export riproducibile, EXIF rimossi, nodata non inventato, rifiuto di una quarta banda infrarossa scambiata per alpha.
 - Typecheck e build Vite passati; Three.js resta il chunk principale (~575 kB minificati, ~145 kB gzip), senza nuove dipendenze browser.
 - Suite browser locale mirata: **11 passati, 1 esclusione prevista**, Chromium desktop e touch su Linux/SwiftShader. Strato fotografico con pattern diagnostico (non foto reali), errore 404 con volo ancora utilizzabile, settore geografico, orientamenti, BOOST multitouch e recupero WebGL. Screenshot del pattern ispezionato. Queste non sono prove su iPhone fisico.
 - Primo avvio locale dei browser bloccato da un vecchio eseguibile incompleto; ripristinato Chromium 153 da pacchetto disponibile e ripetuti i test con successo. Il download Playwright standard locale ha restituito archivi incompleti. Nessun errore dell'app mascherato come test passato.
+- Dopo l’ultimo affinamento al download: 4 prove fotografiche locali ripetute e superate, incluso il cambio Eco/Alto. La successiva correzione della quarta banda riguarda soltanto la pipeline Python; i file browser rimangono identici.
 - I risultati della verifica **GitHub Actions del commit finale** sono riportati nella descrizione/Checks della nuova PR, distinguendoli da questa verifica locale. Nessun deploy è parte di questo lavoro.
 
 ## Limiti ancora reali

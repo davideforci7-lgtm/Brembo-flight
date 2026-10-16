@@ -234,6 +234,8 @@ def tiles(source, release_file, output, sector_file):
                 raise ValueError('Use an orthorectified RGB/RGBA uint8 GeoTIFF with explicit CRS')
             if tuple(src.colorinterp[:3]) != (ColorInterp.red, ColorInterp.green, ColorInterp.blue):
                 raise ValueError('Bands must be RGB, not infrared or an unlabelled raster')
+            if src.count == 4 and src.colorinterp[3] != ColorInterp.alpha:
+                raise ValueError('Fourth band must be alpha, not an infrared/spectral band')
             tx = transformer(src.crs, reference['projectedCRS'])
             # Export requires the orthophoto already reprojected through the audited operation.
             # Avoid a second, potentially different GDAL datum choice during tile export.
