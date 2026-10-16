@@ -1,3 +1,14 @@
+# Missione 2 — secondo incremento: superfici e audit DBGT
+
+- Audit riproducibile di tutti i 475 volumi, con classificazione esclusiva e riesame di 83 gruppi: 14 unioni compatibili in pianta ma nessuna altezza uniforme. [Dati e decisione](research/dbgt/README.md). **Le 36 altezze già integrate restano invariate**, nessuna estensione o volume inventato.
+- Corretto un difetto del renderer: strade e corsi d’acqua vengono suddivisi secondo celle e diagonali del terreno. Scarto massimo nei punti interni testati 4,1994 m → 0,000140 m rispetto alla griglia del gioco; non è accuratezza del rilievo. Ponti, linee in pianta, larghezze, terreno e collisioni conservati.
+- [Confronto visivo autentico](reality-captures/mission2/README.md), stessa camera: 209.686 → 252.416 triangoli, 122 draw call in entrambi. Aspetto ancora illustrativo e miglioramento visivo generale modesto.
+- Controlli locali: 51 test TypeScript, 20 Python, typecheck/build passati. Cinque prove Chromium touch del settore passate in 36,7 s: orientamento, BOOST multitouch, errore terreno, recupero WebGL e fallback DBGT. CI del nuovo incremento da verificare. Nessuna pubblicazione.
+
+Il primo incremento della ripresa è già salvato nel commit `360f72b`. Prossimo lavoro indipendente: matching privato del lotto fotografico e preparazione GLB/LOD, senza originali reali ancora disponibili.
+
+---
+
 # Missione 2 — ripresa e consolidamento, 16 ottobre 2026
 
 Verificati i commit già salvati sulla PR #4: `6151770` (pipeline), `722f674` (replay CI), `ff83f0f` (36 altezze DBGT). **CI dell’ultimo commit `ff83f0f` tutta verde**, non soltanto quella precedente: [run 38866727073](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38866727073), 48 test TypeScript, 16 Python, 37 prove browser passate e 14 esclusioni per profilo. [Tempi reali dai log](research/ci-ff83f0f.json): build 21,3 s, replay 193,6 s, desktop UI 351,6 s, WebKit 202,1 s, touch 288,6 s. Nessuna nuova regressione del timeout.
