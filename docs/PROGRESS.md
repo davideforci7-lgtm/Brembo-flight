@@ -4,6 +4,11 @@ Primo incremento sulla PR #4: [diagnosi CI e verifiche](REALITY-CI.md). Artifact
 
 In corso: campione pubblico DBGT di 475 unità nel centro (800×800 m), confronto con OSM; acquisizione/confronto DTM5; nessuna fotografia di Bruno ricevuta e nessuna nuova anteprima pubblicata. Le sezioni sottostanti descrivono gli incrementi precedenti, non il risultato finale della missione.
 
+
+Secondo incremento: [campione DBGT e confronto riproducibile](research/dbgt/README.md). 475 volumi pubblici acquisiti, 391 con sovrapposizione OSM, 36 associazioni conservative integrate usando soltanto l’altezza relativa UN_VOL_AV. Sagome e basi originali conservate; stesso aggiornamento per rendering/collisioni; fallback completo se dati mancanti o incompatibili. Nessuna nuova fotografia o quota assoluta importata. 48 test TypeScript, 16 Python, build e due prove browser mirate superati localmente. Un primo test aggiunto sulle collisioni era troppo vicino al tetto (entro il raggio del drone di 0,65 m); corretto il punto di verifica senza cambiare le collisioni.
+
+**CI del commit `722f674` tutta verde:** [run 38865666638](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38865666638). 44 unit test + 13 Python di quel commit; 34 prove browser passate, 14 esclusioni previste. Job replay 183,4 s, desktop UI 260,7 s, WebKit 255,0 s, touch 285,4 s. [Tempi dai log](research/ci-722f674.json). Il nuovo incremento DBGT deve ancora completare la propria CI.
+
 ---
 
 # Aggiornamento: preparazione fotografica e fusione geospaziale — 15 ottobre 2026

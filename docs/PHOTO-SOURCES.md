@@ -1,6 +1,6 @@
 # Fonti fotografiche e geografiche per Brembilla
 
-Verifica del **15 ottobre 2026**, sul rettangolo del settore PR #3: EPSG:32632 E 544280–548280, N 5072440–5076440. Nessun nuovo dato di questa ricerca è stato attivato nel gioco. Metadati, risoluzione nominale e disponibilità di un servizio non dimostrano da soli accuratezza o diritto di ridistribuzione.
+Verifica del **15 ottobre 2026**, sul rettangolo del settore PR #3: EPSG:32632 E 544280–548280, N 5072440–5076440. Aggiornamento 16 ottobre: [36 altezze DBGT integrate conservativamente](research/dbgt/README.md); i raster e le fotografie rimangono non attivati. Metadati, risoluzione nominale e disponibilità di un servizio non dimostrano da soli accuratezza o diritto di ridistribuzione.
 
 | Fonte autentica | Risoluzione / contenuto | Copertura e riutilizzo | Decisione |
 | --- | --- | --- | --- |

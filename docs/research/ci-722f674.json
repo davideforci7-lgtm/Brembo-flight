@@ -1,0 +1,59 @@
+{
+  "commit": "722f6743e2f3e3fe89a4e79a3e1180a541f470ba",
+  "run": 38865666638,
+  "conclusion": "success",
+  "jobs": [
+    {
+      "jobId": 116857797955,
+      "start": "2026-10-16T07:11:48.1302452Z",
+      "end": "2026-10-16T07:12:07.5984790Z",
+      "durationSeconds": 19.5,
+      "results": []
+    },
+    {
+      "jobId": 116857930872,
+      "start": "2026-10-16T07:12:11.9149966Z",
+      "end": "2026-10-16T07:15:15.2825089Z",
+      "durationSeconds": 183.4,
+      "results": [
+        "2026-10-16T07:13:32.9684380Z   ✓  1 [chromium-desktop] › tests/browser/course-replay.spec.ts:24:3 › flies the full demo course with standard-controller inputs and keeps the finish menu usable after rotation (51.1s)",
+        "2026-10-16T07:15:10.9474047Z   ✓  2 [chromium-desktop] › tests/browser/course-replay.spec.ts:24:3 › flies the full Brembilla course with standard-controller inputs and keeps the finish menu usable after rotation (1.6m)",
+        "2026-10-16T07:15:13.7721732Z   2 passed (2.6m)"
+      ]
+    },
+    {
+      "jobId": 116857930946,
+      "start": "2026-10-16T07:12:11.7322257Z",
+      "end": "2026-10-16T07:16:32.3940843Z",
+      "durationSeconds": 260.7,
+      "results": [
+        "2026-10-16T07:16:30.9209544Z   3 skipped",
+        "2026-10-16T07:16:30.9209961Z   11 passed (3.7m)"
+      ]
+    },
+    {
+      "jobId": 116857930882,
+      "start": "2026-10-16T07:12:11.9629325Z",
+      "end": "2026-10-16T07:16:26.9431502Z",
+      "durationSeconds": 255,
+      "results": [
+        "2026-10-16T07:13:24.5482470Z   -   1 [webkit-iphone] › tests/browser/course-replay.spec.ts:24:3 › flies the full demo course with standard-controller inputs and keeps the finish menu usable after rotation",
+        "2026-10-16T07:13:24.9957006Z   -   2 [webkit-iphone] › tests/browser/course-replay.spec.ts:24:3 › flies the full Brembilla course with standard-controller inputs and keeps the finish menu usable after rotation",
+        "2026-10-16T07:16:24.9752103Z   7 skipped",
+        "2026-10-16T07:16:24.9754511Z   9 passed (3.2m)"
+      ]
+    },
+    {
+      "jobId": 116857930902,
+      "start": "2026-10-16T07:12:12.3743811Z",
+      "end": "2026-10-16T07:16:57.7287280Z",
+      "durationSeconds": 285.4,
+      "results": [
+        "2026-10-16T07:13:02.7042562Z   -   1 [chromium-touch] › tests/browser/course-replay.spec.ts:24:3 › flies the full demo course with standard-controller inputs and keeps the finish menu usable after rotation",
+        "2026-10-16T07:13:02.8239666Z   -   2 [chromium-touch] › tests/browser/course-replay.spec.ts:24:3 › flies the full Brembilla course with standard-controller inputs and keeps the finish menu usable after rotation",
+        "2026-10-16T07:16:55.6300069Z   4 skipped",
+        "2026-10-16T07:16:55.6301105Z   12 passed (4.0m)"
+      ]
+    }
+  ]
+}

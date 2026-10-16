@@ -4,6 +4,7 @@ import {
   type Obstacle,
   type TerrainProvider,
 } from "../core/terrain";
+import { validateHeightRelease, withSurveyedHeight, type HeightRecord } from "./building-heights";
 import { clamp, seededRandom, type Vec3 } from "../core/math";
 import type { Checkpoint } from "../core/course";
 import type { FlightEnvironment } from "../core/flight";
@@ -46,6 +47,7 @@ export interface SectorManifest {
   terrainURL: string;
   /** Optional approved orthophoto release; absent in the shipped sector. */
   photoManifestURL?: string;
+  buildingHeightsURL?: string;
   tiles: TileEntry[];
   places: { id: string; name: string; x: number; z: number }[];
   reference: {
@@ -193,6 +195,8 @@ export class BuildingIndex {
   }
 }
 export interface Sector {
+  heightRecords: Map<string, HeightRecord>;
+  heightStatus: "disabled" | "ready" | "fallback";
   manifest: SectorManifest;
   terrain: GeographicTerrain;
   buildings: BuildingIndex;
@@ -246,9 +250,20 @@ export async function loadSector(): Promise<Sector> {
     readJSON<TerrainData>(`${SECTOR_URL}terrain.json`),
     readJSON<{ buildings: Building[] }>(`${SECTOR_URL}collision.json`),
   ]);
+  let heightRecords = new Map<string, HeightRecord>();
+  let heightStatus: Sector['heightStatus'] = 'disabled';
+  if (manifest.buildingHeightsURL) {
+    try {
+      if (!/^[a-zA-Z0-9_-]+\.json$/.test(manifest.buildingHeightsURL)) throw new Error('Invalid height path');
+      heightRecords = validateHeightRelease(await readJSON<unknown>(SECTOR_URL + manifest.buildingHeightsURL), manifest, collision.buildings);
+      heightStatus = 'ready';
+    } catch { heightStatus = 'fallback'; }
+  }
   const terrain = new GeographicTerrain(data),
-    buildings = new BuildingIndex(collision.buildings);
+    buildings = new BuildingIndex(collision.buildings.map(b => withSurveyedHeight(b, heightRecords)));
   return {
+    heightRecords,
+    heightStatus,
     manifest,
     terrain,
     buildings,

@@ -12,6 +12,8 @@ test("real Brembilla sector starts in tranquil exploration, keeps stories option
   });
   await page.goto("./");
   await expect(page.locator("#start-button")).toBeVisible({ timeout: 45000 });
+  await expect(page.locator("#app")).toHaveAttribute("data-dbgt-status", "ready");
+  await expect(page.locator("#app")).toHaveAttribute("data-dbgt-heights", "36");
   await expect(page.locator("#flight-profile")).toHaveValue("tranquil");
   await expect(page.locator("#activity")).toHaveValue("explore");
   await page.locator("#start-button").click();
@@ -175,4 +177,15 @@ test("WebGL context loss pauses and restored context offers a controlled resume"
   await expect(page.locator("#resume-button")).toBeVisible({ timeout: 15000 });
   await page.locator("#resume-button").click();
   await expect(page.locator("#app")).toHaveAttribute("data-status", "flying");
+});
+
+
+test("DBGT download failure retains original heights and playable sector", async ({page}) => {
+  await page.route('**/dbgt-heights.json',route=>route.fulfill({status:404,body:'missing'}));
+  await page.goto('./');
+  await expect(page.locator('#start-button')).toBeVisible({timeout:45000});
+  await expect(page.locator('#app')).toHaveAttribute('data-dbgt-status','fallback');
+  await expect(page.locator('#app')).toHaveAttribute('data-dbgt-heights','0');
+  await page.locator('#start-button').click();
+  await expect(page.locator('#app')).toHaveAttribute('data-status','flying');
 });

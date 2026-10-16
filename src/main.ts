@@ -539,6 +539,8 @@ async function boot() {
       }
       const diag = world.diagnostics();
       app.dataset.preset = diag.preset;
+      app.dataset.dbgtHeights = String(diag.streaming?.dbgtHeights ?? 0);
+      app.dataset.dbgtStatus = diag.streaming?.dbgtStatus ?? "disabled";
       app.dataset.photoStatus = diag.photography?.status ?? "disabled";
       app.dataset.photoTiles = String(diag.photography?.resident ?? 0);
       app.dataset.photoErrors = String(diag.photography?.errors ?? 0);

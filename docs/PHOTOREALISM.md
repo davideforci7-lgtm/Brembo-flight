@@ -1,6 +1,6 @@
 # Architettura fotografica e fusione geospaziale
 
-Stato 2026-10-15: nuova preparazione sul ramo `feat/photographic-pipeline`, dalla PR #3 (`2a06c24`). **Nessuna fotografia reale nuova, ricostruzione fotogrammetrica o sostituzione di dati è già presente nel gioco.** I test usano soltanto pattern sintetici esplicitamente identificati, fuori dagli asset distribuiti. Main, PR #3, fisica e anteprime non vengono aggiornati.
+Stato 2026-10-15: nuova preparazione sul ramo `feat/photographic-pipeline`, dalla PR #3 (`2a06c24`). **Nessuna fotografia reale nuova o ricostruzione fotogrammetrica è già presente nel gioco. Aggiornamento 16 ottobre: integrate 36 altezze relative DBGT, con basi/sagome originali e fallback; vedi [confronto](research/dbgt/README.md).** I test usano soltanto pattern sintetici esplicitamente identificati, fuori dagli asset distribuiti. Main, PR #3, fisica e anteprime non vengono aggiornati.
 
 ## Decisione tecnica
 

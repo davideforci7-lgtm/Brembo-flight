@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
+import { withSurveyedHeight } from "./building-heights";
 import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import {
@@ -130,6 +131,8 @@ export class SectorStreamer {
       tiles: this.loaded.size,
       pending: this.pending.size,
       errors: this.errors,
+      dbgtHeights: this.sector.heightRecords.size,
+      dbgtStatus: this.sector.heightStatus,
     };
   }
   retry() {
@@ -198,7 +201,8 @@ export class SectorStreamer {
     const walls: THREE.BufferGeometry[] = [],
       roofs: THREE.BufferGeometry[] = [],
       church: THREE.BufferGeometry[] = [];
-    for (const b of data.buildings) {
+    for (const original of data.buildings) {
+      const b = withSurveyedHeight(original, this.sector.heightRecords);
       const roof = new THREE.ShapeGeometry(shapeOf(b.points, b.holes));
       roof.rotateX(-Math.PI / 2);
       roof.translate(0, b.base + b.height, 0);
