@@ -1,0 +1,60 @@
+{
+  "commit": "ff83f0f89b9d42ae86d8b35e07cc1e76c6f7e0b9",
+  "runId": 38866727073,
+  "url": "https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38866727073",
+  "conclusion": "success",
+  "durations": "Seconds between first/last job log timestamp, not individual test duration",
+  "jobs": [
+    {
+      "jobId": 116861164572,
+      "start": "2026-10-16T07:21:50.1303020Z",
+      "end": "2026-10-16T07:22:11.4270827Z",
+      "durationSeconds": 21.297,
+      "results": [
+        "2026-10-16T07:21:57.2047981Z  Test Files  7 passed (7)",
+        "2026-10-16T07:21:57.2049432Z       Tests  48 passed (48)",
+        "2026-10-16T07:22:05.6723384Z Ran 16 tests in 0.461s",
+        "2026-10-16T07:22:05.6723885Z OK"
+      ]
+    },
+    {
+      "jobId": 116861308648,
+      "start": "2026-10-16T07:22:15.2155660Z",
+      "end": "2026-10-16T07:25:28.8331111Z",
+      "durationSeconds": 193.618,
+      "results": [
+        "2026-10-16T07:25:27.5839212Z   2 passed (2.6m)"
+      ]
+    },
+    {
+      "jobId": 116861308665,
+      "start": "2026-10-16T07:22:16.3423129Z",
+      "end": "2026-10-16T07:28:07.9416022Z",
+      "durationSeconds": 351.599,
+      "results": [
+        "2026-10-16T07:28:06.1481585Z   3 skipped",
+        "2026-10-16T07:28:06.1481903Z   12 passed (5.2m)"
+      ]
+    },
+    {
+      "jobId": 116861308673,
+      "start": "2026-10-16T07:22:16.0762316Z",
+      "end": "2026-10-16T07:25:38.2128144Z",
+      "durationSeconds": 202.136,
+      "results": [
+        "2026-10-16T07:25:35.6988013Z   7 skipped",
+        "2026-10-16T07:25:35.6988500Z   10 passed (2.5m)"
+      ]
+    },
+    {
+      "jobId": 116861308850,
+      "start": "2026-10-16T07:22:15.7369959Z",
+      "end": "2026-10-16T07:27:04.2919856Z",
+      "durationSeconds": 288.555,
+      "results": [
+        "2026-10-16T07:27:02.5305533Z   4 skipped",
+        "2026-10-16T07:27:02.5306033Z   13 passed (4.3m)"
+      ]
+    }
+  ]
+}

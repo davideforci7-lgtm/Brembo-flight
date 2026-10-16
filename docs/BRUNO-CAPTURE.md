@@ -5,12 +5,18 @@ L'obiettivo iniziale è un solo luogo riconoscibile del centro di Brembilla e il
 ## File utili
 
 - **JPG originali a piena risoluzione**: evitare screenshot, ritagli, filtri e compressione WhatsApp/Instagram. Conservare nomi e EXIF. DNG originali benvenuti insieme ai JPG associati; lo sviluppo RAW avverrà su copie con impostazioni uniformi.
-- Un gruppo **contiguo e sovrapposto dello stesso luogo**, includendo vista dall'alto e oblique da direzioni diverse. Per un primo esame bastano 20–40 file rappresentativi; per ricostruire può servire l'intera sequenza, spesso centinaia di scatti. Nessun numero di foto garantisce una mesh completa.
+- Un gruppo **contiguo e sovrapposto dello stesso luogo**, includendo vista dall'alto e oblique da direzioni diverse. Per un primo esame bastano 15–30 file originali rappresentativi; per ricostruire può servire l'intera sequenza, spesso centinaia di scatti. Nessun numero di foto garantisce una mesh completa.
 - Per nuove acquisizioni, obiettivo iniziale di lavoro circa **80% sovrapposizione lungo la traiettoria e 75% laterale**, da adattare a rilievo/vegetazione/camera e verificare sulle immagini. Facciate e tetti devono comparire in più viste convergenti; fotografare lo stesso punto da una sola direzione non basta.
 - Preferire immagini nitide, esposizione coerente, camera/focale stabili, luce senza forti variazioni tra scatti. Non mescolare sessioni di anni/stagioni diversi nello stesso blocco senza identificarle.
 - Video originali MP4/MOV e sidecar SRT/XMP possono aiutare per riferimenti o estrazione selettiva, ma compressione, mosso e intervalli tra fotogrammi spesso li rendono meno adatti dei JPG. Conservare codec, risoluzione e data originali.
 - Se già disponibili: RTK/PPK, log di volo, calibrazione, punti rilevati al suolo con **CRS, datum verticale, metodo e precisione**. Segnalare se l'altitudine è relativa al decollo. Nessun dato GPS viene dato per centimetricamente accurato.
 - Per ogni lotto: autore/titolare, luogo, data, drone/camera/lente, modifiche effettuate, consenso a elaborare e condizioni di distribuzione di texture/mesh derivate. Nome pubblico da usare nell'attribuzione concordato con Bruno.
+
+## DJI Mini 5 Pro e primo esame
+
+Conservare i file originali della camera, senza convertire i tag GPS o confondere altitudine relativa al decollo e quota assoluta. I metadati sono indizi per l’orientamento iniziale, non un rilievo RTK certificato. Non dedurre precisione topografica dalla precisione di hovering o dai sensori anticollisione del drone. La pipeline legge separatamente i campi DJI disponibili; i DNG richiedono sviluppo coerente e una versione del decoder che riconosca la camera.
+
+I 15–30 file servono a valutare il materiale: non garantiscono un modello. L’esame include gruppi camera/sessione, diagnostica relativa di nitidezza/esposizione, verifica visiva e successivo matching. Nessuna sovrapposizione viene dichiarata soltanto perché le coordinate GPS sono vicine.
 
 ## Riservatezza e licenza
 

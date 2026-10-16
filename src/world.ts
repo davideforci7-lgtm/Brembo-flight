@@ -84,7 +84,7 @@ export class FlightWorld {
     this.addTerrain();
     if (sector) {
       this.streamer = new SectorStreamer(this.scene, sector);
-      this.photography = new PhotoTerrain(this.scene, this.terrain, sector.manifest);
+      this.photography = new PhotoTerrain(this.scene, this.terrain, sector.manifest, this.renderer.capabilities.getMaxAnisotropy());
     }
     else {
       this.water = this.addRiver();

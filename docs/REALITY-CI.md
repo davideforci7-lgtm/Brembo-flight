@@ -1,3 +1,9 @@
+# Aggiornamento Missione 2
+
+L’ultimo commit salvato all’avvio della missione è `ff83f0f`, non `722f674`. [Run 38866727073](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38866727073): tutti i job superati, 48 TypeScript + 16 Python + 37 prove browser, 14 esclusioni previste per progetto. [Rapporto con timestamp e risultati](research/ci-ff83f0f.json). Job più lungo desktop UI 351,6 secondi; replay 193,6 secondi. Il problema descritto sotto non è ricomparso e non è stato riaperto.
+
+---
+
 # Reality Engine — diagnosi CI del 16 ottobre 2026
 
 Esecuzione iniziale: [38743208183](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38743208183), commit `6151770`.

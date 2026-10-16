@@ -67,7 +67,10 @@ def inventory(source, output):
             result = subprocess.run(['exiftool', '-json', '-n', '-Make', '-Model',
                 '-DateTimeOriginal', '-ImageWidth', '-ImageHeight', '-Orientation',
                 '-FocalLength', '-ExposureTime', '-ISO', '-GPSLatitude', '-GPSLongitude',
-                '-GPSAltitude', '-GPSAltitudeRef', str(path)], check=False,
+                '-GPSAltitude', '-GPSAltitudeRef', '-GPSHPositioningError',
+                '-FocalLengthIn35mmFormat', '-XMP-drone-dji:AbsoluteAltitude',
+                '-XMP-drone-dji:RelativeAltitude', '-XMP-drone-dji:GimbalPitchDegree',
+                '-XMP-drone-dji:GimbalYawDegree', '-XMP-drone-dji:GimbalRollDegree', str(path)], check=False,
                 capture_output=True, text=True, timeout=30)
             try:
                 metadata = json.loads(result.stdout)[0]
@@ -99,6 +102,11 @@ def inventory(source, output):
                 entry['warnings'].append('Metadata/image inspection incomplete: ' + type(exc).__name__)
             if path.suffix.lower() == '.dng':
                 entry['warnings'].append('DNG requires ExifTool and a separate RAW development step')
+        if path.suffix.lower() != '.dng':
+            try:
+                entry['imageQuality'] = image_quality(path)
+            except Exception as exc:
+                entry['warnings'].append('Quality inspection incomplete: ' + type(exc).__name__)
         if not entry.get('hasGPS'):
             entry['warnings'].append('No GPS detected: ground control or camera alignment required')
         entry['warnings'].append('Altitude datum, sharpness, overlap and privacy require review')
@@ -108,6 +116,58 @@ def inventory(source, output):
     report = {'schemaVersion': 1, 'private': True, 'files': entries,
               'uniqueFiles': len(seen), 'readyForReconstruction': False}
     write_json(output, report)
+    return report
+
+
+def image_quality(path):
+    """Comparable thumbnail diagnostics only: scene texture affects sharpness score."""
+    from PIL import Image, ImageOps
+    import numpy as np
+    with Image.open(path) as image:
+        original_size = image.size
+        image.draft('L', (1024, 1024))
+        image.thumbnail((768, 768))
+        a = np.asarray(ImageOps.exif_transpose(image).convert('L'), dtype=np.float32)
+    if min(a.shape) < 3:
+        raise ValueError('Image too small')
+    lap = -4*a[1:-1,1:-1]+a[:-2,1:-1]+a[2:,1:-1]+a[1:-1,:-2]+a[1:-1,2:]
+    return {'originalPixels':list(original_size), 'samplePixels':[a.shape[1],a.shape[0]],
+            'laplacianVariance':float(lap.var()), 'darkFraction':float((a<=5).mean()),
+            'brightFraction':float((a>=250).mean()),
+            'interpretation':'Relative diagnostic, not a blur/photogrammetry acceptance threshold'}
+
+
+def assess_inventory(source, output):
+    """Private camera/session grouping and GPS spacing; never guesses overlap from GPS."""
+    import math
+    from collections import defaultdict
+    source, output = outside_repo(source), outside_repo(output)
+    data = json.loads(source.read_text())
+    if data.get('private') is not True or not isinstance(data.get('files'), list):
+        raise ValueError('A private inventory is required')
+    groups, gps = defaultdict(list), []
+    for e in data['files']:
+        if e.get('duplicateOf'): continue
+        m=e.get('metadata', {})
+        size=e.get('imageQuality', {}).get('originalPixels', [e.get('width',m.get('ImageWidth')),e.get('height',m.get('ImageHeight'))])
+        key=json.dumps([m.get('Make','unknown'),m.get('Model','unknown'),size,m.get('FocalLength','unknown'),str(m.get('DateTimeOriginal','unknown'))[:10]])
+        groups[key].append(e['file'])
+        lat,lon=m.get('GPSLatitude'),m.get('GPSLongitude')
+        if isinstance(lat,(float,int)) and isinstance(lon,(float,int)) and math.isfinite(lat) and math.isfinite(lon) and -90<=lat<=90 and -180<=lon<=180:
+            gps.append((lat,lon))
+    from pyproj import Geod
+    geod=Geod(ellps='WGS84')
+    distances=[abs(geod.inv(a[1],a[0],b[1],b[0])[2]) for a,b in zip(gps,gps[1:])]
+    report={'schemaVersion':1,'private':True,'inventorySHA256':sha256(source),
+            'groups':[{'cameraDimensionsFocalDate':json.loads(k),'files':v} for k,v in groups.items()],
+            'gpsNumericCount':len(gps),'gpsConsecutiveDistancesMeters':distances,
+            'overlapVerified':False,'verticalDatumVerified':False,'readyForReconstruction':False,
+            'notes':['Groups are candidates, not verified camera calibration or continuous capture sessions.',
+                     'GPS order follows inventory filenames, not a validated flight trajectory.',
+                     'GPS spacing does not measure overlap, visible facades, GSD or positional accuracy.',
+                     'EXIF GPS altitude, DJI absolute altitude and relative takeoff altitude remain separate.',
+                     'Feature matching, independent controls, permissions and visual privacy review are required.']}
+    write_json(output,report)
     return report
 
 
@@ -297,12 +357,15 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='command', required=True)
     p = sub.add_parser('inventory'); p.add_argument('originals'); p.add_argument('report')
+    p = sub.add_parser('assess'); p.add_argument('inventory'); p.add_argument('report')
     p = sub.add_parser('align'); p.add_argument('checks'); p.add_argument('report')
     p = sub.add_parser('tiles'); p.add_argument('orthophoto'); p.add_argument('release'); p.add_argument('output')
     p.add_argument('--sector', default=str(ROOT/'public/geo/brembilla-centro/manifest.json'))
     args = parser.parse_args()
     try:
-        if args.command == 'inventory':
+        if args.command == 'assess':
+            result = assess_inventory(args.inventory, args.report)
+        elif args.command == 'inventory':
             result = inventory(args.originals, args.report)
             print(f"Inventoried {len(result['files'])} files; report remains private")
         elif args.command == 'align':

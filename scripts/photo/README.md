@@ -22,6 +22,14 @@ python scripts/photo/pipeline.py inventory /private/brembo/originals /private/br
 
 Non modifica né copia gli originali. JPG/DNG: hash, duplicati, metadati, controlli elementari. ExifTool opzionale aumenta i metadati leggibili; senza, Pillow è una lettura parziale e DNG non viene sviluppato. `readyForReconstruction` resta falso: copertura e qualità non sono deducibili dal conteggio. Il rapporto può contenere posizione e orari: privato. Sono rifiutati percorsi originali/report interni al repository, compresi symlink risolti.
 
+Prima valutazione automatica privata:
+
+```sh
+python scripts/photo/pipeline.py assess /private/brembo/inventory.json /private/brembo/assessment.json
+```
+
+Raggruppa camera, dimensioni, focale e data; riporta distanze GPS consecutive solo se numeriche e valide. L’ordine dei file non prova la traiettoria. Diagnostiche su thumbnail (varianza Laplaciano, frazioni scure/chiare) aiutano la revisione comparativa, senza soglie universali di nitidezza. Altitudine DJI assoluta/relativa ed EXIF rimangono separate. Senza ExifTool la lettura resta parziale. `overlapVerified`, `verticalDatumVerified` e `readyForReconstruction` rimangono falsi finché non esistono verifiche reali.
+
 ## 2. Ricostruzione e preparazione GIS
 
 Questa fase richiede fotografie adeguate e **non è stata eseguita**. Procedura e scelta ODM/COLMAP in [PHOTOREALISM](../../docs/PHOTOREALISM.md). Con ODM, organizzare un progetto privato `project/images/`, eventuale `gcp_list.txt` con CRS esplicito; utilizzare una versione/digest fissata del motore e registrare tutti i parametri. Conservare gli output ortofoto/DSM/mesh e il rapporto. I checkpoint indipendenti non vanno usati nel bundle adjustment.

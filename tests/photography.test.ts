@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { assetPath, photoGeometry, textureBytes, validatePhotoManifest, wantedPhotos, type PhotoManifest } from "../src/geo/photography";
+import { photoAnisotropy, assetPath, photoGeometry, textureBytes, validatePhotoManifest, wantedPhotos, type PhotoManifest } from "../src/geo/photography";
 import { GeographicTerrain, type SectorManifest } from "../src/geo/sector";
 const sector = JSON.parse(readFileSync('public/geo/brembilla-centro/manifest.json','utf8')) as SectorManifest;
 function fixture(): PhotoManifest {
@@ -9,6 +9,11 @@ function fixture(): PhotoManifest {
     tiles: Array.from({length:20},(_,i)=>({id:String(i),bounds:{minX:i%5*100,minZ:Math.floor(i/5)*100,maxX:i%5*100+100,maxZ:Math.floor(i/5)*100+100},levels:([512,1024] as const).map(pixels=>({pixels,url:`test/${i}-${pixels}.webp`,bytes:128,sha256:'a'.repeat(64)}))})) };
 }
 describe('photographic geographic layer',()=>{
+  it('caps anisotropy at both preset and device limits',()=>{
+    expect(photoAnisotropy('high',16)).toBe(8);expect(photoAnisotropy('balanced',16)).toBe(4);
+    expect(photoAnisotropy('eco',16)).toBe(2);expect(photoAnisotropy('high',1)).toBe(1);
+    expect(photoAnisotropy('high',NaN)).toBe(1);
+  });
   it('is opt-in and existing PR3 data stays unchanged',()=>{
     expect(sector.photoManifestURL).toBeUndefined();
     expect(validatePhotoManifest(fixture(),sector).tiles).toHaveLength(20);

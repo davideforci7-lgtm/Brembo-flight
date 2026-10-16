@@ -14,6 +14,7 @@ from pyproj import Transformer
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location('photo_pipeline', ROOT/'scripts/photo/pipeline.py')
 p = importlib.util.module_from_spec(spec); spec.loader.exec_module(p)
+pipeline = p
 
 
 class PipelineTest(unittest.TestCase):
@@ -161,5 +162,32 @@ class PipelineTest(unittest.TestCase):
     def test_nonfinite_numbers_rejected(self):
         f=self.dir/'bad.json';f.write_text('{"x":NaN}')
         with self.assertRaises(ValueError):p.read_json(f)
+
+
+class AssessmentTest(unittest.TestCase):
+    def test_quality_score_is_relative_and_original_unchanged(self):
+        from PIL import ImageFilter
+        import numpy as np
+        with tempfile.TemporaryDirectory() as d:
+            p=Path(d)
+            # Synthetic checker used exclusively as a numeric diagnostic fixture.
+            pixels=np.indices((128,128)).sum(axis=0)//8%2*255
+            im=Image.fromarray(pixels.astype('uint8'));im.save(p/'sharp.jpg')
+            im.filter(ImageFilter.GaussianBlur(4)).save(p/'soft.jpg')
+            before=(p/'sharp.jpg').read_bytes()
+            a=pipeline.image_quality(p/'sharp.jpg');b=pipeline.image_quality(p/'soft.jpg')
+            self.assertGreater(a['laplacianVariance'],b['laplacianVariance'])
+            self.assertEqual((p/'sharp.jpg').read_bytes(),before)
+            self.assertEqual(a['originalPixels'],[128,128])
+    def test_camera_grouping_does_not_invent_overlap_or_gps_accuracy(self):
+        with tempfile.TemporaryDirectory() as d:
+            p=Path(d);source=p/'inventory.json'
+            meta={'Make':'DJI','Model':'synthetic','FocalLength':8.8,'DateTimeOriginal':'2026:10:16 10:00:00','GPSLatitude':45.82,'GPSLongitude':9.6}
+            source.write_text(json.dumps({'private':True,'files':[{'file':'1.jpg','metadata':meta,'width':4000,'height':3000}, {'file':'2.jpg','metadata':{**meta,'GPSLongitude':9.6001},'width':4000,'height':3000}, {'file':'raw.dng','metadata':{**meta,'GPSLatitude':999},'width':8000,'height':6000}]}))
+            out=pipeline.assess_inventory(source,p/'assessment.json')
+            self.assertEqual(len(out['groups']),2);self.assertEqual(out['gpsNumericCount'],2)
+            self.assertGreater(out['gpsConsecutiveDistancesMeters'][0],5)
+            self.assertFalse(out['overlapVerified']);self.assertFalse(out['readyForReconstruction'])
+            with self.assertRaises(FileExistsError):pipeline.assess_inventory(source,p/'assessment.json')
 
 if __name__ == '__main__': unittest.main()

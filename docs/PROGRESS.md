@@ -1,3 +1,21 @@
+# Missione 2 — ripresa e consolidamento, 16 ottobre 2026
+
+Verificati i commit già salvati sulla PR #4: `6151770` (pipeline), `722f674` (replay CI), `ff83f0f` (36 altezze DBGT). **CI dell’ultimo commit `ff83f0f` tutta verde**, non soltanto quella precedente: [run 38866727073](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38866727073), 48 test TypeScript, 16 Python, 37 prove browser passate e 14 esclusioni per profilo. [Tempi reali dai log](research/ci-ff83f0f.json): build 21,3 s, replay 193,6 s, desktop UI 351,6 s, WebKit 202,1 s, touch 288,6 s. Nessuna nuova regressione del timeout.
+
+Salvato il lavoro locale rimasto dalla sessione precedente, dopo nuove verifiche:
+
+- Inventario privato arricchito con metadati DJI, diagnostica relativa nitidezza/esposizione e comando `assess` per gruppi camera/focale/data/dimensioni. GPS non usato per dichiarare sovrapposizione o accuratezza; nessuna foto ricevuta.
+- Filtro anisotropico fotografico limitato alle capacità GPU e al preset (2/4/8), mipmap esplicite, cancellazione della decodifica quando la tessera non serve. Strato foto ancora disattivato.
+- [81 campioni DTM5 e decisione sul datum](research/DTM-COMPARISON.md): scarto medio −3,979 m, RMSE differenze 7,957 m; terreno preservato. TINITALY documentato MSL, realizzazione verticale locale non ancora dimostrata compatibile.
+- [Screenshot autentici e misure](reality-captures/README.md), stessa camera PR #3 / DBGT: 122 draw call e 209.686 triangoli in entrambi; cambiamento modesto alle altezze, nessuna superficie fotografica nuova.
+- [Roadmap separata dei suggerimenti di Bruno](BRUNO-ROADMAP.md), nessuna modifica al gameplay.
+
+Verifica locale ripetuta: **49 test TypeScript, 18 Python, typecheck e build superati; 2 test touch del caricatore fotografico passati in 19,2 s**. Chromium 153/Linux/SwiftShader; pattern diagnostici nei test, non fotografie. WebKit/iPhone fisico non eseguiti localmente. La CI di questo incremento sarà riportata separatamente.
+
+Punto di ripresa: classificare analiticamente i 439 volumi DBGT non importati, correggere eventuali difetti dimostrabili di aderenza delle strade al terreno e completare gli strumenti privati per il primo lotto di Bruno. Nessuna estensione geografica o sostituzione del DTM approvata dai dati finora raccolti. Main, PR #2/#3, fisica e anteprime intatti.
+
+---
+
 # Reality Engine — 16 ottobre 2026
 
 Primo incremento sulla PR #4: [diagnosi CI e verifiche](REALITY-CI.md). Artifact e log esaminati: il replay avanzava verso l’ottavo checkpoint ma il rendering software con screencast superava il budget. Ottimizzato esclusivamente il test, separati i replay dai controlli desktop UI senza eliminare verifiche o aumentare timeout. Due replay locali passati, 13 test Python e typecheck passati. Correzione della quarta banda GeoTIFF salvata insieme.

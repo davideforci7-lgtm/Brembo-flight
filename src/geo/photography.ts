@@ -24,6 +24,10 @@ export const PHOTO_BUDGETS = {
   balanced: { tiles: 12, pixels: 1024, radius: 700 },
   high: { tiles: 16, pixels: 1024, radius: 1000 },
 } as const;
+export function photoAnisotropy(preset: Preset, supported: number) {
+  const cap = preset === 'eco' ? 2 : preset === 'balanced' ? 4 : 8;
+  return Math.max(1, Math.min(cap, Number.isFinite(supported) ? supported : 1));
+}
 export const textureBytes = (pixels: number) => Math.ceil(pixels * pixels * 4 * 4 / 3);
 export function assetPath(path: string) {
   // Only packaged assets; no third-party image endpoints or path traversal.
@@ -113,10 +117,18 @@ async function fetchTexture(url: string, level: PhotoLevel, signal: AbortSignal)
   const img = new Image();
   try {
     img.src = objectURL;
-    await img.decode();
+    await new Promise<void>((resolve, reject) => {
+      const abort = () => { img.src = ''; reject(new Error('Foto annullata')); };
+      if (signal.aborted) { abort(); return; }
+      signal.addEventListener('abort', abort, { once: true });
+      img.decode().then(resolve, reject).finally(() => signal.removeEventListener('abort', abort));
+    });
     if (signal.aborted || img.width !== level.pixels || img.height !== level.pixels) throw new Error("Foto annullata/dimensioni inattese");
     const texture = new THREE.Texture(img);
     texture.colorSpace = THREE.SRGBColorSpace;
+    texture.generateMipmaps = true;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.magFilter = THREE.LinearFilter;
     texture.needsUpdate = true;
     return texture;
   } finally { URL.revokeObjectURL(objectURL); }
@@ -133,7 +145,7 @@ export class PhotoTerrain {
   private disposed = false;
   private status = "disabled";
   private errors = 0;
-  constructor(private scene: THREE.Scene, private terrain: TerrainProvider, sector: SectorManifest) {
+  constructor(private scene: THREE.Scene, private terrain: TerrainProvider, sector: SectorManifest, private maxAnisotropy = 1) {
     const path = sector.photoManifestURL;
     if (!path) return;
     this.status = "loading";
@@ -158,7 +170,13 @@ export class PhotoTerrain {
     const candidates = wantedPhotos(this.manifest, position, preset);
     const key = (tile: PhotoTile, level: PhotoLevel) => `${tile.id}@${level.pixels}`;
     this.wanted = new Set(candidates.map(c => key(c.tile, c.level)));
-    for (const [id, mesh] of this.residents) if (!this.wanted.has(id)) { this.release(mesh); this.residents.delete(id); }
+    for (const [id, mesh] of this.residents) {
+      if (!this.wanted.has(id)) { this.release(mesh); this.residents.delete(id); }
+      else if (mesh.material.map) {
+        const a = photoAnisotropy(preset, this.maxAnisotropy);
+        if (mesh.material.map.anisotropy !== a) { mesh.material.map.anisotropy = a; mesh.material.map.needsUpdate = true; }
+      }
+    }
     for (const [id, controller] of this.pending) if (!this.wanted.has(id)) controller.abort();
     for (const id of this.failed.keys()) if (!this.wanted.has(id)) this.failed.delete(id);
     for (const { tile, level } of candidates) {
@@ -170,6 +188,7 @@ export class PhotoTerrain {
       const timeout = setTimeout(() => controller.abort(), 8000);
       void fetchTexture(this.baseURL + level.url, level, controller.signal).then(texture => {
         if (this.disposed || controller.signal.aborted || !this.wanted.has(id)) { texture.dispose(); return; }
+        texture.anisotropy = photoAnisotropy(preset, this.maxAnisotropy);
         const material = new THREE.MeshBasicMaterial({ map: texture, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1, depthWrite: false });
         const mesh = new THREE.Mesh(photoGeometry(tile, this.terrain), material);
         mesh.userData.photoPixels = level.pixels;
