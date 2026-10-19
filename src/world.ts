@@ -14,6 +14,8 @@ import { type Checkpoint } from "./core/course";
 import { clamp, seededRandom } from "./core/math";
 
 import { PhotoTerrain } from "./geo/photography";
+import { LandcoverSurface } from "./geo/landcover";
+import { SUN_DIRECTION, SHADOW_SPAN, SHADOW_RESOLUTION, snapShadowTarget } from "./core/sunlight";
 import { SectorStreamer } from "./geo/streamer";
 import type { Sector } from "./geo/sector";
 
@@ -33,6 +35,7 @@ export class FlightWorld {
   private water?: THREE.Mesh;
   readonly streamer?: SectorStreamer;
   readonly photography?: PhotoTerrain;
+  readonly landcover?: LandcoverSurface;
   private sun = new THREE.DirectionalLight("#ffe2b7", 2.4);
   private waterTime = { value: 0 };
   readonly graphics = new GraphicsGovernor(
@@ -59,14 +62,15 @@ export class FlightWorld {
     });
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.05;
-    this.scene.background = new THREE.Color("#b9cdd0");
-    this.scene.fog = new THREE.FogExp2("#b9cdd0", sector ? 0.00058 : 0.00165);
+    this.renderer.toneMappingExposure = sector ? 1.0 : 1.05;
+    this.scene.background = new THREE.Color(sector ? "#c8d5e0" : "#b9cdd0");
+    this.scene.fog = new THREE.FogExp2(sector ? "#c8d5e0" : "#b9cdd0", sector ? 0.00040 : 0.00165);
     if (sector) {
       this.camera.far = 7000;
       this.camera.updateProjectionMatrix();
     }
-    this.scene.add(new THREE.HemisphereLight("#eaf6f2", "#7d8260", 1.8));
+    this.scene.add(new THREE.HemisphereLight(sector ? "#dce8f5" : "#eaf6f2", sector ? "#716857" : "#7d8260", sector ? 1.35 : 1.8));
+    if (sector) { this.sun.color.set("#fff1dc"); this.sun.intensity = 3; }
     this.sun.position.set(-240, 360, -170);
     this.sun.shadow.mapSize.set(1024, 1024);
     Object.assign(this.sun.shadow.camera, {
@@ -78,6 +82,17 @@ export class FlightWorld {
       far: 250,
     });
     this.sun.shadow.bias = -0.0008;
+    if (sector) {
+      this.sun.shadow.mapSize.set(SHADOW_RESOLUTION, SHADOW_RESOLUTION);
+      Object.assign(this.sun.shadow.camera, {
+        left: -SHADOW_SPAN / 2, right: SHADOW_SPAN / 2,
+        top: SHADOW_SPAN / 2, bottom: -SHADOW_SPAN / 2, near: 1, far: 1300,
+      });
+      this.sun.shadow.camera.updateProjectionMatrix();
+      this.sun.shadow.bias = -0.00004;
+      this.sun.shadow.normalBias = .35;
+      this.landcover = new LandcoverSurface(this.renderer.capabilities.getMaxAnisotropy());
+    }
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.scene.add(this.sun, this.sun.target);
     this.addSky();
@@ -164,6 +179,8 @@ export class FlightWorld {
       triangles: this.renderer.info.render.triangles,
       streaming: this.streamer?.stats,
       photography: this.photography?.stats,
+      landcover: this.landcover?.stats,
+      shadowMapSize: this.renderer.shadowMap.enabled ? this.sun.shadow.mapSize.x : 0,
     };
   }
   toggleCamera() {
@@ -176,6 +193,8 @@ export class FlightWorld {
   render(flight: FlightSimulation, dt: number) {
     if (this.graphics.observe(dt, flight.status === "flying"))
       this.applyPreset();
+    // First render occurs after saved settings are applied: load only its LOD.
+    this.landcover?.setPreset(this.graphics.preset);
     this.time += Math.min(dt, 0.1);
     this.streamer?.update(flight.position, this.time, this.graphics.preset);
     this.photography?.update(flight.position, this.time, this.graphics.preset);
@@ -282,8 +301,16 @@ export class FlightWorld {
       (this.water.material as THREE.MeshStandardMaterial).roughness =
         0.39 + Math.sin(this.time * 0.4) * 0.025;
     this.waterTime.value = this.time;
-    this.sun.position.set(p.x - 60, p.y + 90, p.z - 40);
-    this.sun.target.position.set(p.x, p.y, p.z);
+    if (this.sector) {
+      // Cover the visible ground ahead, rather than a 36 m box around an airborne drone.
+      const x = p.x - Math.sin(flight.yaw) * 100, z = p.z - Math.cos(flight.yaw) * 100;
+      const target = snapShadowTarget(new THREE.Vector3(x, this.terrain.heightAt(x, z) + 20, z));
+      this.sun.target.position.copy(target);
+      this.sun.position.copy(target).addScaledVector(SUN_DIRECTION, 650);
+    } else {
+      this.sun.position.set(p.x - 60, p.y + 90, p.z - 40);
+      this.sun.target.position.set(p.x, p.y, p.z);
+    }
     this.renderer.render(this.scene, this.camera);
   }
   projectTarget(position: { x: number; y: number; z: number }) {
@@ -316,6 +343,12 @@ export class FlightWorld {
       new THREE.Float32BufferAttribute(verts, 3),
     );
     geometry.setIndex(indices);
+    if (this.sector) {
+      const uv: number[] = [];
+      for (let z = 0; z <= n; z++)
+        for (let x = 0; x <= n; x++) uv.push(x / n, 1 - z / n);
+      geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+    }
     // Keep the collision triangles and elevation grid; smooth only their lighting.
     geometry.computeVertexNormals();
     const pos = geometry.attributes.position,
@@ -354,7 +387,7 @@ export class FlightWorld {
     geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
     const mesh = new THREE.Mesh(
       geometry,
-      new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }),
+      this.landcover?.material ?? new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }),
     );
     mesh.receiveShadow = true;
     this.scene.add(mesh);
@@ -439,10 +472,19 @@ export class FlightWorld {
       new THREE.ShaderMaterial({
         side: THREE.BackSide,
         depthWrite: false,
+        uniforms: {
+          horizon: { value: new THREE.Color(this.sector ? "#d4dfe6" : "#dbd9bf") },
+          zenith: { value: new THREE.Color(this.sector ? "#719fc5" : "#5991a6") },
+        },
         vertexShader:
           "varying vec3 vPosition; void main(){vPosition=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}",
-        fragmentShader:
-          "varying vec3 vPosition; void main(){float h=normalize(vPosition).y; vec3 c=mix(vec3(0.86,0.85,0.75),vec3(0.35,0.57,0.65),smoothstep(-0.1,0.9,h)); gl_FragColor=vec4(c,1.0);}",
+        fragmentShader: this.sector ?
+          `varying vec3 vPosition; uniform vec3 horizon; uniform vec3 zenith;
+          void main(){float h=normalize(vPosition).y;
+          gl_FragColor=vec4(mix(horizon,zenith,smoothstep(-0.1,0.9,h)),1.0);
+          #include <tonemapping_fragment>
+          #include <colorspace_fragment>
+          }` : "varying vec3 vPosition; void main(){float h=normalize(vPosition).y; vec3 c=mix(vec3(0.86,0.85,0.75),vec3(0.35,0.57,0.65),smoothstep(-0.1,0.9,h)); gl_FragColor=vec4(c,1.0);}",
       }),
     );
     this.scene.add(sky);
@@ -450,7 +492,8 @@ export class FlightWorld {
       new THREE.SphereGeometry(31, 20, 12),
       new THREE.MeshBasicMaterial({ color: "#fff1cb", fog: false }),
     );
-    disk.position.set(-620, 350, -1400);
+    if (this.sector) disk.position.copy(SUN_DIRECTION).multiplyScalar(4500);
+    else disk.position.set(-620, 350, -1400);
     this.scene.add(disk);
   }
   private addDistantMountains() {

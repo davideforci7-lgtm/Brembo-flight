@@ -1,3 +1,18 @@
+# Missione 3 — qualità visiva senza fotografie private
+
+19 ottobre 2026. Ramo separato `feat/mission3-visual-fidelity`, base esatta `ef181b847ac3182d0464176918a9a628b7a2df6c` della PR #4. Prima di iniziare verificata [CI 38955893450](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38955893450): tutti i sei job superati. Nessuna Missione 3 precedente trovata. La build base è identica a `2049834`; `ef181b8` aggiunge solo documentazione.
+
+Tre interventi implementati:
+1. **Terreno:** mappa cartografica da 182 poligoni OSM già archiviati, con fori, orientamento nord e sovrapposizioni deterministiche. 1024/2048 pixel, bordi filtrati e mipmap/anisotropia. Sostituisce l'interpolazione dei colori sulla griglia di 20 m senza cambiare quote o collisioni. È una rappresentazione della copertura del suolo, NON una ortofoto. Licenza/attribuzione/hash in `public/geo/brembilla-centro/landcover-source.json`.
+2. **Edifici e materiali:** normali delle pareti coerenti anche nei cortili, coordinate locali lungo ogni parete, finestre illustrative filtrate con derivate e attenuate sotto il pixel. Toni meno saturi, lieve ombreggiatura alla base. Nessuna modifica a sagome/altezze/tetti o ai 36 valori DBGT; colori e finestre non sono misurati.
+3. **Luce e ombre:** luce diurna e cielo coerenti nella gestione del colore; ombre reali delle geometrie di edifici su suolo/strade nel preset Alto, area 640 m invece del vecchio riquadro 36 m, stabilizzata sulla griglia della mappa delle ombre. Eco/Bilanciato conservano l'assenza del passaggio ombre e i precedenti limiti di pixel.
+
+**Verifica intermedia:** 56 test TypeScript + 25 Python, build/typecheck superati. Screenshot preliminari autentici alla stessa camera mostrano ombre e materiali più leggibili. Verifiche browser, confronto definitivo e CI del nuovo ramo da completare: non ancora dichiarati verdi. Nessuna nuova anteprima. Nessuna modifica a main, PR precedenti, fisica/input/checkpoint, terreno altimetrico o link Bruno.
+
+**Punto di ripresa:** concludere le prove touch incluse LOD/fallback; catturare PR #4 e Missione 3 dalla stessa camera in Alto e in Eco 375×629; salvare PR separata con base `feat/photographic-pipeline`; verificare tutti i job dell'ultimo SHA. Foto, colori reali delle case e tetti architettonicamente fedeli restano dipendenti da nuovi dati.
+
+---
+
 # Missione 2 — chiusura verificata e anteprima separata
 
 16 ottobre 2026. **Codice verificato: `204983410ff6bb911690cc6c79de625140f1f5f2`.** [GitHub Actions](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38904148835) conclusa con tutti i sei job verdi; nessuna correzione di codice necessaria e nessun test rimosso. Le sezioni successive conservano lo storico degli incrementi, comprese le verifiche allora ancora in corso.

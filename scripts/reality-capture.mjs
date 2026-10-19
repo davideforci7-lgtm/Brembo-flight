@@ -6,6 +6,9 @@ import { resolve } from 'node:path';
 import { spawn } from 'node:child_process';
 const out=resolve(process.argv[2]||'docs/reality-captures');
 const urls=[process.argv[3]||'http://127.0.0.1:4174/Brembo-flight/',process.argv[4]||'http://127.0.0.1:4173/Brembo-flight/'];
+const labels=(process.env.BREMBO_CAPTURE_LABELS||'pr3,reality-engine').split(',');
+const preset=process.env.BREMBO_CAPTURE_PRESET||'high';
+const viewport=process.env.BREMBO_CAPTURE_MOBILE ? {width:375,height:629} : {width:1280,height:720};
 await mkdir(out,{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.BREMBO_CHROMIUM_EXECUTABLE||undefined,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--no-zygote','--disable-dev-shm-usage']});
 const reports=[];
@@ -23,11 +26,12 @@ if(process.env.BREMBO_BASELINE_DIR){
 }
 try{
  for(const [i,url] of urls.entries()){
-  const label=i?'reality-engine':'pr3';
-  const context=await browser.newContext({viewport:{width:1280,height:720},deviceScaleFactor:1});
+  const label=labels[i];
+  const context=await browser.newContext({viewport,deviceScaleFactor:process.env.BREMBO_CAPTURE_MOBILE?3:1});
   const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.addInitScript(()=>{
-   localStorage.setItem('brembo-settings-v2',JSON.stringify({quality:'high',muted:true}));
+  page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});
+  await page.addInitScript(({preset})=>{
+   localStorage.setItem('brembo-settings-v2',JSON.stringify({quality:preset,muted:true}));
    const capture=window.__realityCapture={frames:0,frozen:false,viewMatrix:[],projectionMatrix:[]};
    const proto=WebGL2RenderingContext.prototype, names=new WeakMap();
    const get=proto.getUniformLocation,set=proto.uniformMatrix4fv;
@@ -45,7 +49,7 @@ try{
     callback(stamp);
     if(capture.frames===100)capture.frozen=true;
    });
-  });
+  },{preset});
   await page.goto(url);
   await page.locator('#start-button').waitFor({timeout:60000});
   const readyMs=await page.evaluate(()=>performance.now());

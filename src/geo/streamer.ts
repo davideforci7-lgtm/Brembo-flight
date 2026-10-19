@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import { surfaceGeometry } from "./surfaces";
+import { buildingWalls, configureFacade } from "./building-visuals";
 import { withSurveyedHeight } from "./building-heights";
 import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
@@ -41,22 +42,22 @@ export class SectorStreamer {
   private materials = {
     walls: new THREE.MeshStandardMaterial({ color: "#c6bba5", roughness: 1 }),
     roofs: new THREE.MeshStandardMaterial({
-      color: "#986548",
+      color: "#806959",
       roughness: 1,
       side: THREE.DoubleSide,
     }),
     church: new THREE.MeshStandardMaterial({ color: "#dacdb4", roughness: 1 }),
     road: new THREE.MeshStandardMaterial({
-      color: "#737a72",
+      color: "#666968",
       roughness: 1,
       side: THREE.DoubleSide,
       polygonOffset: true,
       polygonOffsetFactor: -1,
     }),
     water: new THREE.MeshStandardMaterial({
-      color: "#4d9fa5",
-      roughness: 0.38,
-      metalness: 0.18,
+      color: "#526f77",
+      roughness: 0.55,
+      metalness: 0.02,
       side: THREE.DoubleSide,
     }),
   };
@@ -64,29 +65,10 @@ export class SectorStreamer {
     private scene: THREE.Scene,
     readonly sector: Sector,
   ) {
-    // Original procedural facade pattern: illustrative, no photographed facades claimed.
-    for (const material of [this.materials.walls, this.materials.church]) {
-      material.onBeforeCompile = (shader) => {
-        shader.vertexShader =
-          "varying vec3 vFacade; varying vec3 vFacadeNormal;\n" +
-          shader.vertexShader.replace(
-            "#include <begin_vertex>",
-            "#include <begin_vertex>\nvFacade=position; vFacadeNormal=normal;",
-          );
-        shader.fragmentShader =
-          "varying vec3 vFacade; varying vec3 vFacadeNormal;\n" +
-          shader.fragmentShader.replace(
-            "#include <color_fragment>",
-            `#include <color_fragment>
-          float horizontal = abs(vFacadeNormal.x) > abs(vFacadeNormal.z) ? vFacade.z : vFacade.x;
-          vec2 pane=fract(vec2(horizontal/3.6,vFacade.y/3.2));
-          float windowMask=step(.25,pane.x)*step(pane.x,.57)*step(.31,pane.y)*step(pane.y,.69);
-          float fade=1.0-smoothstep(150.0,450.0,length(vViewPosition));
-          diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.24,.32,.31),windowMask*fade*.7);`,
-          );
-      };
-    }
+    for (const material of [this.materials.walls, this.materials.church])
+      configureFacade(material);
   }
+
   get readyNearPlayer() {
     return this.sector.manifest.tiles
       .filter((t) => distanceToTile(t, this.position) < 180)
@@ -176,36 +158,7 @@ export class SectorStreamer {
       roof.rotateX(-Math.PI / 2);
       roof.translate(0, b.base + b.height, 0);
       roofs.push(roof);
-      const vertices: number[] = [],
-        indices: number[] = [];
-      for (const ring of [b.points, ...b.holes])
-        for (let i = 0; i < ring.length; i++) {
-          const a = ring[i],
-            c = ring[(i + 1) % ring.length],
-            n = vertices.length / 3;
-          vertices.push(
-            a[0],
-            this.sector.terrain.heightAt(...a) - 0.5,
-            a[1],
-            c[0],
-            this.sector.terrain.heightAt(...c) - 0.5,
-            c[1],
-            a[0],
-            b.base + b.height,
-            a[1],
-            c[0],
-            b.base + b.height,
-            c[1],
-          );
-          indices.push(n, n + 1, n + 2, n + 1, n + 3, n + 2);
-        }
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute(
-        "position",
-        new THREE.Float32BufferAttribute(vertices, 3),
-      );
-      geo.setIndex(indices);
-      geo.computeVertexNormals();
+      const geo = buildingWalls(b, this.sector.terrain);
       (b.kind === "church" ? church : walls).push(geo);
     }
     const addMerged = (
@@ -218,20 +171,22 @@ export class SectorStreamer {
       if (merged) {
         const mesh = new THREE.Mesh(merged, mat);
         mesh.receiveShadow = true;
+        mesh.castShadow = true;
         group.add(mesh);
       }
     };
-    // Double-sided walls account for clockwise and counterclockwise source rings.
+    // Preserve visibility from courtyards/inside while normals are consistently outward.
     this.materials.walls.side = this.materials.church.side = THREE.DoubleSide;
     addMerged(walls, this.materials.walls);
     addMerged(roofs, this.materials.roofs);
     addMerged(church, this.materials.church);
     for (const kind of ["road", "water"] as const) {
       const lines = data.lines.filter((l) => l.kind === kind);
-      if (lines.length)
-        group.add(
-          new THREE.Mesh(surfaceGeometry(lines, this.sector.terrain), this.materials[kind]),
-        );
+      if (lines.length) {
+        const mesh = new THREE.Mesh(surfaceGeometry(lines, this.sector.terrain), this.materials[kind]);
+        mesh.receiveShadow = true;
+        group.add(mesh);
+      }
     }
     return group;
   }
