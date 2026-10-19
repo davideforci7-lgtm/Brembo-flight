@@ -1,0 +1,133 @@
+{
+  "kind": "cartographic-landcover-not-photography",
+  "source": "Archived OpenStreetMap polygons, retrieved 2026-10-14",
+  "attribution": "\u00a9 OpenStreetMap contributors",
+  "license": "ODbL-1.0",
+  "licenseURL": "https://opendatacommons.org/licenses/odbl/1-0/",
+  "reference": {
+    "projectedCRS": "EPSG:32632",
+    "verticalDatum": "TINITALY source elevations; source does not identify a single vertical datum in the downloaded GeoTIFF. No mixing with ellipsoidal/GNSS heights.",
+    "originEasting": 546280,
+    "originNorthing": 5074440,
+    "originElevation": 400
+  },
+  "extentLocalXZ": [
+    -2000,
+    -2000,
+    2000,
+    2000
+  ],
+  "rowZero": "north / negative z",
+  "polygons": 182,
+  "paletteSRGB": [
+    [
+      119,
+      128,
+      102
+    ],
+    [
+      71,
+      98,
+      68
+    ],
+    [
+      137,
+      149,
+      108
+    ],
+    [
+      167,
+      161,
+      146
+    ]
+  ],
+  "limitations": [
+    "Cartographic colours, not photographs or surveyed materials.",
+    "Pixel spacing is display resolution, not source accuracy.",
+    "No changes to terrain elevations, trees or collisions."
+  ],
+  "inputSHA256": {
+    "public/geo/brembilla-centro/tiles/0-0.json": "fc20e89fcb112d3d97eb3c0a99733d53275767026f0eae9d40bc25bf8f813836",
+    "public/geo/brembilla-centro/tiles/0-1.json": "bbd5a8c0bc0b3750b151327e1b0dd29cd0a554aab10dd4197f9548fb48d93a1f",
+    "public/geo/brembilla-centro/tiles/0-2.json": "eba0ca16d5a3437834738b8706bdfc9a0d5d8f6f328c10772d9b94a404210a24",
+    "public/geo/brembilla-centro/tiles/0-3.json": "521e5807a7934e9fb93a421fe47c2dfb8fb4bb4510f749ea94249c097d41d74c",
+    "public/geo/brembilla-centro/tiles/0-4.json": "4e3eebb0f4858746c0353d0cc5f4d807c0d16f8892449b6bb59fb9dbe6fddea6",
+    "public/geo/brembilla-centro/tiles/0-5.json": "8ff57fe63fa8db0df867100b1c9373ec33051b0751ce5d13001d090eee8846a3",
+    "public/geo/brembilla-centro/tiles/0-6.json": "61a0072cefa56034fd4007f1d1a31f9d249e27efe228a499d99525a4f7793c0e",
+    "public/geo/brembilla-centro/tiles/0-7.json": "586cf13c991abf1073cec4d8e2d0bff88747de26a71c1db29ee7ae7e72f5613a",
+    "public/geo/brembilla-centro/tiles/1-0.json": "e8f70869a3fa93019ede3c49976ab84ab93e0cf6e6d353ce7cae4fe5b4cfd986",
+    "public/geo/brembilla-centro/tiles/1-1.json": "5feb1dc4785e56f07409d5ec931683337854f109324370fc45fb17fd062dd278",
+    "public/geo/brembilla-centro/tiles/1-2.json": "808d324e028a8bfd914560abd44d311cfd0dab669355add8595355825f3c9768",
+    "public/geo/brembilla-centro/tiles/1-3.json": "b590b3cdcf5794571e1dd983bb233f9bae4a1587319803ea7c6190952aa8eada",
+    "public/geo/brembilla-centro/tiles/1-4.json": "0931c9368823e2185d6d2f2ed9e1b9cbd7e8f7e2df7bee9d41bd61992c92554f",
+    "public/geo/brembilla-centro/tiles/1-5.json": "87f5019b88e26a112f8aec3c4e1ee911e150a3dcb288e66ac3c12b5ca40d21b3",
+    "public/geo/brembilla-centro/tiles/1-6.json": "d465dd9448bc80791436c1ae10eac315886eaef6b565c4252890dd74f3b4d706",
+    "public/geo/brembilla-centro/tiles/1-7.json": "dff7a5c83d2655fad26219199d2ef0d1b8bd779fa4b0dcb842ed325854282dd2",
+    "public/geo/brembilla-centro/tiles/2-0.json": "9eb525a31411b123be7e38fe4473c7d8ce189554192b04a779df93100dcce9d8",
+    "public/geo/brembilla-centro/tiles/2-1.json": "1759957cb41ea037466f67397c7c31b0b2a54542ef107a2151b71ae0be47f7d0",
+    "public/geo/brembilla-centro/tiles/2-2.json": "c96a072c603851063ed8744dfafeae43f65841908f53a2d2c7e02ce22b84622d",
+    "public/geo/brembilla-centro/tiles/2-3.json": "59ca3d936ad603ad430e1d82b8424fb59737521a04e4fea042b30913ffa60448",
+    "public/geo/brembilla-centro/tiles/2-4.json": "557f09caab87cba4281fb21a5a59fbb2fcdc5020095179a5ef253053c00189a9",
+    "public/geo/brembilla-centro/tiles/2-5.json": "467e6c9dc8d55bb60f564de0b648636295ee9a8d085360e03cca3d6845646ab5",
+    "public/geo/brembilla-centro/tiles/2-6.json": "61b6f42e16d83636fd3ff27e24b81348f37f63603f683cc432e57c22b0a9a828",
+    "public/geo/brembilla-centro/tiles/2-7.json": "ffe106dbe8ed7abe1cadbd27a1b8cfffa7bf61095bb4a1f221bc61941ecf5068",
+    "public/geo/brembilla-centro/tiles/3-0.json": "f9fb730f2c1027e59dcc69142b8c277a2b5ddd5dd55ee4e9bc725a815d5ca531",
+    "public/geo/brembilla-centro/tiles/3-1.json": "f1f84a92f3beb176a6c15d9e513aa20ef92d7e0b040d4b09a35b476019091412",
+    "public/geo/brembilla-centro/tiles/3-2.json": "d03549daeb73e977480ed2e9eb109cca29229eb04cb51642eafcbf40cb587df7",
+    "public/geo/brembilla-centro/tiles/3-3.json": "8684603ce87e835c07f6fbc0137787f68043f8c62d8e4db7b14c07696cc9e21b",
+    "public/geo/brembilla-centro/tiles/3-4.json": "2899e5cb7d9537c0ec6a8baac72f67200c5ebfa018a0aa9818ef3e4780f47495",
+    "public/geo/brembilla-centro/tiles/3-5.json": "771ecdcf8887bb36319779c6cf2a6d98749272b03c7ba40732ce852180cc190c",
+    "public/geo/brembilla-centro/tiles/3-6.json": "77d9fac9864f8b3d5c6aa074119af1177691c9bceedbf1b54b92b027061dc068",
+    "public/geo/brembilla-centro/tiles/3-7.json": "d89875af2ab7cb9dbfc9e716b3b20d6ab85473c3e131c4ab7ccba7e43bd02da4",
+    "public/geo/brembilla-centro/tiles/4-0.json": "0140d8844c409fe477d3f6899b2d5659085279708b8c7186984098511af12713",
+    "public/geo/brembilla-centro/tiles/4-1.json": "bf08d68434020af8b09c572d2469ec192ade6540ef4b25dc0888f9e299b85fb4",
+    "public/geo/brembilla-centro/tiles/4-2.json": "4e11e3e839074a1ec28331e0d1149d40c955b599001f1b65eac715752d7b0aa5",
+    "public/geo/brembilla-centro/tiles/4-3.json": "60b9987b60996e72eb17f803623090be88ba0f8f6bad5dfbb3cce08328e7317d",
+    "public/geo/brembilla-centro/tiles/4-4.json": "3d0441c92b3602a48e5ccbf438066ee693b393f1cc2a41a491278f71ec6fd3d9",
+    "public/geo/brembilla-centro/tiles/4-5.json": "60ce24af17b14faa55e6b63176c65dc85ddee414e6f8f9e0409e4f9ae8986bee",
+    "public/geo/brembilla-centro/tiles/4-6.json": "437ce703d20f8f9611de49563b3ebd700c620af36c13b7beb26f1859403cde07",
+    "public/geo/brembilla-centro/tiles/4-7.json": "7451e0554e7d631d76a59ff3e2579731b880d7a6d5d1759668fd6e5124a8a841",
+    "public/geo/brembilla-centro/tiles/5-0.json": "e7a1d9eddd00d6dcf5c73623993ab3f3625a822892074ff7da02bc6312f49014",
+    "public/geo/brembilla-centro/tiles/5-1.json": "73cf45425f4450e6092cb43d5aa5e0a737646311a3fb9751aad2bd3b1fd7b168",
+    "public/geo/brembilla-centro/tiles/5-2.json": "ff7e0e9c95e4205ff1dd8bb0513afa01436447501ebcd0537e07a9c941e934dc",
+    "public/geo/brembilla-centro/tiles/5-3.json": "95459a170f78be251da76f9efcf8d9b8c718677938fb678d3af222b620ec24ce",
+    "public/geo/brembilla-centro/tiles/5-4.json": "71437c7c6c976518787e85a1966723875a37c5a51aae92a76c6e4dfb9557443f",
+    "public/geo/brembilla-centro/tiles/5-5.json": "2eb15f1d1cd42412f3b841aa1776011cb3ab302936ade8f6c9f90ef88329553a",
+    "public/geo/brembilla-centro/tiles/5-6.json": "7229d8632fa02e6dc86251926923865fb92a855e2087cc626d1a6cae2a0a4b0e",
+    "public/geo/brembilla-centro/tiles/5-7.json": "59af4361d9aea40059bcb7b6216bfc856de001d7a40276bbd62f8e910fa9402a",
+    "public/geo/brembilla-centro/tiles/6-0.json": "c80fd450791e99431b8f2baf9d7947bdb630ddf81ed1e2064288499568cced51",
+    "public/geo/brembilla-centro/tiles/6-1.json": "9de9a676a3928ede7e45b1663e62bf2c2ec22178f5b666647a8314027a93c2de",
+    "public/geo/brembilla-centro/tiles/6-2.json": "b43d11bff36b7a61a9f614d99878e6ec2bceabcb7ccf5fdfd66775bc6a12d585",
+    "public/geo/brembilla-centro/tiles/6-3.json": "cd0d38ec51939935123ea6295a3e6c5b5ad781e420a0028d9f3b9c96287a31b5",
+    "public/geo/brembilla-centro/tiles/6-4.json": "f46503f515edcac9f466934004b187208e8310dc7f9d0fcf45e6cb8c3b122776",
+    "public/geo/brembilla-centro/tiles/6-5.json": "c1847194c03b92bc61e43c124a9b3090dd376e11029c503aabf143feb6e0fa65",
+    "public/geo/brembilla-centro/tiles/6-6.json": "0b1f34a1a100aef774e0383050d2e2f62f11eb4dc551b556496ba1bca725a509",
+    "public/geo/brembilla-centro/tiles/6-7.json": "19221c01c852f1eae3fbacec322045b2d46243153dbf4ff4e15229fe0a113314",
+    "public/geo/brembilla-centro/tiles/7-0.json": "fdf901024da5edb80640e4fa2c55b7c90b6260831db0b100841d98ebcfaf7340",
+    "public/geo/brembilla-centro/tiles/7-1.json": "cf3e61f178aee80e5e59aa7a83a197b8b242779c623d7f61dcbd07d2d0b6ef1c",
+    "public/geo/brembilla-centro/tiles/7-2.json": "1277ec5539f85caf5aaa21772f3304f0b70ee6a9c8392f096b664059713f9989",
+    "public/geo/brembilla-centro/tiles/7-3.json": "8dbccaa2cb53abda95372c6de1ff31ee7b61745f338ee98906b0f9c240b117dd",
+    "public/geo/brembilla-centro/tiles/7-4.json": "fd42d3eb0e837a40e677ba8d97f93aff44687868e2a786ffa995cf47c3850332",
+    "public/geo/brembilla-centro/tiles/7-5.json": "f6a673a3cfa74f5600ecb4e411e1d61f0bc0cfac5be5572b7440729ee2b11953",
+    "public/geo/brembilla-centro/tiles/7-6.json": "7a2a295bce3ecc5a6b8bfec7b2cf52b0ccc50ac61eb0bda380d953304b1eaa8c",
+    "public/geo/brembilla-centro/tiles/7-7.json": "18afc09d7a815d747fa8ca8595e18dda4ba53ea76f3dd80cb3cdee1a6a9cc555"
+  },
+  "outputs": [
+    {
+      "file": "landcover-1024.png",
+      "resolution": 1024,
+      "pixelSpacingMeters": 3.90625,
+      "bytes": 107971,
+      "rgba8MipBudgetBytes": 5592405,
+      "sha256": "68b522d657bcbd3c5d153b63be097823e11a33c0c3ca5c9fee54a3315eda0715"
+    },
+    {
+      "file": "landcover-2048.png",
+      "resolution": 2048,
+      "pixelSpacingMeters": 1.953125,
+      "bytes": 224984,
+      "rgba8MipBudgetBytes": 22369621,
+      "sha256": "983a41db639b7ef5fb80c4f902a94c3384ff3ef1f8ec2e8dfc03fd8c0989c7b5"
+    }
+  ]
+}
