@@ -1,3 +1,9 @@
+# Missione 4 — settore pilota in sviluppo
+
+31 ottobre 2026. Branch nuovo `feat/mission4-visual-pro-pilot`, derivato dalla PR #5 `a1b81e8`. Incrementi concreti su materiali del terreno, coperture/facciate e vegetazione con LOD. [Stato, fonti, limiti e punto di ripresa](MISSION4.md). Versioni precedenti intatte.
+
+---
+
 # Missione 3 — qualità visiva senza fotografie private
 
 19 ottobre 2026. Ramo separato `feat/mission3-visual-fidelity`, base esatta `ef181b847ac3182d0464176918a9a628b7a2df6c` della PR #4. Prima di iniziare verificata [CI 38955893450](https://github.com/davideforci7-lgtm/Brembo-flight/actions/runs/38955893450): tutti i sei job superati. Nessuna Missione 3 precedente trovata. La build base è identica a `2049834`; `ef181b8` aggiunge solo documentazione.

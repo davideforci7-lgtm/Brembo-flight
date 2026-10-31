@@ -27,22 +27,34 @@ if(process.env.BREMBO_BASELINE_DIR){
 try{
  for(const [i,url] of urls.entries()){
   const label=labels[i];
-  const context=await browser.newContext({viewport,deviceScaleFactor:process.env.BREMBO_CAPTURE_MOBILE?3:1});
+  const mobile=Boolean(process.env.BREMBO_CAPTURE_MOBILE);
+  const context=await browser.newContext({viewport,deviceScaleFactor:mobile?3:1,isMobile:mobile,hasTouch:mobile});
   const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
   page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});
   await page.addInitScript(({preset})=>{
    localStorage.setItem('brembo-settings-v2',JSON.stringify({quality:preset,muted:true}));
-   const capture=window.__realityCapture={frames:0,frozen:false,viewMatrix:[],projectionMatrix:[]};
-   const proto=WebGL2RenderingContext.prototype, names=new WeakMap();
+   const capture=window.__realityCapture={frames:0,frozen:false,viewMatrix:[],skyViewMatrix:[],projectionMatrix:[]};
+   const proto=WebGL2RenderingContext.prototype, names=new WeakMap(), skyShaders=new WeakSet(), skyPrograms=new WeakSet();
+   const source=proto.shaderSource, attach=proto.attachShader;
+   proto.shaderSource=function(shader,code){
+    if(code.includes('vPosition=position;gl_Position=projectionMatrix*modelViewMatrix'))skyShaders.add(shader);
+    return source.call(this,shader,code);
+   };
+   proto.attachShader=function(program,shader){if(skyShaders.has(shader))skyPrograms.add(program);return attach.call(this,program,shader);};
    const get=proto.getUniformLocation,set=proto.uniformMatrix4fv;
-   proto.getUniformLocation=function(p,n){const l=get.call(this,p,n);if(l)names.set(l,n);return l;};
-   proto.uniformMatrix4fv=function(l,t,v,...rest){const n=names.get(l);if(n==='viewMatrix'||n==='projectionMatrix')capture[n]=Array.from(v);return set.call(this,l,t,v,...rest);};
-   let axes=[0,0,0,0],stamp=performance.now();
+   // Eco shaders optimise out viewMatrix. The sky sphere is permanently at
+   // identity transform in both builds: its modelViewMatrix IS the view matrix.
+   // Identify that real GPU program, rather than relaxing the camera check.
+   proto.getUniformLocation=function(p,n){const l=get.call(this,p,n);if(l)names.set(l,skyPrograms.has(p)&&n==='modelViewMatrix'?'skyViewMatrix':n);return l;};
+   proto.uniformMatrix4fv=function(l,t,v,...rest){const n=names.get(l);if(n==='viewMatrix'||n==='skyViewMatrix'||n==='projectionMatrix')capture[n]=Array.from(v);return set.call(this,l,t,v,...rest);};
+   let axes=[0,0,0,0],stamp=0;
    Object.defineProperty(navigator,'getGamepads',{value:()=>[{id:'Capture standard pad',index:0,mapping:'standard',connected:true,axes,buttons:Array.from({length:17},()=>({pressed:false,value:0}))}]});
    const raf=requestAnimationFrame.bind(window);
    window.requestAnimationFrame=callback=>raf(()=>{
     if(capture.frozen)return;
-    stamp=Math.max(stamp+100,performance.now());
+    // Flight clamps its dt but camera easing uses raw dt. Mixing wall time
+    // into this clock gave different camera matrices on fast mobile captures.
+    stamp=stamp ? stamp+100 : performance.now();
     if(document.querySelector('#app')?.getAttribute('data-status')==='flying'){
      capture.frames++;axes=[0,0,0,capture.frames<=40?-.824:0];
     }
@@ -72,9 +84,12 @@ try{
   await context.close();
  }
  if(reports.some(r=>r.errors.length))throw Error('Page errors during capture');
- for(const matrix of ['viewMatrix','projectionMatrix']){
+ for(const matrix of ['skyViewMatrix','projectionMatrix']){
   const a=reports[0].capture[matrix],b=reports[1].capture[matrix];
-  if(a.length!==16||b.length!==16||a.some((v,i)=>Math.abs(v-b[i])>1e-5))throw Error('Camera mismatch: '+matrix);
+  if(a.length!==16||b.length!==16||a.some((v,i)=>Math.abs(v-b[i])>1e-5)) {
+    await writeFile(out+'/rejected-comparison.json',JSON.stringify({cameraMatched:false,reports},null,2)+'\n');
+    throw Error('Camera mismatch: '+matrix+' '+JSON.stringify(a.map((v,i)=>v-b[i])));
+  }
  }
  await writeFile(out+'/comparison.json',JSON.stringify({cameraMatched:true,reports},null,2)+'\n');
  console.log(JSON.stringify(reports.map(r=>({label:r.label,readyMs:r.readyMs,graphics:r.graphics,resourceBytes:r.capture.resources.reduce((a,b)=>a+b.bytes,0)})),null,2));

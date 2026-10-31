@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main, feat/first-playable-demo, feat/v0.2-multiplatform, feat/v1-brembilla-sector, feat/photographic-pipeline]
+    branches: [main, feat/first-playable-demo, feat/v0.2-multiplatform, feat/v1-brembilla-sector, feat/photographic-pipeline, feat/mission3-visual-fidelity]
   workflow_dispatch:
 
 permissions:
@@ -80,6 +80,22 @@ jobs:
       # retry must not consume the time available for unrelated checks.
       - run: npm run test:e2e -- --project=${{ matrix.project }} ${{ matrix.tests }}
         timeout-minutes: 11
+      - uses: actions/checkout@v4
+        if: matrix.suite == 'desktop-ui'
+        with:
+          ref: a1b81e8e387f6d0825dfa28f3bba52f1603ed712
+          path: mission3-baseline
+      - name: Compare the same camera against Mission 3
+        continue-on-error: true
+        if: matrix.suite == 'desktop-ui'
+        env:
+          BREMBO_BASELINE_DIR: ${{ github.workspace }}/mission3-baseline
+          BREMBO_CAPTURE_LABELS: mission3,mission4
+        run: |
+          ln -s "$GITHUB_WORKSPACE/node_modules" mission3-baseline/node_modules
+          npm run build --prefix mission3-baseline
+          node scripts/reality-capture.mjs test-results/mission4-desktop
+          BREMBO_CAPTURE_MOBILE=1 BREMBO_CAPTURE_PRESET=eco node scripts/reality-capture.mjs test-results/mission4-mobile
       - uses: actions/upload-artifact@v4
         if: always()
         with:
