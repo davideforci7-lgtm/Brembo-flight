@@ -553,7 +553,7 @@ export class FlightWorld {
         : new THREE.ConeGeometry(1, 1, 7),
       new THREE.MeshStandardMaterial({
         color: "#ffffff",
-        flatShading: true,
+        flatShading: !this.sector,
         roughness: 1,
       }),
       trees.length * 2,
@@ -574,15 +574,19 @@ export class FlightWorld {
       matrix.updateMatrix();
       trunks.setMatrixAt(i, matrix.matrix);
       for (let layer = 0; layer < 2; layer++) {
+        // Existing OSM-derived tree locations and collision envelopes unchanged.
+        const variation = this.sector ? rand() : .5;
+        matrix.rotation.y = this.sector ? variation*Math.PI*2 : 0;
         matrix.position.set(x, y + h * (layer ? 0.72 : 0.48), z);
         matrix.scale.set(
-          tree.radius * (layer ? 0.75 : 1),
+          tree.radius * (layer ? 0.75 : 1) * (this.sector ? .82+variation*.18 : 1),
           h * (this.sector ? (layer ? 0.28 : 0.35) : layer ? 0.56 : 0.65),
           tree.radius * (layer ? 0.75 : 1),
         );
         matrix.updateMatrix();
         crown.setMatrixAt(i * 2 + layer, matrix.matrix);
-        color.setHSL(0.36 + rand() * 0.04, 0.21, 0.2 + rand() * 0.13);
+        if (this.sector) color.setHSL(0.30 + rand() * 0.06, 0.19 + variation*.07, 0.23 + rand() * 0.10);
+        else color.setHSL(0.36 + rand() * 0.04, 0.21, 0.2 + rand() * 0.13);
         crown.setColorAt(i * 2 + layer, color);
       }
     });
