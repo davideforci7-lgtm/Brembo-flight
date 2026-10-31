@@ -22,6 +22,7 @@ test("cartographic LOD switches within budget and releases high detail on Eco", 
     const result = await graphics(page);
     expect(result.landcover.status).toBe("ready");
     expect(result.landcover.estimatedTextureBytes).toBeLessThanOrEqual(Math.ceil(resolution ** 2 * 16 / 3));
+    expect(result.landcover.detailTextureBytes).toBe(87382);
     expect(result.shadowMapSize).toBe(shadows);
   }
   await page.locator("#close-help").click();

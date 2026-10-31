@@ -2,6 +2,7 @@
 import { surfaceGeometry } from "./surfaces";
 import { buildingWalls, configureFacade } from "./building-visuals";
 import { withSurveyedHeight } from "./building-heights";
+import { configureRoof } from "./surface-detail";
 import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import {
@@ -65,6 +66,7 @@ export class SectorStreamer {
     private scene: THREE.Scene,
     readonly sector: Sector,
   ) {
+    configureRoof(this.materials.roofs);
     for (const material of [this.materials.walls, this.materials.church])
       configureFacade(material);
   }
@@ -157,6 +159,26 @@ export class SectorStreamer {
       const roof = new THREE.ShapeGeometry(shapeOf(b.points, b.holes));
       roof.rotateX(-Math.PI / 2);
       roof.translate(0, b.base + b.height, 0);
+      const positions = roof.getAttribute("position"), uv = roof.getAttribute("uv");
+      const cx = b.points.reduce((s,p) => s+p[0],0)/b.points.length;
+      const cz = b.points.reduce((s,p) => s+p[1],0)/b.points.length;
+      const pilot = Math.hypot(cx-198.9,cz-295.65)<300;
+      // Align the material with an actual footprint edge, not the world axes.
+      let edge = [1,0], length = 0;
+      b.points.forEach((p,i) => {
+        const q=b.points[(i+1)%b.points.length], dx=q[0]-p[0], dz=q[1]-p[1];
+        const l=Math.hypot(dx,dz);
+        if(l>length){length=l;edge=[dx/l,dz/l];}
+      });
+      let hash=0; for(const c of b.id) hash=(Math.imul(hash,31)+c.charCodeAt(0))>>>0;
+      const tint=new THREE.Color(pilot ? ["#806959","#786b60","#896d5c","#776c65"][hash%4] : "#806959");
+      const colors=[];
+      for(let i=0;i<positions.count;i++) {
+        const x=positions.getX(i)-cx,z=positions.getZ(i)-cz;
+        uv.setXY(i,pilot ? x*edge[0]+z*edge[1] : .16,pilot ? -x*edge[1]+z*edge[0] : .24);
+        colors.push(tint.r,tint.g,tint.b);
+      }
+      roof.setAttribute("color",new THREE.Float32BufferAttribute(colors,3));
       roofs.push(roof);
       const geo = buildingWalls(b, this.sector.terrain);
       (b.kind === "church" ? church : walls).push(geo);

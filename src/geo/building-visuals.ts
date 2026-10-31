@@ -45,13 +45,15 @@ export function buildingWalls(b: Building, terrain: TerrainProvider) {
 export function configureFacade(material: THREE.MeshStandardMaterial) {
   material.vertexColors = true;
   material.color.set("#ffffff");
-  material.customProgramCacheKey = () => "brembo-facade-filtered-v1";
+  material.customProgramCacheKey = () => "brembo-facade-filtered-v2";
   material.onBeforeCompile = shader => {
     shader.vertexShader = "attribute vec2 facade; varying vec2 vFacade;\n" + shader.vertexShader.replace(
       "#include <begin_vertex>", "#include <begin_vertex>\nvFacade=facade;");
     shader.fragmentShader = "varying vec2 vFacade;\n" + shader.fragmentShader.replace(
       "#include <color_fragment>", `#include <color_fragment>
-      vec2 cell = vFacade / vec2(3.6, 3.2);
+      // Stable family per facade tint: illustrative fenestration, never a survey.
+      float family = fract(vColor.r*31.7+vColor.g*17.3);
+      vec2 cell = vFacade / vec2(3.2+family*.8, 3.2);
       vec2 pane = fract(cell);
       vec2 footprint = max(fwidth(cell), vec2(0.001));
       vec2 aa = min(footprint, vec2(0.2));
@@ -61,6 +63,12 @@ export function configureFacade(material: THREE.MeshStandardMaterial) {
       float fade = (1.0-smoothstep(180.0,450.0,length(vViewPosition))) * detail;
       float mask = edges.x * edges.y * fade * smoothstep(.4,1.2,vFacade.y);
       diffuseColor.rgb = mix(diffuseColor.rgb, vec3(.10,.13,.14),mask*.65);
+      vec2 frameEdges = smoothstep(vec2(.24,.26)-aa,vec2(.24,.26)+aa,pane)
+        * (1.0-smoothstep(vec2(.62,.74)-aa,vec2(.62,.74)+aa,pane));
+      float frame = max(0.0,frameEdges.x*frameEdges.y-edges.x*edges.y)*fade;
+      diffuseColor.rgb = mix(diffuseColor.rgb,vec3(.44,.41,.35),frame*.45);
+      float sill=(1.0-smoothstep(.025,.025+aa.y,abs(pane.y-.27)))*frameEdges.x*fade;
+      diffuseColor.rgb += vec3(.035)*sill;
       diffuseColor.rgb *= mix(.82,1.0,smoothstep(0.0,3.0,vFacade.y));`);
   };
 }

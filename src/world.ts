@@ -15,6 +15,7 @@ import { clamp, seededRandom } from "./core/math";
 
 import { PhotoTerrain } from "./geo/photography";
 import { LandcoverSurface } from "./geo/landcover";
+import { SectorFoliage } from "./geo/foliage";
 import { SUN_DIRECTION, SHADOW_SPAN, SHADOW_RESOLUTION, snapShadowTarget } from "./core/sunlight";
 import { SectorStreamer } from "./geo/streamer";
 import type { Sector } from "./geo/sector";
@@ -36,6 +37,7 @@ export class FlightWorld {
   readonly streamer?: SectorStreamer;
   readonly photography?: PhotoTerrain;
   readonly landcover?: LandcoverSurface;
+  private foliage?: SectorFoliage;
   private sun = new THREE.DirectionalLight("#ffe2b7", 2.4);
   private waterTime = { value: 0 };
   readonly graphics = new GraphicsGovernor(
@@ -180,6 +182,7 @@ export class FlightWorld {
       streaming: this.streamer?.stats,
       photography: this.photography?.stats,
       landcover: this.landcover?.stats,
+      foliage: this.foliage?.stats,
       shadowMapSize: this.renderer.shadowMap.enabled ? this.sun.shadow.mapSize.x : 0,
     };
   }
@@ -195,6 +198,7 @@ export class FlightWorld {
       this.applyPreset();
     // First render occurs after saved settings are applied: load only its LOD.
     this.landcover?.setPreset(this.graphics.preset);
+    this.foliage?.update(this.graphics.preset, flight.position.x, flight.position.z);
     this.time += Math.min(dt, 0.1);
     this.streamer?.update(flight.position, this.time, this.graphics.preset);
     this.photography?.update(flight.position, this.time, this.graphics.preset);
@@ -547,6 +551,11 @@ export class FlightWorld {
     );
   }
   private addTrees(trees: Obstacle[]) {
+    if (this.sector) {
+      this.foliage = new SectorFoliage(trees);
+      this.scene.add(this.foliage.group);
+      return;
+    }
     const crown = new THREE.InstancedMesh(
       this.sector
         ? new THREE.IcosahedronGeometry(1, 0)
