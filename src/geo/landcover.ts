@@ -2,6 +2,7 @@
 import * as THREE from "three";
 import type { Preset } from "../core/graphics";
 import { SECTOR_URL } from "./sector";
+import { configureGround, DETAIL_TEXTURE_BYTES } from "./surface-detail";
 
 /** Bounded, local cartographic texture. Original vertex colours remain a fallback. */
 export class LandcoverSurface {
@@ -11,7 +12,7 @@ export class LandcoverSurface {
   private generation = 0;
   private texture?: THREE.Texture;
   private resolution = 0;
-  constructor(private maxAnisotropy: number) {}
+  constructor(private maxAnisotropy: number) { configureGround(this.material); }
   setPreset(preset: Preset) {
     const size = preset === "high" ? 2048 : 1024;
     if (this.requested === size) return;
@@ -48,6 +49,7 @@ export class LandcoverSurface {
   }
   get stats() {
     return { status: this.status, resolution: this.resolution,
-      estimatedTextureBytes: Math.ceil(this.resolution ** 2 * 4 * 4 / 3) };
+      estimatedTextureBytes: Math.ceil(this.resolution ** 2 * 4 * 4 / 3),
+      detailTextureBytes: DETAIL_TEXTURE_BYTES };
   }
 }
